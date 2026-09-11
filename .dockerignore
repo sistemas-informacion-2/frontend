@@ -1,0 +1,14 @@
+node_modules
+dist
+.git
+.gitignore
+*.tsbuildinfo
+# Los .env versionados SI entran: Vite los necesita al compilar.
+.env.local
+.env.*.local
+*.log
+.vscode
+.idea
+Dockerfile
+.dockerignore
+README.md
