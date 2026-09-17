@@ -26,6 +26,43 @@ export interface RolResumen {
   nombre: string
 }
 
+export interface Permiso {
+  id: number
+  accion: string
+  descripcion: string | null
+  modulo: string
+  activo: boolean
+}
+
+export interface PermisoGrupo {
+  modulo: string
+  permisos: Permiso[]
+}
+
+export interface Rol {
+  id: number
+  nombre: string
+  descripcion: string | null
+  activo: boolean
+  fechaCreacion: string
+  cantidadUsuarios: number
+  permisos: Permiso[]
+}
+
+export interface RolesQuery {
+  search?: string
+  activo?: boolean
+}
+
+export interface CrearRolPayload {
+  nombre: string
+  descripcion: string
+}
+
+export interface ActualizarRolPayload extends Partial<CrearRolPayload> {
+  activo?: boolean
+}
+
 export interface Usuario {
   id: number
   nombre: string

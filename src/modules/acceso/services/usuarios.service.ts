@@ -1,13 +1,13 @@
 import { httpClient } from '@/core/http/httpClient'
 import type {
   EstadoAcceso,
-  RolResumen,
   TipoUsuario,
   Usuario,
   UsuarioFormValues,
   UsuariosPaginatedResponse,
   UsuariosQuery,
 } from '../types'
+import { listarRolesActivos } from './roles.service'
 
 interface Envelope<T> {
   data: T
@@ -35,10 +35,7 @@ export async function listarUsuarios(query: UsuariosQuery): Promise<UsuariosPagi
   return response.data.data
 }
 
-export async function listarRoles(): Promise<RolResumen[]> {
-  const response = await httpClient.get<Envelope<RolResumen[]>>('/acceso/roles')
-  return response.data.data
-}
+export const listarRoles = listarRolesActivos
 
 export async function crearUsuario(values: UsuarioFormValues): Promise<Usuario> {
   const response = await httpClient.post<Envelope<Usuario>>('/acceso/usuarios', {

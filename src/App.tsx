@@ -5,6 +5,7 @@ import { CarritoProvider } from '@/core/context/CarritoContext'
 import { ThemeProvider } from '@/core/providers/ThemeProvider'
 import { DashboardPage } from '@/modules/acceso/pages/Dashboard/DashboardPage'
 import { LoginPage } from '@/modules/acceso/pages/LoginPage/LoginPage'
+import { RolesPage } from '@/modules/acceso/pages/RolesPage/RolesPage'
 import { UsuariosPage } from '@/modules/acceso/pages/UsuariosPage/UsuariosPage'
 import { CatalogoPage } from '@/modules/comercial/pages/CatalogoPage/CatalogoPage'
 import { ComingSoonPage } from '@/shared/components/ComingSoonPage'
@@ -31,6 +32,14 @@ function App() {
 
                 <Route path="/admin" element={<ProtectedLayout />}>
                    <Route path="dashboard" element={<DashboardPage />} />
+                  <Route
+                    path="roles"
+                    element={
+                      <PermissionRoute permission="acceso:roles:gestionar">
+                        <RolesPage />
+                      </PermissionRoute>
+                    }
+                  />
                   <Route
                     path="usuarios"
                     element={
