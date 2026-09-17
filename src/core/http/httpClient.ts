@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { env } from '@/core/config/env'
 import { useAuthStore } from '@/core/store/authStore'
+import type { Envelope } from './envelope'
 import type { AuthResponse } from '@/modules/acceso/types'
 
 export const httpClient = axios.create({ baseURL: env.apiUrl })
@@ -20,7 +21,7 @@ async function refreshAccessToken(): Promise<string | null> {
   if (!refreshToken) return null
 
   try {
-    const response = await axios.post<{ data: AuthResponse }>(
+    const response = await axios.post<Envelope<AuthResponse>>(
       `${env.apiUrl}/acceso/auth/refresh`,
       { refreshToken },
     )

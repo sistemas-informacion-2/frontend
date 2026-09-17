@@ -1,22 +1,18 @@
 import { httpClient } from '@/core/http/httpClient'
-import type { AuthResponse, Perfil } from './types'
-
-interface Envelope<T> {
-  data: T
-  timestamp: string
-}
+import { unwrap, type Envelope } from '@/core/http/envelope'
+import type { AuthResponse, Perfil } from '../types'
 
 export async function login(email: string, password: string): Promise<AuthResponse> {
   const response = await httpClient.post<Envelope<AuthResponse>>('/acceso/auth/login', {
     email,
     password,
   })
-  return response.data.data
+  return unwrap(response)
 }
 
 export async function me(): Promise<Perfil> {
   const response = await httpClient.get<Envelope<Perfil>>('/acceso/auth/me')
-  return response.data.data
+  return unwrap(response)
 }
 
 export async function logout(refreshToken: string): Promise<void> {

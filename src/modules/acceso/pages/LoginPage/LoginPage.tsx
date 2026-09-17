@@ -1,6 +1,6 @@
-import { isAxiosError } from 'axios'
 import { type FormEvent, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { getApiErrorMessage, getApiStatus } from '@/core/http/errors'
 import { useAuthStore } from '@/core/store/authStore'
 import { login } from '@/modules/acceso/api'
 import { LoginPageView } from './LoginPage.view'
@@ -43,11 +43,6 @@ export function LoginPage() {
 }
 
 function extraerMensajeError(err: unknown): string {
-  if (isAxiosError(err)) {
-    if (err.response?.status === 423) return 'Cuenta bloqueada por intentos fallidos. Contacta a un administrador.'
-    const message = err.response?.data?.message
-    if (Array.isArray(message)) return message[0]
-    if (typeof message === 'string') return message
-  }
-  return 'No se pudo iniciar sesión. Intenta nuevamente.'
+  if (getApiStatus(err) === 423) return 'Cuenta bloqueada por intentos fallidos. Contacta a un administrador.'
+  return getApiErrorMessage(err, 'No se pudo iniciar sesión. Intenta nuevamente.')
 }

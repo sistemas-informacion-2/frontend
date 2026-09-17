@@ -1,5 +1,5 @@
 import { useAuthStore } from '@/core/store/authStore'
-import { useCategorias, useProductos } from '@/modules/inventario/api'
+import { useCategorias, useProductos } from '@/modules/inventario/hooks'
 import { CatalogoPageView } from './CatalogoPage.view'
 
 export function CatalogoPage() {

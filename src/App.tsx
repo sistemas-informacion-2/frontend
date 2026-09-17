@@ -5,10 +5,12 @@ import { CarritoProvider } from '@/core/context/CarritoContext'
 import { ThemeProvider } from '@/core/providers/ThemeProvider'
 import { DashboardPage } from '@/modules/acceso/pages/Dashboard/DashboardPage'
 import { LoginPage } from '@/modules/acceso/pages/LoginPage/LoginPage'
+import { UsuariosPage } from '@/modules/acceso/pages/UsuariosPage/UsuariosPage'
 import { CatalogoPage } from '@/modules/comercial/pages/CatalogoPage/CatalogoPage'
 import { ComingSoonPage } from '@/shared/components/ComingSoonPage'
 import { ProtectedLayout } from '@/shared/components/layout/ProtectedLayout'
 import { PublicLayout } from '@/shared/components/layout/PublicLayout'
+import { PermissionRoute } from '@/shared/components/routing/PermissionRoute'
 
 function App() {
   return (
@@ -28,7 +30,15 @@ function App() {
                 </Route>
 
                 <Route path="/admin" element={<ProtectedLayout />}>
-                  <Route path="dashboard" element={<DashboardPage />} />
+                   <Route path="dashboard" element={<DashboardPage />} />
+                  <Route
+                    path="usuarios"
+                    element={
+                      <PermissionRoute permission="acceso:usuarios:gestionar">
+                        <UsuariosPage />
+                      </PermissionRoute>
+                    }
+                  />
                   <Route path="*" element={<ComingSoonPage />} />
                 </Route>
 
