@@ -29,21 +29,24 @@ export function CatalogoPageView({ categorias, productos, cargando, mostrarInvit
           </div>
         ) : productos.length > 0 ? (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 md:grid-cols-4">
-            {productos.map((producto) => (
-              <div key={producto.id} className="group">
-                <div className="aspect-3/4 w-full overflow-hidden rounded-lg bg-neutral-100 dark:bg-neutral-800">
-                  {producto.imagenPrincipalUrl && (
-                    <img
-                      src={producto.imagenPrincipalUrl}
-                      alt={producto.nombre}
-                      className="h-full w-full object-cover transition-transform group-hover:scale-105"
-                    />
-                  )}
+            {productos.map((producto) => {
+              const imagenPrincipal = producto.imagenes.find((imagen) => imagen.esPrincipal) ?? producto.imagenes[0]
+              return (
+                <div key={producto.id} className="group">
+                  <div className="aspect-3/4 w-full overflow-hidden rounded-lg bg-neutral-100 dark:bg-neutral-800">
+                    {imagenPrincipal && (
+                      <img
+                        src={imagenPrincipal.url}
+                        alt={producto.nombre}
+                        className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                      />
+                    )}
+                  </div>
+                  <p className="mt-2 text-sm font-medium dark:text-white">{producto.nombre}</p>
+                  <p className="text-sm text-neutral-500 dark:text-neutral-400">Bs {producto.precio}</p>
                 </div>
-                <p className="mt-2 text-sm font-medium dark:text-white">{producto.nombre}</p>
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">Bs {producto.precioBase}</p>
-              </div>
-            ))}
+              )
+            })}
           </div>
         ) : (
           <EmptyState
