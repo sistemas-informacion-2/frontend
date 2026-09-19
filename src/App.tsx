@@ -5,8 +5,11 @@ import { CarritoProvider } from '@/core/context/CarritoContext'
 import { ThemeProvider } from '@/core/providers/ThemeProvider'
 import { DashboardPage } from '@/modules/acceso/pages/Dashboard/DashboardPage'
 import { LoginPage } from '@/modules/acceso/pages/LoginPage/LoginPage'
+import { PerfilPage } from '@/modules/acceso/pages/PerfilPage/PerfilPage'
 import { RolesPage } from '@/modules/acceso/pages/RolesPage/RolesPage'
 import { UsuariosPage } from '@/modules/acceso/pages/UsuariosPage/UsuariosPage'
+import { ClientesPage } from '@/modules/operaciones/pages/ClientesPage/ClientesPage'
+import { EmpleadosPage } from '@/modules/operaciones/pages/EmpleadosPage/EmpleadosPage'
 import { CatalogoPage } from '@/modules/comercial/pages/CatalogoPage/CatalogoPage'
 import { ComingSoonPage } from '@/shared/components/ComingSoonPage'
 import { ProtectedLayout } from '@/shared/components/layout/ProtectedLayout'
@@ -32,6 +35,7 @@ function App() {
 
                 <Route path="/admin" element={<ProtectedLayout />}>
                    <Route path="dashboard" element={<DashboardPage />} />
+                  <Route path="perfil" element={<PerfilPage />} />
                   <Route
                     path="roles"
                     element={
@@ -45,6 +49,22 @@ function App() {
                     element={
                       <PermissionRoute permission="acceso:usuarios:gestionar">
                         <UsuariosPage />
+                      </PermissionRoute>
+                    }
+                  />
+                  <Route
+                    path="clientes"
+                    element={
+                      <PermissionRoute permission="acceso:clientes:gestionar">
+                        <ClientesPage />
+                      </PermissionRoute>
+                    }
+                  />
+                  <Route
+                    path="empleados"
+                    element={
+                      <PermissionRoute permission="operaciones:empleados:gestionar">
+                        <EmpleadosPage />
                       </PermissionRoute>
                     }
                   />

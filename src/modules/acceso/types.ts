@@ -11,6 +11,32 @@ export interface Perfil {
   sucursalId?: number
   sucursalNombre?: string
   puntosFidelidad?: number
+  direccion?: string | null
+}
+
+export interface ActualizarPerfilPayload {
+  nombre: string
+  apellido: string
+  telefono: string | null
+  direccion?: string | null
+}
+
+export interface CambiarPasswordPayload {
+  passwordActual: string
+  nuevaPassword: string
+}
+
+export interface PerfilFormValues {
+  nombre: string
+  apellido: string
+  telefono: string
+  direccion: string
+}
+
+export interface CambiarPasswordFormValues {
+  passwordActual: string
+  nuevaPassword: string
+  confirmarPassword: string
 }
 
 export interface AuthResponse {
