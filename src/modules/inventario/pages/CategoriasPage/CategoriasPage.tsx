@@ -1,5 +1,5 @@
 import { isAxiosError } from 'axios'
-import { useState, type FormEvent } from 'react'
+import { useDeferredValue, useState, type FormEvent } from 'react'
 import useSWR from 'swr'
 import { useAuthStore } from '@/core/store/authStore'
 import { CategoriaForm } from '@/modules/inventario/components/CategoriaForm'
@@ -7,6 +7,7 @@ import {
   actualizarCategoria,
   aplanarCategorias,
   crearCategoria,
+  filtrarArbolCategorias,
   listarCategoriasTodas,
   obtenerDescendientesIds,
 } from '@/modules/inventario/services/categorias.service'
@@ -31,6 +32,8 @@ export function CategoriasPage() {
   const [form, setForm] = useState<CategoriaFormValues>(EMPTY_FORM)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [search, setSearch] = useState('')
+  const [activo, setActivo] = useState<'true' | 'false' | ''>('')
 
   const { data: categorias = [], error: categoriasError, isLoading, mutate } = useSWR(
     'categorias-todas',
@@ -42,6 +45,12 @@ export function CategoriasPage() {
   const todasPlanas = aplanarCategorias(categorias)
   const excluidos = editing ? obtenerDescendientesIds(editing) : new Set<number>()
   const padresDisponibles = todasPlanas.filter((categoria) => !excluidos.has(categoria.id))
+
+  const deferredSearch = useDeferredValue(search)
+  const categoriasFiltradas = filtrarArbolCategorias(categorias, {
+    texto: deferredSearch,
+    activo: activo === '' ? undefined : activo === 'true',
+  })
 
   const updateForm = <K extends keyof CategoriaFormValues>(field: K, value: CategoriaFormValues[K]) => {
     setForm((current) => ({ ...current, [field]: value }))
@@ -113,12 +122,22 @@ export function CategoriasPage() {
     }
   }
 
+  const clearFilters = () => {
+    setSearch('')
+    setActivo('')
+  }
+
   return (
     <CategoriasPageView
-      categorias={categorias}
+      categorias={categoriasFiltradas}
       loading={isLoading}
       error={error || (categoriasError ? extraerMensajeError(categoriasError) : null)}
+      search={search}
+      activo={activo}
       canManage={canManage}
+      onSearch={setSearch}
+      onActivo={setActivo}
+      onClearFilters={clearFilters}
       onCreate={openCreate}
       onEdit={openEdit}
       onToggleActivo={handleToggleActivo}

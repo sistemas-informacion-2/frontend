@@ -86,8 +86,13 @@ export interface VarianteProducto {
   talla: string
   color: string
   corte: string
-  codigoHexColor: string | null
   modelo3dUrl: string | null
+  activo: boolean
+}
+
+export interface SucursalActiva {
+  id: number
+  nombre: string
   activo: boolean
 }
 
@@ -99,8 +104,7 @@ export interface Producto {
   activo: boolean
   categoriaId: number
   categoriaNombre: string
-  sucursalId: number | null
-  sucursalNombre: string | null
+  sucursales: SucursalActiva[]
   imagenes: ImagenProducto[]
   variantes: VarianteProducto[]
 }
@@ -136,18 +140,17 @@ export interface VarianteProductoFormValues {
   talla: string
   color: string
   corte: string
-  codigoHexColor: string
   modelo3dUrl: string
   activo: boolean
 }
 
 export interface ProductoFormValues {
   idCategoria: number | ''
-  idSucursal: number | ''
   nombre: string
   descripcion: string
   precio: string
   activo: boolean
+  sucursalIds: number[]
   imagenes: ImagenProductoFormValues[]
   variantes: VarianteProductoFormValues[]
 }

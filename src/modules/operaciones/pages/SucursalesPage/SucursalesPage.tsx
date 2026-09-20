@@ -1,5 +1,5 @@
 import { isAxiosError } from 'axios'
-import { useState, type FormEvent } from 'react'
+import { useDeferredValue, useState, type FormEvent } from 'react'
 import useSWR from 'swr'
 import { useAuthStore } from '@/core/store/authStore'
 import { SucursalForm } from '@/modules/operaciones/components/SucursalForm'
@@ -33,9 +33,20 @@ export function SucursalesPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [creandoCiudad, setCreandoCiudad] = useState(false)
+  const [search, setSearch] = useState('')
+  const [activo, setActivo] = useState<'true' | 'false' | ''>('')
 
   const { data: sucursales = [], error: sucursalesError, isLoading, mutate } = useSWR('sucursales', listarSucursales, {
     revalidateOnFocus: false,
+  })
+
+  const deferredSearch = useDeferredValue(search)
+  const sucursalesFiltradas = sucursales.filter((sucursal) => {
+    if (activo !== '' && sucursal.activo !== (activo === 'true')) return false
+    const texto = deferredSearch.trim().toLowerCase()
+    if (!texto) return true
+    return [sucursal.nombre, sucursal.ciudadNombre, sucursal.departamentoNombre, sucursal.ubicacion]
+      .some((campo) => campo.toLowerCase().includes(texto))
   })
   const { data: ciudades = [], error: ciudadesError, mutate: mutateCiudades } = useSWR('ciudades', listarCiudades, {
     revalidateOnFocus: false,
@@ -131,15 +142,25 @@ export function SucursalesPage() {
     }
   }
 
+  const clearFilters = () => {
+    setSearch('')
+    setActivo('')
+  }
+
   return (
     <SucursalesPageView
-      sucursales={sucursales}
+      sucursales={sucursalesFiltradas}
       ciudadesError={
         ciudadesError || departamentosError ? 'No se pudieron cargar las ciudades o departamentos.' : null
       }
       loading={isLoading}
       error={error || (sucursalesError ? extraerMensajeError(sucursalesError) : null)}
+      search={search}
+      activo={activo}
       canManage={canManage}
+      onSearch={setSearch}
+      onActivo={setActivo}
+      onClearFilters={clearFilters}
       onCreate={openCreate}
       onEdit={openEdit}
       onToggleActivo={handleToggleActivo}

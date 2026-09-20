@@ -1,10 +1,10 @@
 import { isAxiosError } from 'axios'
-import { useState, type FormEvent } from 'react'
+import { useDeferredValue, useState, type FormEvent } from 'react'
 import useSWR from 'swr'
 import { useAuthStore } from '@/core/store/authStore'
 import { TemporadaForm } from '@/modules/inventario/components/TemporadaForm'
 import { actualizarTemporada, crearTemporada, eliminarTemporada, listarTemporadas } from '@/modules/inventario/services/temporadas.service'
-import type { Temporada, TemporadaFormValues } from '@/modules/inventario/types'
+import type { EstadoTemporada, Temporada, TemporadaFormValues } from '@/modules/inventario/types'
 import { TemporadasPageView } from './TemporadasPage.view'
 
 const EMPTY_FORM: TemporadaFormValues = {
@@ -21,12 +21,22 @@ export function TemporadasPage() {
   const [form, setForm] = useState<TemporadaFormValues>(EMPTY_FORM)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [search, setSearch] = useState('')
+  const [estado, setEstado] = useState<EstadoTemporada | ''>('')
 
   const { data: temporadas = [], error: temporadasError, isLoading, mutate } = useSWR(
     'temporadas',
     listarTemporadas,
     { revalidateOnFocus: false },
   )
+
+  const deferredSearch = useDeferredValue(search)
+  const temporadasFiltradas = temporadas.filter((temporada) => {
+    if (estado !== '' && temporada.estado !== estado) return false
+    const texto = deferredSearch.trim().toLowerCase()
+    if (!texto) return true
+    return temporada.nombre.toLowerCase().includes(texto) || (temporada.descripcion ?? '').toLowerCase().includes(texto)
+  })
 
   const updateForm = <K extends keyof TemporadaFormValues>(field: K, value: TemporadaFormValues[K]) => {
     setForm((current) => ({ ...current, [field]: value }))
@@ -90,12 +100,22 @@ export function TemporadasPage() {
     }
   }
 
+  const clearFilters = () => {
+    setSearch('')
+    setEstado('')
+  }
+
   return (
     <TemporadasPageView
-      temporadas={temporadas}
+      temporadas={temporadasFiltradas}
       loading={isLoading}
       error={error || (temporadasError ? extraerMensajeError(temporadasError) : null)}
+      search={search}
+      estado={estado}
       canManage={canManage}
+      onSearch={setSearch}
+      onEstado={setEstado}
+      onClearFilters={clearFilters}
       onCreate={openCreate}
       onEdit={openEdit}
       onDelete={handleDelete}

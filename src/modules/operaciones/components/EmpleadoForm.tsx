@@ -4,9 +4,15 @@ import { Input } from '@/shared/components/ui/Input'
 import { Select } from '@/shared/components/ui/Select'
 import type { EmpleadoFormValues } from '../types'
 
+interface SucursalOpcion {
+  id: number
+  nombre: string
+}
+
 interface EmpleadoFormProps {
   values: EmpleadoFormValues
   codigoEmpleado?: string
+  sucursales: SucursalOpcion[]
   editing: boolean
   loading: boolean
   error: string | null
@@ -15,7 +21,12 @@ interface EmpleadoFormProps {
   onCancel: () => void
 }
 
-export function EmpleadoForm({ values, codigoEmpleado, editing, loading, error, onChange, onSubmit, onCancel }: EmpleadoFormProps) {
+export function EmpleadoForm({ values, codigoEmpleado, sucursales, editing, loading, error, onChange, onSubmit, onCancel }: EmpleadoFormProps) {
+  const toggleSucursal = (id: number) => {
+    const seleccionada = values.sucursalIds.includes(id)
+    onChange('sucursalIds', seleccionada ? values.sucursalIds.filter((sid) => sid !== id) : [...values.sucursalIds, id])
+  }
+
   return (
     <form onSubmit={onSubmit} className="space-y-5">
       <div className="grid gap-4 sm:grid-cols-2">
@@ -89,6 +100,24 @@ export function EmpleadoForm({ values, codigoEmpleado, editing, loading, error, 
           />
         )}
       </div>
+
+      <fieldset>
+          <legend className="mb-2 text-sm font-medium text-neutral-700 dark:text-neutral-300">
+            Sucursales asignadas <span className="font-normal text-neutral-500">— opcional</span>
+          </legend>
+          {sucursales.length === 0 ? (
+            <p className="text-sm text-neutral-500 dark:text-neutral-400">No hay sucursales registradas.</p>
+          ) : (
+            <div className="grid gap-2 sm:grid-cols-2">
+              {sucursales.map((sucursal) => (
+                <label key={sucursal.id} className="flex items-center gap-2 rounded-md border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-800">
+                  <input type="checkbox" checked={values.sucursalIds.includes(sucursal.id)} onChange={() => toggleSucursal(sucursal.id)} />
+                  <span className="dark:text-neutral-200">{sucursal.nombre}</span>
+                </label>
+              ))}
+            </div>
+          )}
+      </fieldset>
 
       {error && <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/50 dark:text-red-300">{error}</p>}
 

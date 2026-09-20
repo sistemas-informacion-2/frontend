@@ -2,6 +2,7 @@ import type { FormEvent } from 'react'
 import { Button } from '@/shared/components/ui/Button'
 import { Input } from '@/shared/components/ui/Input'
 import { Select } from '@/shared/components/ui/Select'
+import { ImageUploadField } from '@/shared/components/ui/ImageUploadField'
 import { generarSlug } from '@/modules/inventario/services/categorias.service'
 import type { CategoriaFormValues, CategoriaPlana, Temporada } from '../types'
 
@@ -69,12 +70,7 @@ export function CategoriaForm({
             </option>
           ))}
         </Select>
-        <Input
-          label="Imagen (URL)"
-          maxLength={500}
-          value={values.imagenUrl}
-          onChange={(event) => onChange('imagenUrl', event.target.value)}
-        />
+        <ImageUploadField label="Imagen de categoría" value={values.imagenUrl} onChange={(url) => onChange('imagenUrl', url)} disabled={loading} />
         {editing && (
           <Select label="Estado" value={values.activo ? 'true' : 'false'} onChange={(event) => onChange('activo', event.target.value === 'true')}>
             <option value="true">Activa</option>

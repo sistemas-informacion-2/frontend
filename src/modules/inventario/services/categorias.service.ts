@@ -64,6 +64,35 @@ export function buscarCategoriaPorId(categorias: Categoria[], id: number): Categ
   return null
 }
 
+/**
+ * Filtra el árbol conservando un nodo si el mismo cumple los criterios, o si
+ * alguno de sus descendientes los cumple (para mantener visible el camino
+ * hasta la coincidencia). El filtro de "activo" solo se evalúa por nodo.
+ */
+export function filtrarArbolCategorias(
+  categorias: Categoria[],
+  criterios: { texto?: string; activo?: boolean },
+): Categoria[] {
+  const texto = criterios.texto?.trim().toLowerCase() ?? ''
+
+  const coincide = (categoria: Categoria): boolean => {
+    if (criterios.activo !== undefined && categoria.activo !== criterios.activo) return false
+    if (!texto) return true
+    return categoria.nombre.toLowerCase().includes(texto) || categoria.slug.toLowerCase().includes(texto)
+  }
+
+  const filtrar = (nodos: Categoria[]): Categoria[] =>
+    nodos.reduce<Categoria[]>((resultado, categoria) => {
+      const hijosFiltrados = filtrar(categoria.hijos)
+      if (coincide(categoria) || hijosFiltrados.length > 0) {
+        resultado.push({ ...categoria, hijos: hijosFiltrados })
+      }
+      return resultado
+    }, [])
+
+  return filtrar(categorias)
+}
+
 export function generarSlug(nombre: string): string {
   return nombre
     .trim()

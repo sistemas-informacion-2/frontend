@@ -2,6 +2,7 @@ import type { FormEvent } from 'react'
 import { Button } from '@/shared/components/ui/Button'
 import { Input } from '@/shared/components/ui/Input'
 import { Select } from '@/shared/components/ui/Select'
+import { ImageUploadField } from '@/shared/components/ui/ImageUploadField'
 import type { CategoriaPlana, ImagenProductoFormValues, ProductoFormValues, VarianteProductoFormValues } from '../types'
 
 interface SucursalOpcion {
@@ -26,7 +27,6 @@ const EMPTY_VARIANTE: VarianteProductoFormValues = {
   talla: '',
   color: '',
   corte: '',
-  codigoHexColor: '',
   modelo3dUrl: '',
   activo: true,
 }
@@ -52,6 +52,11 @@ export function ProductoForm({
   const updateImagen = <K extends keyof ImagenProductoFormValues>(index: number, field: K, value: ImagenProductoFormValues[K]) => {
     const siguiente = values.imagenes.map((imagen, i) => (i === index ? { ...imagen, [field]: value } : imagen))
     onChange('imagenes', siguiente)
+  }
+
+  const toggleSucursal = (id: number) => {
+    const seleccionada = values.sucursalIds.includes(id)
+    onChange('sucursalIds', seleccionada ? values.sucursalIds.filter((sid) => sid !== id) : [...values.sucursalIds, id])
   }
 
   return (
@@ -86,18 +91,6 @@ export function ProductoForm({
             </option>
           ))}
         </Select>
-        <Select
-          label="Sucursal (opcional)"
-          value={values.idSucursal}
-          onChange={(event) => onChange('idSucursal', event.target.value ? Number(event.target.value) : '')}
-        >
-          <option value="">Catálogo general (todas las sucursales)</option>
-          {sucursales.map((sucursal) => (
-            <option key={sucursal.id} value={sucursal.id}>
-              {sucursal.nombre}
-            </option>
-          ))}
-        </Select>
         {editing && (
           <Select label="Estado" value={values.activo ? 'true' : 'false'} onChange={(event) => onChange('activo', event.target.value === 'true')}>
             <option value="true">Activo</option>
@@ -121,6 +114,24 @@ export function ProductoForm({
 
       {!editing && (
         <>
+          <fieldset>
+            <legend className="mb-2 text-sm font-semibold text-neutral-900 dark:text-white">
+              Sucursales activas <span className="font-normal text-neutral-500">— opcional, se puede definir después</span>
+            </legend>
+            {sucursales.length === 0 ? (
+              <p className="text-sm text-neutral-500 dark:text-neutral-400">No hay sucursales registradas.</p>
+            ) : (
+              <div className="grid gap-2 sm:grid-cols-2">
+                {sucursales.map((sucursal) => (
+                  <label key={sucursal.id} className="flex items-center gap-2 rounded-md border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-800">
+                    <input type="checkbox" checked={values.sucursalIds.includes(sucursal.id)} onChange={() => toggleSucursal(sucursal.id)} />
+                    <span className="dark:text-neutral-200">{sucursal.nombre}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </fieldset>
+
           <fieldset className="space-y-3">
             <div className="flex items-center justify-between">
               <legend className="text-sm font-semibold text-neutral-900 dark:text-white">
@@ -142,7 +153,6 @@ export function ProductoForm({
                     <Input label="Talla" required value={variante.talla} onChange={(event) => updateVariante(index, 'talla', event.target.value)} />
                     <Input label="Color" required value={variante.color} onChange={(event) => updateVariante(index, 'color', event.target.value)} />
                     <Input label="Corte" required value={variante.corte} onChange={(event) => updateVariante(index, 'corte', event.target.value)} />
-                    <Input label="Código hex (opcional)" placeholder="#FF00AA" value={variante.codigoHexColor} onChange={(event) => updateVariante(index, 'codigoHexColor', event.target.value)} />
                     <Input label="Modelo 3D URL (opcional)" value={variante.modelo3dUrl} onChange={(event) => updateVariante(index, 'modelo3dUrl', event.target.value)} />
                   </div>
                   {values.variantes.length > 1 && (
@@ -175,7 +185,7 @@ export function ProductoForm({
                 <div key={index} className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800">
                   <div className="grid gap-2 sm:grid-cols-3">
                     <div className="sm:col-span-2">
-                      <Input label="URL de la imagen" required value={imagen.url} onChange={(event) => updateImagen(index, 'url', event.target.value)} />
+                      <ImageUploadField label={`Imagen ${index + 1}`} value={imagen.url} onChange={(url) => updateImagen(index, 'url', url)} disabled={loading} />
                     </div>
                     <Input
                       label="Orden"
@@ -201,6 +211,31 @@ export function ProductoForm({
             </div>
           </fieldset>
         </>
+      )}
+
+      {editing && (
+        <fieldset>
+          <legend className="mb-2 text-sm font-medium text-neutral-700 dark:text-neutral-300">Sucursales activas</legend>
+          {sucursales.length === 0 ? (
+            <p className="text-sm text-neutral-500 dark:text-neutral-400">No hay sucursales registradas.</p>
+          ) : (
+            <div className="grid gap-2 sm:grid-cols-2">
+              {sucursales.map((sucursal) => (
+                <label key={sucursal.id} className="flex items-center gap-2 rounded-md border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-800">
+                  <input
+                    type="checkbox"
+                    checked={values.sucursalIds.includes(sucursal.id)}
+                    onChange={() => {
+                      const seleccionada = values.sucursalIds.includes(sucursal.id)
+                      onChange('sucursalIds', seleccionada ? values.sucursalIds.filter((id) => id !== sucursal.id) : [...values.sucursalIds, sucursal.id])
+                    }}
+                  />
+                  <span className="dark:text-neutral-200">{sucursal.nombre}</span>
+                </label>
+              ))}
+            </div>
+          )}
+        </fieldset>
       )}
 
       {error && <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/50 dark:text-red-300">{error}</p>}

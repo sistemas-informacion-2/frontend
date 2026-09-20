@@ -6,6 +6,7 @@ import { ThemeProvider } from '@/core/providers/ThemeProvider'
 import { DashboardPage } from '@/modules/acceso/pages/Dashboard/DashboardPage'
 import { LoginPage } from '@/modules/acceso/pages/LoginPage/LoginPage'
 import { PerfilPage } from '@/modules/acceso/pages/PerfilPage/PerfilPage'
+import { BitacoraPage } from '@/modules/acceso/pages/BitacoraPage/BitacoraPage'
 import { RolesPage } from '@/modules/acceso/pages/RolesPage/RolesPage'
 import { UsuariosPage } from '@/modules/acceso/pages/UsuariosPage/UsuariosPage'
 import { CategoriasPage } from '@/modules/inventario/pages/CategoriasPage/CategoriasPage'
@@ -41,6 +42,7 @@ function App() {
                 <Route path="/admin" element={<ProtectedLayout />}>
                   <Route path="dashboard" element={<DashboardPage />} />
                   <Route path="perfil" element={<PerfilPage />} />
+                  <Route path="bitacora" element={<PermissionRoute permission="acceso:bitacora:leer"><BitacoraPage /></PermissionRoute>} />
                   <Route path="roles" element={<PermissionRoute permission="acceso:roles:gestionar"><RolesPage /></PermissionRoute>} />
                   <Route path="usuarios" element={<PermissionRoute permission="acceso:usuarios:gestionar"><UsuariosPage /></PermissionRoute>} />
                   <Route path="clientes" element={<PermissionRoute permission="acceso:clientes:gestionar"><ClientesPage /></PermissionRoute>} />

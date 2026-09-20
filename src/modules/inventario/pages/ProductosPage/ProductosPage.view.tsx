@@ -18,6 +18,9 @@ interface ProductosPageViewProps {
   idCategoria: number | ''
   activo: 'true' | 'false' | ''
   categoriasPlanas: CategoriaPlana[]
+  sucursales: { id: number; nombre: string }[]
+  idSucursal: number | ''
+  onSucursal: (value: number | '') => void
   canManage: boolean
   modal: ReactNode
   onSearch: (value: string) => void
@@ -39,6 +42,9 @@ export function ProductosPageView({
   idCategoria,
   activo,
   categoriasPlanas,
+  sucursales,
+  idSucursal,
+  onSucursal,
   canManage,
   modal,
   onSearch,
@@ -61,7 +67,7 @@ export function ProductosPageView({
       </div>
 
       <section className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-4">
           <Input label="Buscar" placeholder="Nombre o descripción" value={search} onChange={(event) => onSearch(event.target.value)} />
           <Select label="Categoría" value={idCategoria} onChange={(event) => onCategoria(event.target.value ? Number(event.target.value) : '')}>
             <option value="">Todas</option>
@@ -69,6 +75,12 @@ export function ProductosPageView({
               <option key={categoria.id} value={categoria.id}>
                 {'—'.repeat(categoria.nivel)} {categoria.nombre}
               </option>
+            ))}
+          </Select>
+          <Select label="Sucursal" value={idSucursal} onChange={(event) => onSucursal(event.target.value ? Number(event.target.value) : '')}>
+            <option value="">Todas (vista general)</option>
+            {sucursales.map((sucursal) => (
+              <option key={sucursal.id} value={sucursal.id}>{sucursal.nombre}</option>
             ))}
           </Select>
           <Select label="Estado" value={activo} onChange={(event) => onActivo(event.target.value as 'true' | 'false' | '')}>
@@ -100,6 +112,7 @@ export function ProductosPageView({
                     <th className="px-4 py-3 font-medium">Categoría</th>
                     <th className="px-4 py-3 font-medium">Precio</th>
                     <th className="px-4 py-3 font-medium">Variantes</th>
+                    <th className="px-4 py-3 font-medium">Sucursales</th>
                     <th className="px-4 py-3 font-medium">Estado</th>
                     <th className="px-4 py-3 text-right font-medium">Acciones</th>
                   </tr>
@@ -108,6 +121,7 @@ export function ProductosPageView({
                   {productos.map((producto) => {
                     const imagenPrincipal = producto.imagenes.find((imagen) => imagen.esPrincipal) ?? producto.imagenes[0]
                     const variantesActivas = producto.variantes.filter((variante) => variante.activo).length
+                    const sucursalesActivas = producto.sucursales.filter((sucursal) => sucursal.activo).length
                     return (
                       <tr key={producto.id} className="text-neutral-700 dark:text-neutral-300">
                         <td className="px-4 py-3">
@@ -115,17 +129,19 @@ export function ProductosPageView({
                             <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-md bg-neutral-100 dark:bg-neutral-800">
                               {imagenPrincipal && <img src={imagenPrincipal.url} alt="" className="h-full w-full object-cover" />}
                             </div>
-                            <div>
-                              <p className="font-medium text-neutral-900 dark:text-white">{producto.nombre}</p>
-                              {producto.sucursalNombre && (
-                                <p className="text-xs text-neutral-500 dark:text-neutral-400">Sucursal: {producto.sucursalNombre}</p>
-                              )}
-                            </div>
+                            <p className="font-medium text-neutral-900 dark:text-white">{producto.nombre}</p>
                           </div>
                         </td>
                         <td className="px-4 py-3">{producto.categoriaNombre}</td>
                         <td className="px-4 py-3">Bs {producto.precio.toFixed(2)}</td>
                         <td className="px-4 py-3">{variantesActivas} / {producto.variantes.length}</td>
+                        <td className="px-4 py-3">
+                          {sucursalesActivas === 0 ? (
+                            <span className="text-xs text-neutral-400 dark:text-neutral-500">Sin activar</span>
+                          ) : (
+                            `${sucursalesActivas} sucursal${sucursalesActivas === 1 ? '' : 'es'}`
+                          )}
+                        </td>
                         <td className="px-4 py-3">
                           <Badge tone={producto.activo ? 'success' : 'neutral'}>{producto.activo ? 'Activo' : 'Inactivo'}</Badge>
                         </td>

@@ -2,7 +2,9 @@ import type { ReactNode } from 'react'
 import { Badge } from '@/shared/components/ui/Badge'
 import { Button } from '@/shared/components/ui/Button'
 import { EmptyState } from '@/shared/components/ui/EmptyState'
+import { Input } from '@/shared/components/ui/Input'
 import { Modal } from '@/shared/components/ui/Modal'
+import { Select } from '@/shared/components/ui/Select'
 import { Skeleton } from '@/shared/components/ui/Skeleton'
 import type { Sucursal } from '@/modules/operaciones/types'
 
@@ -11,8 +13,13 @@ interface SucursalesPageViewProps {
   ciudadesError: string | null
   loading: boolean
   error: string | null
+  search: string
+  activo: 'true' | 'false' | ''
   canManage: boolean
   modal: ReactNode
+  onSearch: (value: string) => void
+  onActivo: (value: 'true' | 'false' | '') => void
+  onClearFilters: () => void
   onCreate: () => void
   onEdit: (sucursal: Sucursal) => void
   onToggleActivo: (sucursal: Sucursal) => void
@@ -24,8 +31,13 @@ export function SucursalesPageView({
   ciudadesError,
   loading,
   error,
+  search,
+  activo,
   canManage,
   modal,
+  onSearch,
+  onActivo,
+  onClearFilters,
   onCreate,
   onEdit,
   onToggleActivo,
@@ -41,6 +53,22 @@ export function SucursalesPageView({
         {canManage && <Button onClick={onCreate}>Nueva sucursal</Button>}
       </div>
 
+      <section className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
+        <div className="grid gap-4 md:grid-cols-2">
+          <Input label="Buscar" placeholder="Nombre, ciudad o dirección" value={search} onChange={(event) => onSearch(event.target.value)} />
+          <Select label="Estado" value={activo} onChange={(event) => onActivo(event.target.value as 'true' | 'false' | '')}>
+            <option value="true">Activas</option>
+            <option value="false">Inactivas</option>
+            <option value="">Todas</option>
+          </Select>
+        </div>
+        <div className="mt-4 flex justify-end">
+          <button type="button" onClick={onClearFilters} className="text-sm text-neutral-500 underline hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white">
+            Limpiar filtros
+          </button>
+        </div>
+      </section>
+
       {ciudadesError && <p className="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-700 dark:bg-amber-950/40 dark:text-amber-300">{ciudadesError}</p>}
       {error && <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">{error}</p>}
 
@@ -51,7 +79,7 @@ export function SucursalesPageView({
           </div>
         ) : sucursales.length === 0 ? (
           <div className="p-4">
-            <EmptyState title="No hay sucursales" description="Aún no se registraron sucursales." action={canManage ? <Button onClick={onCreate}>Crear sucursal</Button> : undefined} />
+            <EmptyState title="No hay sucursales" description="No se encontraron sucursales con los filtros seleccionados." action={canManage ? <Button onClick={onCreate}>Crear sucursal</Button> : undefined} />
           </div>
         ) : (
           <div className="overflow-x-auto">

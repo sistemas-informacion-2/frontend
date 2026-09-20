@@ -1,9 +1,11 @@
 import { isAxiosError } from 'axios'
 import { useDeferredValue, useState, type FormEvent } from 'react'
 import useSWR from 'swr'
+import { useAppStore } from '@/core/store/appStore'
 import { useAuthStore } from '@/core/store/authStore'
 import { EmpleadoForm } from '@/modules/operaciones/components/EmpleadoForm'
 import { actualizarEmpleado, crearEmpleado, listarEmpleados } from '@/modules/operaciones/services/empleados.service'
+import { listarSucursales } from '@/modules/operaciones/services/sucursales.service'
 import type { Empleado, EmpleadoFormValues } from '@/modules/operaciones/types'
 import { EmpleadosPageView } from './EmpleadosPage.view'
 
@@ -19,10 +21,13 @@ const EMPTY_FORM: EmpleadoFormValues = {
   salario: '',
   fechaContratacion: '',
   fechaFinalizacion: '',
+  sucursalIds: [],
 }
 
 export function EmpleadosPage() {
   const hasPermission = useAuthStore((state) => state.hasPermission)
+  const sucursalActivaId = useAppStore((state) => state.sucursalActivaId)
+  const setSucursalActiva = useAppStore((state) => state.setSucursalActiva)
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [activo, setActivo] = useState<'true' | 'false' | ''>('true')
@@ -37,14 +42,16 @@ export function EmpleadosPage() {
     page,
     limit: PAGE_SIZE,
     search: deferredSearch.trim() || undefined,
+    idSucursal: sucursalActivaId ?? undefined,
     activo: activo === '' ? undefined : activo === 'true',
   }
 
   const { data, error, isLoading, mutate } = useSWR(
-    ['empleados', query.page, query.limit, query.search, query.activo],
+    ['empleados', query.page, query.limit, query.search, query.idSucursal, query.activo],
     () => listarEmpleados(query),
     { keepPreviousData: true, revalidateOnFocus: false },
   )
+  const { data: sucursales = [] } = useSWR('sucursales', listarSucursales, { revalidateOnFocus: false })
 
   const updateForm = <K extends keyof EmpleadoFormValues>(field: K, value: EmpleadoFormValues[K]) => {
     setForm((current) => ({ ...current, [field]: value }))
@@ -69,6 +76,7 @@ export function EmpleadosPage() {
       salario: String(empleado.salario),
       fechaContratacion: empleado.fechaContratacion,
       fechaFinalizacion: empleado.fechaFinalizacion ?? '',
+      sucursalIds: (empleado.sucursales ?? []).filter((sucursal) => sucursal.activo).map((sucursal) => sucursal.id),
     })
     setActionError(null)
     setModalOpen(true)
@@ -77,6 +85,7 @@ export function EmpleadosPage() {
   const closeModal = () => {
     if (saving) return
     setModalOpen(false)
+    setEditingEmpleado(null)
   }
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -87,11 +96,14 @@ export function EmpleadosPage() {
     try {
       if (editingEmpleado) {
         await actualizarEmpleado(editingEmpleado.id, form)
+        setModalOpen(false)
+        setEditingEmpleado(null)
+        await mutate()
       } else {
         await crearEmpleado(form)
+        setModalOpen(false)
+        await mutate()
       }
-      setModalOpen(false)
-      await mutate()
     } catch (requestError) {
       setActionError(extraerMensajeError(requestError))
     } finally {
@@ -102,6 +114,7 @@ export function EmpleadosPage() {
   const clearFilters = () => {
     setSearch('')
     setActivo('true')
+    setSucursalActiva(null)
     setPage(1)
   }
 
@@ -113,20 +126,29 @@ export function EmpleadosPage() {
       error={error ? extraerMensajeError(error) : actionError}
       search={search}
       activo={activo}
+      sucursales={sucursales}
+      idSucursal={sucursalActivaId ?? ''}
+      onSucursal={(value) => {
+        setSucursalActiva(value === '' ? null : value)
+        setPage(1)
+      }}
       canManage={hasPermission('operaciones:empleados:gestionar')}
       onCloseModal={closeModal}
       modal={
         modalOpen ? (
-          <EmpleadoForm
-            values={form}
-            codigoEmpleado={editingEmpleado?.codigoEmpleado}
-            editing={!!editingEmpleado}
-            loading={saving}
-            error={actionError}
-            onChange={updateForm}
-            onSubmit={handleSubmit}
-            onCancel={closeModal}
-          />
+          <div className="space-y-6">
+            <EmpleadoForm
+              values={form}
+              codigoEmpleado={editingEmpleado?.codigoEmpleado}
+              sucursales={sucursales}
+              editing={!!editingEmpleado}
+              loading={saving}
+              error={actionError}
+              onChange={updateForm}
+              onSubmit={handleSubmit}
+              onCancel={closeModal}
+            />
+          </div>
         ) : null
       }
       onSearch={(value) => {

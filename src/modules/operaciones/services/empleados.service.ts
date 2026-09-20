@@ -18,6 +18,7 @@ function toQueryString(query: EmpleadosQuery): string {
   })
 
   if (query.search) params.set('search', query.search)
+  if (query.idSucursal !== undefined) params.set('idSucursal', String(query.idSucursal))
   if (query.activo !== undefined) params.set('activo', String(query.activo))
 
   return params.toString()
@@ -40,6 +41,7 @@ export async function crearEmpleado(values: EmpleadoFormValues): Promise<Emplead
     password: values.password,
     salario: Number(values.salario),
     fechaContratacion: values.fechaContratacion,
+    sucursalIds: values.sucursalIds,
   })
   return response.data.data
 }
@@ -55,6 +57,7 @@ export async function actualizarEmpleado(id: number, values: EmpleadoFormValues)
     salario: Number(values.salario),
     fechaContratacion: values.fechaContratacion,
     fechaFinalizacion: values.fechaFinalizacion || null,
+    sucursalIds: values.sucursalIds,
   })
   return response.data.data
 }

@@ -2,7 +2,9 @@ import type { ReactNode } from 'react'
 import { Badge } from '@/shared/components/ui/Badge'
 import { Button } from '@/shared/components/ui/Button'
 import { EmptyState } from '@/shared/components/ui/EmptyState'
+import { Input } from '@/shared/components/ui/Input'
 import { Modal } from '@/shared/components/ui/Modal'
+import { Select } from '@/shared/components/ui/Select'
 import { Skeleton } from '@/shared/components/ui/Skeleton'
 import { ESTADO_TEMPORADA_LABEL } from '@/modules/inventario/services/temporadas.service'
 import type { EstadoTemporada, Temporada } from '@/modules/inventario/types'
@@ -11,8 +13,13 @@ interface TemporadasPageViewProps {
   temporadas: Temporada[]
   loading: boolean
   error: string | null
+  search: string
+  estado: EstadoTemporada | ''
   canManage: boolean
   modal: ReactNode
+  onSearch: (value: string) => void
+  onEstado: (value: EstadoTemporada | '') => void
+  onClearFilters: () => void
   onCreate: () => void
   onEdit: (temporada: Temporada) => void
   onDelete: (temporada: Temporada) => void
@@ -29,8 +36,13 @@ export function TemporadasPageView({
   temporadas,
   loading,
   error,
+  search,
+  estado,
   canManage,
   modal,
+  onSearch,
+  onEstado,
+  onClearFilters,
   onCreate,
   onEdit,
   onDelete,
@@ -46,6 +58,23 @@ export function TemporadasPageView({
         {canManage && <Button onClick={onCreate}>Nueva temporada</Button>}
       </div>
 
+      <section className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
+        <div className="grid gap-4 md:grid-cols-2">
+          <Input label="Buscar" placeholder="Nombre o descripción" value={search} onChange={(event) => onSearch(event.target.value)} />
+          <Select label="Estado" value={estado} onChange={(event) => onEstado(event.target.value as EstadoTemporada | '')}>
+            <option value="">Todos</option>
+            <option value="PROXIMA">Próxima</option>
+            <option value="VIGENTE">Vigente</option>
+            <option value="FINALIZADA">Finalizada</option>
+          </Select>
+        </div>
+        <div className="mt-4 flex justify-end">
+          <button type="button" onClick={onClearFilters} className="text-sm text-neutral-500 underline hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white">
+            Limpiar filtros
+          </button>
+        </div>
+      </section>
+
       {error && <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">{error}</p>}
 
       <section className="overflow-hidden rounded-lg border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950">
@@ -55,7 +84,7 @@ export function TemporadasPageView({
           </div>
         ) : temporadas.length === 0 ? (
           <div className="p-4">
-            <EmptyState title="No hay temporadas" description="Aún no se registraron temporadas." action={canManage ? <Button onClick={onCreate}>Crear temporada</Button> : undefined} />
+            <EmptyState title="No hay temporadas" description="No se encontraron temporadas con los filtros seleccionados." action={canManage ? <Button onClick={onCreate}>Crear temporada</Button> : undefined} />
           </div>
         ) : (
           <div className="overflow-x-auto">

@@ -34,7 +34,6 @@ function toVariantePayload(variante: VarianteProductoFormValues) {
     talla: variante.talla,
     color: variante.color,
     corte: variante.corte,
-    codigoHexColor: variante.codigoHexColor || undefined,
     modelo3dUrl: variante.modelo3dUrl || undefined,
   }
 }
@@ -62,10 +61,10 @@ export async function obtenerProducto(id: number): Promise<Producto> {
 export async function crearProducto(values: ProductoFormValues): Promise<Producto> {
   const response = await httpClient.post<Envelope<Producto>>('/inventario/productos', {
     idCategoria: values.idCategoria,
-    idSucursal: values.idSucursal || undefined,
     nombre: values.nombre,
     descripcion: values.descripcion || undefined,
     precio: Number(values.precio),
+    sucursalIds: values.sucursalIds,
     imagenes: values.imagenes.map(toImagenPayload),
     variantes: values.variantes.map(toVariantePayload),
   })
@@ -75,17 +74,24 @@ export async function crearProducto(values: ProductoFormValues): Promise<Product
 export async function actualizarProducto(id: number, values: ProductoFormValues): Promise<Producto> {
   const response = await httpClient.put<Envelope<Producto>>(`/inventario/productos/${id}`, {
     idCategoria: values.idCategoria,
-    idSucursal: values.idSucursal === '' ? null : values.idSucursal,
     nombre: values.nombre,
     descripcion: values.descripcion || undefined,
     precio: Number(values.precio),
     activo: values.activo,
+    sucursalIds: values.sucursalIds,
   })
   return response.data.data
 }
 
 export async function desactivarProducto(id: number): Promise<void> {
   await httpClient.delete(`/inventario/productos/${id}`)
+}
+
+export async function gestionarSucursalesProducto(idProducto: number, sucursalIds: number[]): Promise<Producto> {
+  const response = await httpClient.put<Envelope<Producto>>(`/inventario/productos/${idProducto}/sucursales`, {
+    sucursalIds,
+  })
+  return response.data.data
 }
 
 export async function agregarVariante(idProducto: number, variante: VarianteProductoFormValues): Promise<Producto> {

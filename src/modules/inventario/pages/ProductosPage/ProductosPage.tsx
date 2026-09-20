@@ -1,6 +1,7 @@
 import { isAxiosError } from 'axios'
 import { useDeferredValue, useState, type FormEvent } from 'react'
 import useSWR from 'swr'
+import { useAppStore } from '@/core/store/appStore'
 import { useAuthStore } from '@/core/store/authStore'
 import { ProductoForm } from '@/modules/inventario/components/ProductoForm'
 import { ProductoImagenesPanel } from '@/modules/inventario/components/ProductoImagenesPanel'
@@ -20,17 +21,19 @@ const PAGE_SIZE = 12
 
 const EMPTY_FORM: ProductoFormValues = {
   idCategoria: '',
-  idSucursal: '',
   nombre: '',
   descripcion: '',
   precio: '',
   activo: true,
+  sucursalIds: [],
   imagenes: [],
-  variantes: [{ sku: '', talla: '', color: '', corte: '', codigoHexColor: '', modelo3dUrl: '', activo: true }],
+  variantes: [{ sku: '', talla: '', color: '', corte: '', modelo3dUrl: '', activo: true }],
 }
 
 export function ProductosPage() {
   const canManage = useAuthStore((state) => state.hasPermission('inventario:productos:gestionar'))
+  const sucursalActivaId = useAppStore((state) => state.sucursalActivaId)
+  const setSucursalActiva = useAppStore((state) => state.setSucursalActiva)
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [idCategoria, setIdCategoria] = useState<number | ''>('')
@@ -47,11 +50,12 @@ export function ProductosPage() {
     limit: PAGE_SIZE,
     search: deferredSearch.trim() || undefined,
     idCategoria: idCategoria || undefined,
+    idSucursal: sucursalActivaId ?? undefined,
     activo: activo === '' ? undefined : activo === 'true',
   }
 
   const { data, error: productosError, isLoading, mutate } = useSWR(
-    ['productos', query.page, query.search, query.idCategoria, query.activo],
+    ['productos', query.page, query.search, query.idCategoria, query.idSucursal, query.activo],
     () => listarProductos(query),
     { keepPreviousData: true, revalidateOnFocus: false },
   )
@@ -75,11 +79,11 @@ export function ProductosPage() {
     setEditingProducto(producto)
     setForm({
       idCategoria: producto.categoriaId,
-      idSucursal: producto.sucursalId ?? '',
       nombre: producto.nombre,
       descripcion: producto.descripcion ?? '',
       precio: String(producto.precio),
       activo: producto.activo,
+      sucursalIds: (producto.sucursales ?? []).filter((sucursal) => sucursal.activo).map((sucursal) => sucursal.id),
       imagenes: [],
       variantes: [],
     })
@@ -99,8 +103,9 @@ export function ProductosPage() {
     setError(null)
     try {
       if (editingProducto) {
-        const actualizado = await actualizarProducto(editingProducto.id, form)
-        setEditingProducto(actualizado)
+        await actualizarProducto(editingProducto.id, form)
+        setModalOpen(false)
+        setEditingProducto(null)
         await mutate()
       } else {
         await crearProducto(form)
@@ -140,6 +145,12 @@ export function ProductosPage() {
       idCategoria={idCategoria}
       activo={activo}
       categoriasPlanas={categoriasPlanas}
+      sucursales={sucursales}
+      idSucursal={sucursalActivaId ?? ''}
+      onSucursal={(value) => {
+        setSucursalActiva(value === '' ? null : value)
+        setPage(1)
+      }}
       canManage={canManage}
       onSearch={(value) => {
         setSearch(value)

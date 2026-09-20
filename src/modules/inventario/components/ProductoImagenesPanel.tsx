@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Badge } from '@/shared/components/ui/Badge'
 import { Button } from '@/shared/components/ui/Button'
 import { Input } from '@/shared/components/ui/Input'
+import { ImageUploadField } from '@/shared/components/ui/ImageUploadField'
 import { agregarImagen, actualizarImagen, eliminarImagen } from '@/modules/inventario/services/productos.service'
 import type { ImagenProducto, ImagenProductoFormValues, Producto } from '../types'
 
@@ -51,7 +52,7 @@ export function ProductoImagenesPanel({ producto, onActualizado }: ProductoImage
         <p className="mb-2 text-xs font-medium text-neutral-500 dark:text-neutral-400">Agregar nueva imagen</p>
         <div className="grid gap-2 sm:grid-cols-3">
           <div className="sm:col-span-2">
-            <Input label="URL" value={nueva.url} onChange={(event) => setNueva((c) => ({ ...c, url: event.target.value }))} />
+            <ImageUploadField label="Archivo de imagen" value={nueva.url} onChange={(url) => setNueva((c) => ({ ...c, url }))} disabled={creando} />
           </div>
           <Input
             label="Orden"
@@ -101,6 +102,20 @@ function ImagenCard({
     }
   }
 
+  const handleCambiarImagen = async (url: string) => {
+    if (!url || url === imagen.url) return
+    setError(null)
+    setProcesando(true)
+    try {
+      const actualizado = await actualizarImagen(idProducto, imagen.id, { url })
+      onActualizado(actualizado)
+    } catch {
+      setError('No se pudo cambiar la imagen.')
+    } finally {
+      setProcesando(false)
+    }
+  }
+
   const handleEliminar = async () => {
     if (!window.confirm('¿Eliminar esta imagen?')) return
     setError(null)
@@ -121,6 +136,7 @@ function ImagenCard({
         <img src={imagen.url} alt="" className="h-full w-full object-cover" />
       </div>
       <div className="space-y-1 p-2">
+        <ImageUploadField label="Imagen" value={imagen.url} onChange={(url) => void handleCambiarImagen(url)} disabled={procesando} />
         <div className="flex items-center justify-between">
           {imagen.esPrincipal ? (
             <Badge tone="success">Principal</Badge>

@@ -74,6 +74,12 @@ export interface ClienteFormValues {
   direccionPrincipal: string
 }
 
+export interface SucursalAsignada {
+  id: number
+  nombre: string
+  activo: boolean
+}
+
 export interface Empleado {
   id: number
   nombre: string
@@ -87,12 +93,14 @@ export interface Empleado {
   salario: number
   fechaContratacion: string
   fechaFinalizacion: string | null
+  sucursales: SucursalAsignada[]
 }
 
 export interface EmpleadosQuery {
   page: number
   limit: number
   search?: string
+  idSucursal?: number
   activo?: boolean
 }
 
@@ -111,4 +119,5 @@ export interface EmpleadoFormValues {
   salario: string
   fechaContratacion: string
   fechaFinalizacion: string
+  sucursalIds: number[]
 }
