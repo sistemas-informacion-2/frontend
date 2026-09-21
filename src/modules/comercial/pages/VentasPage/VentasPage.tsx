@@ -1,6 +1,7 @@
 import { isAxiosError } from 'axios'
 import { useDeferredValue, useState, type FormEvent } from 'react'
 import useSWR from 'swr'
+import { useAppStore } from '@/core/store/appStore'
 import { useAuthStore } from '@/core/store/authStore'
 import { listarSucursales } from '@/modules/operaciones/services/sucursales.service'
 import { listarClientes } from '@/modules/operaciones/services/clientes.service'
@@ -34,7 +35,10 @@ export function VentasPage() {
 
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
-  const [idSucursal, setIdSucursal] = useState<number | ''>(perfil?.sucursalId ?? '')
+  // Parte de la sucursal elegida en el selector global del panel; un empleado siempre opera la suya.
+  const sucursalActivaId = useAppStore((state) => state.sucursalActivaId)
+  const setSucursalActiva = useAppStore((state) => state.setSucursalActiva)
+  const [idSucursal, setIdSucursal] = useState<number | ''>(perfil?.sucursalId ?? sucursalActivaId ?? '')
   const [crearOpen, setCrearOpen] = useState(false)
   const [ventaId, setVentaId] = useState<number | null>(null)
   const [form, setForm] = useState<VentaFormValues>(EMPTY_VENTA)
@@ -163,6 +167,7 @@ export function VentasPage() {
       }}
       onSucursal={(value) => {
         setIdSucursal(value)
+        setSucursalActiva(value === '' ? null : value)
         setPage(1)
       }}
       onCreate={openCrear}
