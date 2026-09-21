@@ -156,3 +156,88 @@ export interface CompraFormValues {
   pagarEnCaja: boolean
   productos: CompraProductoFormValues[]
 }
+
+export type TipoNotaVenta = 'DIRECTA_PRESENCIAL' | 'ANTICIPO_RESERVA' | 'PRESENCIAL_LIQUIDACION' | 'E_COMMERCE'
+export type ConceptoPago = 'PAGO_TOTAL' | 'ANTICIPO_RESERVA' | 'SALDO_LIQUIDACION' | 'REEMBOLSO'
+
+export interface VentaDetalle {
+  id: number
+  idVarianteProducto: number | null
+  sku: string | null
+  productoNombre: string
+  descripcion: string
+  precioUnitario: number
+  cantidad: number
+  subtotal: number
+}
+
+export interface VentaPago {
+  id: number
+  idPasarela: number | null
+  pasarelaMetodo: string | null
+  monto: number
+  concepto: ConceptoPago
+  fechaPago: string
+  horaPago: string
+}
+
+export interface Venta {
+  id: number
+  codigoNota: string
+  idCliente: number
+  clienteNombre: string
+  idCajero: number | null
+  cajeroNombre: string | null
+  idSucursal: number
+  sucursalNombre: string
+  idPasarela: number | null
+  idMovimientoCaja: number | null
+  tipoVenta: TipoNotaVenta
+  nroFactura: string | null
+  nitRazonSocial: string | null
+  fechaEmision: string
+  horaEmision: string
+  subtotal: number
+  descuento: number
+  impuesto: number
+  montoTotal: number
+  estadoPago: string
+  detalles: VentaDetalle[]
+  pagos: VentaPago[]
+}
+
+export interface VentasQuery {
+  page: number
+  limit: number
+  search?: string
+  idSucursal?: number
+  idCajero?: number
+  fechaDesde?: string
+  fechaHasta?: string
+}
+
+export interface VentasPaginatedResponse {
+  items: Venta[]
+  meta: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+  }
+}
+
+export interface VentaItemForm {
+  idVarianteProducto: number | ''
+  cantidad: string
+}
+
+export interface VentaFormValues {
+  idCliente: number | ''
+  idSucursal: number | ''
+  idAlmacen: number | ''
+  idPasarela: number | ''
+  descuento: string
+  impuesto: string
+  nitRazonSocial: string
+  items: VentaItemForm[]
+}

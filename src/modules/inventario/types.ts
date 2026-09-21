@@ -191,6 +191,7 @@ export interface InventarioItem {
   productoNombre: string
   talla: string
   color: string
+  precio: number
   stockDisponible: number
   stockReservado: number
   stockMinimo: number
