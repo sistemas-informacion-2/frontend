@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { useAuthStore } from '@/core/store/authStore'
+import { isAuthError } from '@/core/http/errors'
 import { me } from '@/modules/acceso/api'
 
 /**
@@ -20,7 +21,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!accessToken) return
     me()
       .then(setPerfil)
-      .catch(() => clear())
+      .catch((error) => {
+        // Solo cerramos sesion si el backend rechazo el token (401/403). Un
+        // corte de red (backend reiniciando) no debe desloguear al usuario.
+        if (isAuthError(error)) clear()
+      })
       .finally(() => setReady(true))
     // Solo se ejecuta una vez al montar: revalida la sesión persistida.
     // eslint-disable-next-line react-hooks/exhaustive-deps

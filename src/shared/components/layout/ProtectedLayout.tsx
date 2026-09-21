@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/core/store/authStore'
 import { logout as logoutRequest } from '@/modules/acceso/api'
+import { NotificationBell } from '@/modules/electronico/components/NotificationBell'
 import { Button } from '@/shared/components/ui/Button'
 import { ThemeToggle } from '@/shared/components/ui/ThemeToggle'
 import { Sidebar } from './Sidebar'
@@ -75,6 +76,7 @@ export function ProtectedLayout() {
               Ir a la tienda
             </Link>
             <ThemeToggle />
+            <NotificationBell />
             <div className="hidden text-right leading-tight sm:block">
               <p className="text-sm font-medium text-neutral-800 dark:text-neutral-100">
                 {perfil.nombre} {perfil.apellido}

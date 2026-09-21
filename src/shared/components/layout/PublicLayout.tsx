@@ -2,6 +2,7 @@ import { type FormEvent, useState } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { env } from '@/core/config/env'
 import { useAuthStore } from '@/core/store/authStore'
+import { NotificationBell } from '@/modules/electronico/components/NotificationBell'
 import { StoreFooter } from '@/modules/electronico/components/StoreFooter'
 import { StoreSidebar } from '@/modules/electronico/components/StoreSidebar'
 import { CartIcon } from '@/shared/components/ui/CartIcon'
@@ -74,6 +75,7 @@ export function PublicLayout() {
                 <span className="hidden sm:inline">Iniciar sesión / Registrarse</span>
               </Link>
             )}
+            <NotificationBell />
             <CartIcon />
             <ThemeToggle />
           </div>
