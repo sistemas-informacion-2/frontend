@@ -1,3 +1,5 @@
+import type { ImagenProducto } from '@/modules/inventario/types'
+
 export type EstadoTemporadaPublica = 'PROXIMA' | 'VIGENTE' | 'FINALIZADA'
 
 export interface CategoriaTemporadaPublica {
@@ -76,4 +78,180 @@ export interface NotificacionFormValues {
   mensaje: string
   destinatario: DestinatarioTipo
   idUsuario: string
+}
+
+export interface VarianteDetalle {
+  id: number
+  sku: string
+  talla: string
+  color: string
+  corte: string
+  /** Unidades que se pueden comprar en línea; 0 = agotado. */
+  stockDisponible: number
+}
+
+export interface ProductoDetalle {
+  id: number
+  nombre: string
+  descripcion: string | null
+  precio: number
+  descuentoPorcentaje: number
+  /** Precio con el descuento ya aplicado. */
+  precioFinal: number
+  categoriaId: number
+  categoriaNombre: string
+  imagenes: ImagenProducto[]
+  variantes: VarianteDetalle[]
+}
+
+export interface ItemCarrito {
+  id: number
+  idVarianteProducto: number
+  idProducto: number
+  productoNombre: string
+  sku: string
+  talla: string
+  color: string
+  corte: string
+  imagenUrl: string | null
+  precioUnitario: number
+  cantidad: number
+  subtotal: number
+  notasEspeciales: string | null
+  stockDisponible: number
+  /** false si el stock ya no alcanza para la cantidad del carrito. */
+  disponible: boolean
+}
+
+export interface Carrito {
+  id: number | null
+  items: ItemCarrito[]
+  cantidadTotal: number
+  total: number
+  fechaActualizacion: string | null
+}
+
+export type EstadoReserva = 'PENDIENTE' | 'PAGADA' | 'CANCELADA' | 'COMPLETADA'
+
+export interface DetalleReserva {
+  id: number
+  idVarianteProducto: number
+  idProducto: number
+  productoNombre: string
+  sku: string
+  talla: string
+  color: string
+  corte: string
+  precioUnitario: number
+  cantidad: number
+  subtotal: number
+}
+
+export interface PagoReserva {
+  id: number
+  concepto: 'PAGO_TOTAL' | 'ANTICIPO_RESERVA' | 'SALDO_LIQUIDACION' | 'REEMBOLSO'
+  monto: number
+  pasarelaMetodo: string | null
+  fechaPago: string
+  horaPago: string
+}
+
+export interface Reserva {
+  id: number
+  codigoReserva: string
+  idCliente: number
+  clienteNombre: string
+  idSucursal: number
+  sucursalNombre: string
+  fechaReserva: string
+  fechaLimite: string
+  estado: EstadoReserva
+  montoAnticipo: number
+  montoTotal: number
+  anticipoPagado: number
+  saldoPendiente: number
+  observaciones: string | null
+  idNotaVenta: number | null
+  codigoNotaVenta: string | null
+  /** La lista del personal no trae las líneas; el detalle sí. */
+  detalles: DetalleReserva[]
+  pagos: PagoReserva[]
+}
+
+export interface ReservasQuery {
+  page: number
+  limit: number
+  search?: string
+  estado?: EstadoReserva
+  idSucursal?: number
+}
+
+export interface ReservasPaginatedResponse {
+  items: Reserva[]
+  meta: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+  }
+}
+
+export interface LineaReservaInput {
+  idVarianteProducto: number
+  cantidad: number
+}
+
+export interface CrearReservaInput {
+  idCliente?: number
+  idSucursal?: number
+  items: LineaReservaInput[]
+  montoAnticipo?: number
+  horasLimite?: number
+  observaciones?: string
+}
+
+// --- Checkout del carrito (CU14) ---
+
+export type CodigoMetodoOnline = 'QR' | 'PAYPAL' | 'TARJETA'
+
+export interface MetodoPagoOnline {
+  id: number
+  codigo: CodigoMetodoOnline
+  metodo: string
+  descripcion: string | null
+  /** true cuando no hay pasarela real y el pago se aprueba en simulación (solo demostración). */
+  simulado: boolean
+}
+
+export interface IniciarPaypalRespuesta {
+  orderId: string
+  urlAprobacion: string
+  montoBob: number
+  montoPaypal: number
+  monedaPaypal: string
+}
+
+export interface IniciarQrRespuesta {
+  referencia: string
+  montoBob: number
+  expiraEn: string
+}
+
+/** Resultado de un pago en línea: una compra del carrito o el anticipo de una reserva. */
+export interface CompraOnline {
+  tipo: 'COMPRA' | 'ANTICIPO_RESERVA'
+  idNotaVenta: number | null
+  codigoNota: string | null
+  idReserva: number | null
+  codigoReserva: string | null
+  /** Lo que se cobró: el total de la compra o el anticipo. */
+  montoTotal: number
+  metodo: string
+}
+
+export interface DatosTarjeta {
+  titular: string
+  numero: string
+  vencimiento: string
+  cvv: string
 }

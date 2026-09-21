@@ -1,5 +1,4 @@
 import { useSearchParams } from 'react-router-dom'
-import { useAuthStore } from '@/core/store/authStore'
 import { useTemporadasPublicas } from '../../hooks'
 import { useCategorias, useProductos } from '@/modules/inventario/hooks'
 import { buscarCategoriaPorId } from '@/modules/inventario/services/categorias.service'
@@ -22,7 +21,6 @@ export function CatalogoPage() {
   const { productos, isLoading: cargandoProductos } = useProductos({ idCategoria, idTemporada, soloOfertas, search: busqueda })
   // Todas las ofertas (sin otros filtros) para calcular el descuento que muestra el banner.
   const { productos: ofertas } = useProductos({ soloOfertas: true })
-  const estaAutenticado = useAuthStore((state) => state.isAuthenticated)
 
   const filtros: FiltroActivo[] = []
   if (idCategoria) {
@@ -60,7 +58,6 @@ export function CatalogoPage() {
       categorias={categorias}
       productos={productos}
       cargando={cargandoCategorias || cargandoProductos}
-      mostrarInvitacionAdmin={!estaAutenticado}
       filtros={filtros}
       onQuitarFiltro={quitarFiltro}
       onQuitarTodos={() => setSearchParams({})}

@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom'
 import { PromoBanner } from '../../components/PromoBanner'
 import { ProductoCard } from '../../components/ProductoCard'
 import type { Categoria, Producto } from '@/modules/inventario/types'
@@ -14,7 +13,6 @@ interface CatalogoPageViewProps {
   categorias: Categoria[]
   productos: Producto[]
   cargando: boolean
-  mostrarInvitacionAdmin: boolean
   filtros: FiltroActivo[]
   onQuitarFiltro: (clave: FiltroActivo['clave']) => void
   onQuitarTodos: () => void
@@ -27,7 +25,6 @@ export function CatalogoPageView({
   categorias,
   productos,
   cargando,
-  mostrarInvitacionAdmin,
   filtros,
   onQuitarFiltro,
   onQuitarTodos,
@@ -98,17 +95,7 @@ export function CatalogoPageView({
             description={
               filtros.length > 0
                 ? 'Prueba con otra búsqueda o quita alguno de los filtros activos.'
-                : 'El equipo está preparando el catálogo. Vuelve pronto o inicia sesión como administrador para comenzar a cargar productos.'
-            }
-            action={
-              filtros.length === 0 && mostrarInvitacionAdmin ? (
-                <Link
-                  to="/login"
-                  className="rounded-full bg-neutral-900 px-5 py-2 text-sm font-medium text-white hover:bg-neutral-700 dark:bg-white dark:text-neutral-900"
-                >
-                  Iniciar sesión como administrador
-                </Link>
-              ) : undefined
+                : 'Estamos preparando el catálogo. Vuelve pronto.'
             }
           />
         )}

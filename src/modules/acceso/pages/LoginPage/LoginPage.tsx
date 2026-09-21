@@ -1,5 +1,5 @@
 import { type FormEvent, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { getApiErrorMessage, getApiStatus } from '@/core/http/errors'
 import { useAuthStore } from '@/core/store/authStore'
 import { login } from '@/modules/acceso/api'
@@ -12,6 +12,8 @@ export function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const setSession = useAuthStore((state) => state.setSession)
   const navigate = useNavigate()
+  const location = useLocation()
+  const desde = (location.state as { from?: string } | null)?.from
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -21,7 +23,8 @@ export function LoginPage() {
     try {
       const auth = await login(email, password)
       setSession(auth)
-      navigate(auth.perfil.tipoUsuario === 'C' ? '/' : '/admin/dashboard', { replace: true })
+      // Un cliente que llego desde un producto o el carrito vuelve ahi; el personal va al panel.
+      navigate(auth.perfil.tipoUsuario === 'C' ? (desde ?? '/') : '/admin/dashboard', { replace: true })
     } catch (err) {
       setError(extraerMensajeError(err))
     } finally {
@@ -35,6 +38,7 @@ export function LoginPage() {
       password={password}
       loading={loading}
       error={error}
+      desde={desde}
       onEmailChange={setEmail}
       onPasswordChange={setPassword}
       onSubmit={handleSubmit}

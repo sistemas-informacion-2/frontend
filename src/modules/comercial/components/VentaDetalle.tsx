@@ -11,7 +11,12 @@ export function VentaDetalle({ venta }: VentaDetalleProps) {
         <Dato label="Código" value={venta.codigoNota} />
         <Dato label="Fecha" value={`${venta.fechaEmision} · ${venta.horaEmision.slice(0, 5)}`} />
         <Dato label="Cliente" value={venta.clienteNombre} />
-        <Dato label="Cajero" value={venta.cajeroNombre ?? 'Sin cajero'} />
+        {venta.tipoVenta === 'E_COMMERCE' ? (
+          <Dato label="Canal" value="Tienda en línea" />
+        ) : (
+          <Dato label="Cajero" value={venta.cajeroNombre ?? 'Sin cajero'} />
+        )}
+        {venta.pasarelaMetodo && <Dato label="Método de pago" value={venta.pasarelaMetodo} />}
         <Dato label="Sucursal" value={venta.sucursalNombre} />
         <Dato label="Estado" value={venta.estadoPago} />
       </dl>

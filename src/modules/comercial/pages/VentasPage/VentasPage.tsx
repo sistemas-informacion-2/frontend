@@ -1,12 +1,12 @@
 import { isAxiosError } from 'axios'
-import { useDeferredValue, useState, type FormEvent } from 'react'
+import { useDeferredValue, useMemo, useState, type FormEvent } from 'react'
 import useSWR from 'swr'
 import { useAppStore } from '@/core/store/appStore'
 import { useAuthStore } from '@/core/store/authStore'
 import { listarSucursales } from '@/modules/operaciones/services/sucursales.service'
 import { listarClientes } from '@/modules/operaciones/services/clientes.service'
-import { listarAlmacenes } from '@/modules/inventario/services/almacenes.service'
 import { listarStock } from '@/modules/inventario/services/inventario.service'
+import { agruparStockPorVariante } from '@/modules/inventario/utils/stock'
 import { listarPasarelasPresencial } from '@/modules/comercial/services/pasarelas.service'
 import { crearVenta, listarVentas, obtenerVenta } from '@/modules/comercial/services/ventas.service'
 import { VentaDetalle } from '@/modules/comercial/components/VentaDetalle'
@@ -20,7 +20,6 @@ const OPCIONES_LIMIT = 100
 const EMPTY_VENTA: VentaFormValues = {
   idCliente: '',
   idSucursal: '',
-  idAlmacen: '',
   idPasarela: '',
   descuento: '0',
   impuesto: '0',
@@ -57,20 +56,19 @@ export function VentasPage() {
   const { data: sucursales = [] } = useSWR(canSelectSucursal ? 'sucursales-ventas' : null, listarSucursales, {
     revalidateOnFocus: false,
   })
+  const sucursalNombre = sucursalEfectiva
+    ? (sucursales.find((sucursal) => sucursal.id === sucursalEfectiva)?.nombre ?? perfil?.sucursalNombre ?? `Sucursal ${sucursalEfectiva}`)
+    : null
   const { data: clientesData } = useSWR(crearOpen ? ['clientes-ventas', OPCIONES_LIMIT] : null, () =>
     listarClientes({ page: 1, limit: OPCIONES_LIMIT, activo: true }),
   )
   const clientes = clientesData?.items ?? []
-  const { data: almacenes = [] } = useSWR(
-    crearOpen && sucursalEfectiva ? ['almacenes-ventas', sucursalEfectiva] : null,
-    () => listarAlmacenes({ idSucursal: sucursalEfectiva ?? undefined, activo: true }),
-  )
   const { data: pasarelas = [] } = useSWR(crearOpen ? 'pasarelas-presencial-ventas' : null, listarPasarelasPresencial)
-  const { data: stockData } = useSWR(
-    crearOpen && form.idAlmacen !== '' ? ['stock-venta', form.idAlmacen] : null,
-    () => listarStock({ page: 1, limit: OPCIONES_LIMIT, idAlmacen: Number(form.idAlmacen) }),
+  // El stock se ofrece por sucursal (sumado entre sus almacenes): el servidor decide de qué almacén sale.
+  const { data: stockData } = useSWR(crearOpen && sucursalEfectiva ? ['stock-venta', sucursalEfectiva] : null, () =>
+    listarStock({ page: 1, limit: OPCIONES_LIMIT, idSucursal: sucursalEfectiva ?? undefined }),
   )
-  const stock = stockData?.items ?? []
+  const stock = useMemo(() => agruparStockPorVariante(stockData?.items ?? []), [stockData])
 
   const { data: ventaDetalle, isLoading: loadingDetalle } = useSWR(
     ventaId ? ['venta', ventaId] : null,
@@ -100,8 +98,8 @@ export function VentasPage() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (form.idCliente === '' || form.idAlmacen === '' || form.idPasarela === '') {
-      setError('Selecciona cliente, almacén y método de pago')
+    if (form.idPasarela === '') {
+      setError('Selecciona el método de pago')
       return
     }
     setSaving(true)
@@ -141,7 +139,7 @@ export function VentasPage() {
           <VentaForm
             values={form}
             clientes={clientes}
-            almacenes={almacenes}
+            sucursalNombre={sucursalNombre}
             pasarelas={pasarelas}
             stock={stock}
             loading={saving}

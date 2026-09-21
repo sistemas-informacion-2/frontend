@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import type { ImagenProducto, Producto } from '@/modules/inventario/types'
 
 interface ProductoCardProps {
@@ -18,6 +19,7 @@ export function ProductoCard({ producto }: ProductoCardProps) {
   const [indice, setIndice] = useState(0)
   const actual = imagenes[indice]
   const hayVarias = imagenes.length > 1
+  const rutaDetalle = `/producto/${producto.id}`
 
   // Navegacion circular: despues de la ultima imagen vuelve a la primera.
   const mover = (paso: number) => setIndice((current) => (current + paso + imagenes.length) % imagenes.length)
@@ -28,13 +30,19 @@ export function ProductoCard({ producto }: ProductoCardProps) {
         {producto.descuentoPorcentaje > 0 && (
           <span
             title={`${producto.descuentoPorcentaje}% de descuento`}
-            className="absolute right-2 top-2 z-10 flex items-center gap-1 rounded-full bg-amber-400 px-2 py-1 text-xs font-bold text-neutral-900 shadow"
+            className="pointer-events-none absolute right-2 top-2 z-10 flex items-center gap-1 rounded-full bg-amber-400 px-2 py-1 text-xs font-bold text-neutral-900 shadow"
           >
             <span aria-hidden="true">★</span>-{producto.descuentoPorcentaje}%
           </span>
         )}
 
         {actual && <img src={actual.url} alt={producto.nombre} className="h-full w-full object-cover" />}
+
+        <Link
+          to={rutaDetalle}
+          aria-label={`Ver detalle de ${producto.nombre}`}
+          className="absolute inset-0 z-[1]"
+        />
 
         {hayVarias && (
           <>
@@ -44,7 +52,7 @@ export function ProductoCard({ producto }: ProductoCardProps) {
             <button type="button" onClick={() => mover(1)} aria-label="Imagen siguiente" className={`${FLECHA} right-2`}>
               ›
             </button>
-            <div className="absolute inset-x-0 bottom-2 z-10 flex justify-center gap-1.5">
+            <div className="pointer-events-none absolute inset-x-0 bottom-2 z-10 flex justify-center gap-1.5">
               {imagenes.map((imagen, posicion) => (
                 <span
                   key={imagen.id}
@@ -57,7 +65,9 @@ export function ProductoCard({ producto }: ProductoCardProps) {
         )}
       </div>
 
-      <p className="mt-2 text-sm font-medium dark:text-white">{producto.nombre}</p>
+      <Link to={rutaDetalle} className="mt-2 block text-sm font-medium hover:underline dark:text-white">
+        {producto.nombre}
+      </Link>
       {producto.descuentoPorcentaje > 0 ? (
         <p className="text-sm">
           <span className="font-semibold text-neutral-900 dark:text-white">

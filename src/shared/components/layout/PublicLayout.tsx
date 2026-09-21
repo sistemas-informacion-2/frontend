@@ -29,7 +29,7 @@ export function PublicLayout() {
 
   return (
     <div className="flex min-h-screen flex-col bg-white dark:bg-neutral-950">
-      <header className="border-b border-neutral-100 dark:border-neutral-800">
+      <header className="sticky top-0 z-40 border-b border-neutral-100 bg-white dark:border-neutral-800 dark:bg-neutral-950">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-3 px-4 py-3 sm:gap-6 sm:px-6 sm:py-4">
           <button
             type="button"

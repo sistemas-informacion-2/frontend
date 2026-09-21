@@ -133,3 +133,20 @@ export interface UsuarioFormValues {
   estadoAcceso: EstadoAcceso
   roles: number[]
 }
+
+export interface RegistroClienteFormValues {
+  nombre: string
+  apellido: string
+  email: string
+  telefono: string
+  password: string
+  confirmarPassword: string
+}
+
+export interface RegistroClientePayload {
+  nombre: string
+  apellido: string
+  email: string
+  telefono?: string
+  password: string
+}

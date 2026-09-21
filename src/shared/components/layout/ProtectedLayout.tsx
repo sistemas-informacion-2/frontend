@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { Link, Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@/core/store/authStore'
-import { logout as logoutRequest } from '@/modules/acceso/api'
+import { useCerrarSesion } from '@/modules/acceso/hooks/useCerrarSesion'
 import { NotificationBell } from '@/modules/electronico/components/NotificationBell'
 import { Button } from '@/shared/components/ui/Button'
 import { ThemeToggle } from '@/shared/components/ui/ThemeToggle'
@@ -33,22 +33,14 @@ function Breadcrumbs() {
 
 export function ProtectedLayout() {
   const perfil = useAuthStore((state) => state.perfil)
-  const refreshToken = useAuthStore((state) => state.refreshToken)
-  const clear = useAuthStore((state) => state.clear)
-  const navigate = useNavigate()
+  const cerrarSesion = useCerrarSesion()
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
   if (!perfil) {
     return <Navigate to="/login" replace />
   }
 
-  const handleLogout = async () => {
-    if (refreshToken) {
-      await logoutRequest(refreshToken).catch(() => undefined)
-    }
-    clear()
-    navigate('/login', { replace: true })
-  }
+  const handleLogout = () => cerrarSesion('/login')
 
   return (
     <div className="flex h-screen bg-neutral-50 dark:bg-neutral-900">

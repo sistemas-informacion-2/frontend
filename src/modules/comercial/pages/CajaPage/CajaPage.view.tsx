@@ -6,7 +6,7 @@ import { Modal } from '@/shared/components/ui/Modal'
 import { Select } from '@/shared/components/ui/Select'
 import { Skeleton } from '@/shared/components/ui/Skeleton'
 import type { Sucursal } from '@/modules/operaciones/types'
-import type { Caja, MovimientoCaja } from '@/modules/comercial/types'
+import type { Caja } from '@/modules/comercial/types'
 
 interface CajaPageViewProps {
   sucursales: Sucursal[]
@@ -99,6 +99,7 @@ export function CajaPageView({
             <Dato label="Monto esperado" value={formatearBs(cajaAbierta.montoEsperado)} destacado />
             <Dato label="Ingresos" value={formatearBs(cajaAbierta.totalIngresos)} />
             <Dato label="Egresos" value={formatearBs(cajaAbierta.totalEgresos)} />
+            <Dato label="Cobros en línea" value={formatearBs(cajaAbierta.totalCobrosEnLinea)} nota="No suman al efectivo esperado" />
           </dl>
 
           <div className="overflow-x-auto">
@@ -113,14 +114,14 @@ export function CajaPageView({
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
-                {cajaAbierta.movimientos.length === 0 ? (
+                {filasCaja(cajaAbierta).length === 0 ? (
                   <tr>
                     <td colSpan={5} className="px-3 py-6 text-center text-neutral-500 dark:text-neutral-400">
                       Sin movimientos registrados.
                     </td>
                   </tr>
                 ) : (
-                  cajaAbierta.movimientos.map((movimiento) => <FilaMovimiento key={movimiento.id} movimiento={movimiento} />)
+                  filasCaja(cajaAbierta).map((fila) => <FilaMovimiento key={fila.clave} fila={fila} />)
                 )}
               </tbody>
             </table>
@@ -193,31 +194,68 @@ interface DatoProps {
   label: string
   value: string
   destacado?: boolean
+  nota?: string
 }
 
-function Dato({ label, value, destacado }: DatoProps) {
+function Dato({ label, value, destacado, nota }: DatoProps) {
   return (
     <div>
       <dt className="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{label}</dt>
       <dd className={`mt-1 font-medium ${destacado ? 'text-neutral-900 dark:text-white' : 'text-neutral-700 dark:text-neutral-300'}`}>
         {value}
       </dd>
+      {nota && <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">{nota}</p>}
     </div>
   )
 }
 
-function FilaMovimiento({ movimiento }: { movimiento: MovimientoCaja }) {
+/** Una fila del listado: un movimiento del cajón o un cobro por internet del mismo turno. */
+interface FilaCaja {
+  clave: string
+  tipo: 'INGRESO' | 'EGRESO'
+  concepto: string
+  monto: number
+  fechaHora: string
+  observaciones: string | null
+  /** Método de pago cuando la fila es un cobro en línea. */
+  enLinea?: string
+}
+
+/** Movimientos y cobros en línea juntos, en orden cronológico, para ver todo lo que entró en el turno. */
+function filasCaja(caja: Caja): FilaCaja[] {
+  const movimientos: FilaCaja[] = caja.movimientos.map((movimiento) => ({
+    clave: `m-${movimiento.id}`,
+    tipo: movimiento.tipo,
+    concepto: movimiento.concepto,
+    monto: movimiento.monto,
+    fechaHora: movimiento.fechaHora,
+    observaciones: movimiento.observaciones,
+  }))
+  const cobros: FilaCaja[] = caja.cobrosEnLinea.map((cobro) => ({
+    clave: `c-${cobro.id}`,
+    tipo: 'INGRESO',
+    concepto: cobro.concepto,
+    monto: cobro.monto,
+    fechaHora: cobro.fechaHora,
+    observaciones: null,
+    enLinea: cobro.metodo ?? 'En línea',
+  }))
+  return [...movimientos, ...cobros].sort((a, b) => new Date(a.fechaHora).getTime() - new Date(b.fechaHora).getTime())
+}
+
+function FilaMovimiento({ fila }: { fila: FilaCaja }) {
   return (
     <tr className="text-neutral-700 dark:text-neutral-300">
       <td className="px-3 py-2">
-        <Badge tone={movimiento.tipo === 'INGRESO' ? 'success' : 'danger'}>
-          {movimiento.tipo === 'INGRESO' ? 'Ingreso' : 'Egreso'}
-        </Badge>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <Badge tone={fila.tipo === 'INGRESO' ? 'success' : 'danger'}>{fila.tipo === 'INGRESO' ? 'Ingreso' : 'Egreso'}</Badge>
+          {fila.enLinea && <Badge tone="neutral">{`En línea · ${fila.enLinea}`}</Badge>}
+        </div>
       </td>
-      <td className="px-3 py-2">{movimiento.concepto}</td>
-      <td className="px-3 py-2">{formatearBs(movimiento.monto)}</td>
-      <td className="px-3 py-2">{formatearFecha(movimiento.fechaHora)}</td>
-      <td className="px-3 py-2 text-neutral-500 dark:text-neutral-400">{movimiento.observaciones ?? '—'}</td>
+      <td className="px-3 py-2">{fila.concepto}</td>
+      <td className="px-3 py-2">{formatearBs(fila.monto)}</td>
+      <td className="px-3 py-2">{formatearFecha(fila.fechaHora)}</td>
+      <td className="px-3 py-2 text-neutral-500 dark:text-neutral-400">{fila.observaciones ?? (fila.enLinea ? 'No pasa por el cajón' : '—')}</td>
     </tr>
   )
 }

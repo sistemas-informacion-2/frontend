@@ -1,11 +1,20 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { useAuthStore } from '@/core/store/authStore'
+import { useCerrarSesion } from '@/modules/acceso/hooks/useCerrarSesion'
 import { useCategorias } from '@/modules/inventario/hooks'
 import type { Categoria } from '@/modules/inventario/types'
 import { Skeleton } from '@/shared/components/ui/Skeleton'
 import { useTemporadasPublicas } from '../hooks'
 import type { EstadoTemporadaPublica } from '../types'
 import { StoreLogo } from './StoreLogo'
+
+const ITEMS_CUENTA = [
+  { to: '/mi-cuenta', label: 'Perfil', end: true },
+  { to: '/mi-cuenta/reservas', label: 'Mis reservas', end: false },
+  { to: '/mi-cuenta/compras', label: 'Mis compras', end: false },
+  { to: '/mi-cuenta/devoluciones', label: 'Mis devoluciones', end: false },
+]
 
 interface StoreSidebarProps {
   open: boolean
@@ -26,6 +35,11 @@ export function StoreSidebar({ open, onClose }: StoreSidebarProps) {
   const temporadaActiva = Number(paramsActuales.get('temporada')) || null
   const { categorias, isLoading: cargandoCategorias } = useCategorias()
   const { temporadas, isLoading: cargandoTemporadas } = useTemporadasPublicas()
+  const autenticado = useAuthStore((state) => state.isAuthenticated)
+  const esCliente = useAuthStore((state) => state.perfil?.tipoUsuario === 'C')
+  // Un cliente dentro de "Mi cuenta" ve su menú de cuenta en lugar de categorías y temporadas.
+  const modoCuenta = esCliente && location.pathname.startsWith('/mi-cuenta')
+  const cerrarSesion = useCerrarSesion()
 
   useEffect(() => {
     if (!open) return
@@ -47,6 +61,11 @@ export function StoreSidebar({ open, onClose }: StoreSidebarProps) {
     params.set(parametro, String(id))
     navigate(`/?${params.toString()}`)
     window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleCerrarSesion = () => {
+    onClose()
+    void cerrarSesion('/')
   }
 
   const irAContacto = () => {
@@ -87,6 +106,36 @@ export function StoreSidebar({ open, onClose }: StoreSidebarProps) {
           </button>
         </div>
 
+        {modoCuenta ? (
+          <nav aria-label="Mi cuenta" className="flex-1 space-y-1 overflow-y-auto px-2 py-3">
+            <p className="px-3 pb-1 text-xs font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Mi cuenta</p>
+            {ITEMS_CUENTA.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.end}
+                onClick={onClose}
+                className={({ isActive }) =>
+                  `block rounded-md px-3 py-2.5 text-sm font-medium ${
+                    isActive
+                      ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900'
+                      : 'text-neutral-900 hover:bg-neutral-100 dark:text-white dark:hover:bg-neutral-800'
+                  }`
+                }
+              >
+                {item.label}
+              </NavLink>
+            ))}
+            <div className="my-2 border-t border-neutral-100 dark:border-neutral-800" />
+            <NavLink
+              to="/"
+              onClick={onClose}
+              className="block rounded-md px-3 py-2.5 text-sm font-medium text-neutral-900 hover:bg-neutral-100 dark:text-white dark:hover:bg-neutral-800"
+            >
+              ← Seguir comprando
+            </NavLink>
+          </nav>
+        ) : (
         <nav className="flex-1 space-y-1 overflow-y-auto px-2 py-3">
           <Acordeon titulo="Categorías">
             {cargandoCategorias ? (
@@ -138,6 +187,7 @@ export function StoreSidebar({ open, onClose }: StoreSidebarProps) {
             Contáctanos
           </button>
         </nav>
+        )}
 
         <div className="border-t border-neutral-100 p-4 dark:border-neutral-800">
           <button
@@ -146,6 +196,15 @@ export function StoreSidebar({ open, onClose }: StoreSidebarProps) {
           >
             Necesitas ayuda
           </button>
+          {autenticado && (
+            <button
+              type="button"
+              onClick={handleCerrarSesion}
+              className="mt-3 w-full rounded-full border border-neutral-300 px-4 py-2.5 text-sm font-medium text-neutral-700 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+            >
+              Cerrar sesión
+            </button>
+          )}
         </div>
       </aside>
     </div>
@@ -198,7 +257,6 @@ function ListaCategorias({
                 : 'text-neutral-700 dark:text-neutral-300'
             }`}
           >
-            {nivel > 0 ? '↳ ' : ''}
             {categoria.nombre}
           </button>
           {categoria.hijos.length > 0 && (

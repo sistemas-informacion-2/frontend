@@ -1,1 +1,7 @@
 export * from './tienda.api'
+export * from './producto.api'
+export * from './carrito.api'
+export * from './reservas.api'
+export * from './cuenta.api'
+export * from './checkout.api'
+export * from './ventasEnLinea.api'

@@ -124,7 +124,7 @@ function CategoriaRows({
     <>
       <tr className="text-neutral-700 dark:text-neutral-300">
         <td className="px-4 py-3" style={{ paddingLeft: `${16 + nivel * 20}px` }}>
-          <p className="font-medium text-neutral-900 dark:text-white">{nivel > 0 ? '↳ ' : ''}{categoria.nombre}</p>
+          <p className="font-medium text-neutral-900 dark:text-white">{categoria.nombre}</p>
           <p className="max-w-sm truncate text-xs text-neutral-500 dark:text-neutral-400">{categoria.descripcion || 'Sin descripción'}</p>
         </td>
         <td className="px-4 py-3 text-neutral-500 dark:text-neutral-400">{categoria.slug}</td>

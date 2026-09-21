@@ -31,9 +31,9 @@ export async function obtenerVenta(id: number): Promise<Venta> {
 
 export async function crearVenta(values: VentaFormValues): Promise<Venta> {
   const response = await httpClient.post<Envelope<Venta>>('/comercial/ventas', {
-    idCliente: Number(values.idCliente),
+    // Sin cliente la venta va a "Consumidor final": en el mostrador no se pide registrar al comprador.
+    ...(values.idCliente === '' ? {} : { idCliente: Number(values.idCliente) }),
     ...(values.idSucursal === '' ? {} : { idSucursal: Number(values.idSucursal) }),
-    idAlmacen: Number(values.idAlmacen),
     idPasarela: Number(values.idPasarela),
     descuento: Number(values.descuento || 0),
     impuesto: Number(values.impuesto || 0),

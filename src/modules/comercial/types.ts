@@ -46,6 +46,15 @@ export interface MovimientoCaja {
   fechaHora: string
 }
 
+/** Pago recibido por internet durante el turno; no pasa por el cajón, así que no suma al efectivo esperado. */
+export interface CobroEnLinea {
+  id: number
+  concepto: string
+  monto: number
+  metodo: string | null
+  fechaHora: string
+}
+
 export interface Caja {
   id: number
   idSucursal: number
@@ -63,6 +72,8 @@ export interface Caja {
   totalEgresos: number
   montoEsperado: number
   movimientos: MovimientoCaja[]
+  totalCobrosEnLinea: number
+  cobrosEnLinea: CobroEnLinea[]
 }
 
 export interface CajasQuery {
@@ -191,6 +202,8 @@ export interface Venta {
   idSucursal: number
   sucursalNombre: string
   idPasarela: number | null
+  /** Método con el que se pagó (PayPal, QR, Efectivo...). */
+  pasarelaMetodo: string | null
   idMovimientoCaja: number | null
   tipoVenta: TipoNotaVenta
   nroFactura: string | null
@@ -234,10 +247,109 @@ export interface VentaItemForm {
 export interface VentaFormValues {
   idCliente: number | ''
   idSucursal: number | ''
-  idAlmacen: number | ''
   idPasarela: number | ''
   descuento: string
   impuesto: string
   nitRazonSocial: string
   items: VentaItemForm[]
+}
+
+// --- Devoluciones (CU24) ---
+
+export type TipoDevolucion = 'PRODUCTO_ENTREGADO' | 'CANCELACION_RESERVA'
+export type MotivoDevolucion = 'FALLA_FABRICA' | 'TALLA_INCORRECTA' | 'ARREPENTIMIENTO' | 'CANCELACION'
+export type EstadoProductoDevolucion = 'REINGRESO_INVENTARIO' | 'MERMA_DEFECTUOSO' | 'NO_APLICA'
+
+export interface LineaOrigenDevolucion {
+  idVarianteProducto: number
+  sku: string
+  descripcion: string
+  precioReembolsable: number
+  cantidadComprada: number
+  cantidadDevuelta: number
+  cantidadDisponible: number
+}
+
+export interface OrigenDevolucion {
+  tipoDevolucion: TipoDevolucion
+  idNotaVenta: number | null
+  idReserva: number | null
+  codigo: string
+  idCliente: number
+  clienteNombre: string
+  idSucursal: number
+  sucursalNombre: string
+  fecha: string
+  plazoDias: number
+  dentroDePlazo: boolean
+  montoReembolsable: number
+  lineas: LineaOrigenDevolucion[]
+}
+
+export interface DetalleDevolucion {
+  id: number
+  idVarianteProducto: number | null
+  sku: string | null
+  productoNombre: string | null
+  descripcion: string
+  idAlmacen: number | null
+  almacenNombre: string | null
+  precioUnitario: number
+  cantidad: number
+  montoSubtotal: number
+  estadoProducto: EstadoProductoDevolucion
+}
+
+export interface Devolucion {
+  id: number
+  codigoDevolucion: string
+  tipoDevolucion: TipoDevolucion
+  motivoDevolucion: MotivoDevolucion
+  idCliente: number
+  clienteNombre: string
+  idSucursal: number
+  sucursalNombre: string
+  idCajero: number
+  cajeroNombre: string
+  idNotaVenta: number | null
+  codigoNota: string | null
+  idReserva: number | null
+  codigoReserva: string | null
+  idMovimientoCaja: number | null
+  montoTotalReembolsado: number
+  observaciones: string | null
+  fechaEmision: string
+  detalles: DetalleDevolucion[]
+}
+
+export interface DevolucionesQuery {
+  page: number
+  limit: number
+  search?: string
+  tipoDevolucion?: TipoDevolucion
+  idSucursal?: number
+}
+
+export interface DevolucionesPaginatedResponse {
+  items: Devolucion[]
+  meta: { page: number; limit: number; total: number; totalPages: number }
+}
+
+export interface ItemDevolucionInput {
+  idVarianteProducto: number
+  cantidad: number
+  idAlmacen?: number
+  estadoProducto: Exclude<EstadoProductoDevolucion, 'NO_APLICA'>
+}
+
+export interface CrearDevolucionInput {
+  codigoNota?: string
+  codigoReserva?: string
+  idSucursal?: number
+  idCajero?: number
+  idPasarela?: number
+  motivoDevolucion: MotivoDevolucion
+  observaciones?: string
+  autorizarFueraDePlazo?: boolean
+  items?: ItemDevolucionInput[]
 }
