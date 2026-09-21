@@ -1,6 +1,7 @@
 import { isAxiosError } from 'axios'
 import { useState, type FormEvent, type ReactNode } from 'react'
 import useSWR from 'swr'
+import { useAppStore } from '@/core/store/appStore'
 import { useAuthStore } from '@/core/store/authStore'
 import { listarSucursales } from '@/modules/operaciones/services/sucursales.service'
 import { CajaAperturaForm } from '@/modules/comercial/components/CajaAperturaForm'
@@ -29,7 +30,10 @@ export function CajaPage() {
   const perfil = useAuthStore((state) => state.perfil)
   const canManage = useAuthStore((state) => state.hasPermission('comercial:caja:gestionar'))
 
-  const [idSucursal, setIdSucursal] = useState<number | ''>(perfil?.sucursalId ?? '')
+  // Parte de la sucursal elegida en el selector global; la caja siempre opera sobre una sucursal concreta.
+  const sucursalActivaId = useAppStore((state) => state.sucursalActivaId)
+  const setSucursalActiva = useAppStore((state) => state.setSucursalActiva)
+  const [idSucursal, setIdSucursal] = useState<number | ''>(sucursalActivaId ?? perfil?.sucursalId ?? '')
   const [modal, setModal] = useState<ModalKind>(null)
   const [montoInicial, setMontoInicial] = useState('')
   const [movimiento, setMovimiento] = useState<MovimientoCajaFormValues>(EMPTY_MOVIMIENTO)
@@ -179,7 +183,10 @@ export function CajaPage() {
       error={error}
       modalTitle={modalTitle}
       modalContent={modalContent}
-      onSucursalChange={(value) => setIdSucursal(value)}
+      onSucursalChange={(value) => {
+        setIdSucursal(value)
+        setSucursalActiva(value === '' ? null : value)
+      }}
       onAbrir={() => abrirModal('abrir')}
       onMovimiento={() => abrirModal('movimiento')}
       onCerrar={() => abrirModal('cerrar')}

@@ -1,6 +1,7 @@
 import { isAxiosError } from 'axios'
 import { useDeferredValue, useState, type FormEvent } from 'react'
 import useSWR from 'swr'
+import { useAppStore } from '@/core/store/appStore'
 import { useAuthStore } from '@/core/store/authStore'
 import { listarSucursales } from '@/modules/operaciones/services/sucursales.service'
 import { AlmacenForm } from '@/modules/inventario/components/AlmacenForm'
@@ -22,7 +23,11 @@ const EMPTY_FORM: AlmacenFormValues = {
 export function AlmacenesPage() {
   const canManage = useAuthStore((state) => state.hasPermission('inventario:almacen:gestionar'))
   const [search, setSearch] = useState('')
-  const [idSucursal, setIdSucursal] = useState<number | ''>('')
+  // La sucursal es la del selector global del panel (Vista General / Vista por Sucursal).
+  const sucursalActivaId = useAppStore((state) => state.sucursalActivaId)
+  const setSucursalActiva = useAppStore((state) => state.setSucursalActiva)
+  const idSucursal: number | '' = sucursalActivaId ?? ''
+  const setIdSucursal = (value: number | '') => setSucursalActiva(value === '' ? null : value)
   const [activo, setActivo] = useState<'true' | 'false' | ''>('')
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<Almacen | null>(null)

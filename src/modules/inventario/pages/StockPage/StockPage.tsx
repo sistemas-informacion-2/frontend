@@ -1,6 +1,7 @@
 import { isAxiosError } from 'axios'
 import { useDeferredValue, useState, type FormEvent } from 'react'
 import useSWR from 'swr'
+import { useAppStore } from '@/core/store/appStore'
 import { useAuthStore } from '@/core/store/authStore'
 import { listarSucursales } from '@/modules/operaciones/services/sucursales.service'
 import { listarProductos } from '@/modules/inventario/services/productos.service'
@@ -38,7 +39,11 @@ export function StockPage() {
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [idAlmacen, setIdAlmacen] = useState<number | ''>('')
-  const [idSucursal, setIdSucursal] = useState<number | ''>('')
+  // La sucursal es la del selector global del panel (Vista General / Vista por Sucursal).
+  const sucursalActivaId = useAppStore((state) => state.sucursalActivaId)
+  const setSucursalActiva = useAppStore((state) => state.setSucursalActiva)
+  const idSucursal: number | '' = sucursalActivaId ?? ''
+  const setIdSucursal = (value: number | '') => setSucursalActiva(value === '' ? null : value)
   const [bajoMinimo, setBajoMinimo] = useState(false)
 
   const [stockForm, setStockForm] = useState<StockFormValues>(EMPTY_STOCK_FORM)

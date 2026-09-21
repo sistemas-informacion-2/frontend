@@ -4,7 +4,7 @@ import { isNetworkError } from '@/core/http/errors'
 import { AuthProvider } from '@/core/context/AuthContext'
 import { CarritoProvider } from '@/core/context/CarritoContext'
 import { ThemeProvider } from '@/core/providers/ThemeProvider'
-import { DashboardPage } from '@/modules/acceso/pages/Dashboard/DashboardPage'
+import { DashboardPage } from '@/modules/analitica/pages/DashboardPage/DashboardPage'
 import { LoginPage } from '@/modules/acceso/pages/LoginPage/LoginPage'
 import { PerfilPage } from '@/modules/acceso/pages/PerfilPage/PerfilPage'
 import { BitacoraPage } from '@/modules/acceso/pages/BitacoraPage/BitacoraPage'
@@ -22,6 +22,7 @@ import { SucursalesPage } from '@/modules/operaciones/pages/SucursalesPage/Sucur
 import { CatalogoPage } from '@/modules/electronico/pages/CatalogoPage/CatalogoPage'
 import { PasarelasPage } from '@/modules/comercial/pages/PasarelasPage/PasarelasPage'
 import { CajaPage } from '@/modules/comercial/pages/CajaPage/CajaPage'
+import { ComprasPage } from '@/modules/comercial/pages/ComprasPage/ComprasPage'
 import { NotificacionesPage } from '@/modules/electronico/pages/NotificacionesPage/NotificacionesPage'
 import { ComingSoonPage } from '@/shared/components/ComingSoonPage'
 import { ProtectedLayout } from '@/shared/components/layout/ProtectedLayout'
@@ -72,6 +73,7 @@ function App() {
                   <Route path="stock" element={<PermissionRoute permission="inventario:almacen:gestionar"><StockPage /></PermissionRoute>} />
                   <Route path="pasarelas" element={<PermissionRoute permission="comercial:pasarelas:gestionar"><PasarelasPage /></PermissionRoute>} />
                   <Route path="caja" element={<PermissionRoute permission="comercial:caja:gestionar"><CajaPage /></PermissionRoute>} />
+                  <Route path="compras" element={<PermissionRoute permission="comercial:compras:gestionar"><ComprasPage /></PermissionRoute>} />
                   <Route path="notificaciones" element={<PermissionRoute permission="electronico:notificaciones:gestionar"><NotificacionesPage /></PermissionRoute>} />
                   <Route path="*" element={<ComingSoonPage />} />
                 </Route>

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { PromoBanner } from '../../components/PromoBanner'
+import { ProductoCard } from '../../components/ProductoCard'
 import type { Categoria, Producto } from '@/modules/inventario/types'
 import { EmptyState } from '@/shared/components/ui/EmptyState'
 import { Skeleton } from '@/shared/components/ui/Skeleton'
@@ -80,41 +81,9 @@ export function CatalogoPageView({
           </div>
         ) : productos.length > 0 ? (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 md:grid-cols-4">
-            {productos.map((producto) => {
-              const imagenPrincipal = producto.imagenes.find((imagen) => imagen.esPrincipal) ?? producto.imagenes[0]
-              return (
-                <div key={producto.id} className="group">
-                  <div className="relative aspect-3/4 w-full overflow-hidden rounded-lg bg-neutral-100 dark:bg-neutral-800">
-                    {producto.descuentoPorcentaje > 0 && (
-                      <span
-                        title={`${producto.descuentoPorcentaje}% de descuento`}
-                        className="absolute right-2 top-2 z-10 flex items-center gap-1 rounded-full bg-amber-400 px-2 py-1 text-xs font-bold text-neutral-900 shadow"
-                      >
-                        <span aria-hidden="true">★</span>-{producto.descuentoPorcentaje}%
-                      </span>
-                    )}
-                    {imagenPrincipal && (
-                      <img
-                        src={imagenPrincipal.url}
-                        alt={producto.nombre}
-                        className="h-full w-full object-cover transition-transform group-hover:scale-105"
-                      />
-                    )}
-                  </div>
-                  <p className="mt-2 text-sm font-medium dark:text-white">{producto.nombre}</p>
-                  {producto.descuentoPorcentaje > 0 ? (
-                    <p className="text-sm">
-                      <span className="font-semibold text-neutral-900 dark:text-white">
-                        Bs {(producto.precio * (1 - producto.descuentoPorcentaje / 100)).toFixed(2)}
-                      </span>{' '}
-                      <span className="text-neutral-400 line-through dark:text-neutral-500">Bs {producto.precio}</span>
-                    </p>
-                  ) : (
-                    <p className="text-sm text-neutral-500 dark:text-neutral-400">Bs {producto.precio}</p>
-                  )}
-                </div>
-              )
-            })}
+            {productos.map((producto) => (
+              <ProductoCard key={producto.id} producto={producto} />
+            ))}
           </div>
         ) : (
           <EmptyState
