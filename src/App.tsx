@@ -22,6 +22,7 @@ import { SucursalesPage } from '@/modules/operaciones/pages/SucursalesPage/Sucur
 import { CatalogoPage } from '@/modules/comercial/pages/CatalogoPage/CatalogoPage'
 import { PasarelasPage } from '@/modules/comercial/pages/PasarelasPage/PasarelasPage'
 import { CajaPage } from '@/modules/comercial/pages/CajaPage/CajaPage'
+import { VentasPage } from '@/modules/comercial/pages/VentasPage/VentasPage'
 import { NotificacionesPage } from '@/modules/electronico/pages/NotificacionesPage/NotificacionesPage'
 import { ComingSoonPage } from '@/shared/components/ComingSoonPage'
 import { ProtectedLayout } from '@/shared/components/layout/ProtectedLayout'
@@ -73,6 +74,7 @@ function App() {
                   <Route path="stock" element={<PermissionRoute permission="inventario:almacen:gestionar"><StockPage /></PermissionRoute>} />
                   <Route path="pasarelas" element={<PermissionRoute permission="comercial:pasarelas:gestionar"><PasarelasPage /></PermissionRoute>} />
                   <Route path="caja" element={<PermissionRoute permission="comercial:caja:gestionar"><CajaPage /></PermissionRoute>} />
+                  <Route path="ventas" element={<PermissionRoute permission="comercial:ventas:gestionar"><VentasPage /></PermissionRoute>} />
                   <Route path="notificaciones" element={<PermissionRoute permission="electronico:notificaciones:gestionar"><NotificacionesPage /></PermissionRoute>} />
                   <Route path="*" element={<ComingSoonPage />} />
                 </Route>
