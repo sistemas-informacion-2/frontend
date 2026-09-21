@@ -3,6 +3,7 @@ import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { env } from '@/core/config/env'
 import { useAuthStore } from '@/core/store/authStore'
 import { useCategorias } from '@/modules/inventario/hooks'
+import { NotificationBell } from '@/modules/electronico/components/NotificationBell'
 import { CartIcon } from '@/shared/components/ui/CartIcon'
 import { Skeleton } from '@/shared/components/ui/Skeleton'
 import { ThemeToggle } from '@/shared/components/ui/ThemeToggle'
@@ -87,6 +88,7 @@ export function PublicLayout() {
                 <span className="hidden sm:inline">Iniciar sesión / Registrarse</span>
               </Link>
             )}
+            <NotificationBell />
             <CartIcon />
             <ThemeToggle />
           </div>

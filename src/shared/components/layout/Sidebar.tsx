@@ -34,6 +34,7 @@ const GROUPS: SidebarGroup[] = [
       { label: 'Proveedores', path: '/admin/proveedores', permission: 'inventario:proveedores:gestionar' },
       { label: 'Temporadas', path: '/admin/temporadas', permission: 'inventario:temporadas:gestionar' },
       { label: 'Inventario / Almacén', path: '/admin/almacenes', permission: 'inventario:almacen:gestionar' },
+      { label: 'Stock / Existencias', path: '/admin/stock', permission: 'inventario:almacen:gestionar' },
     ],
   },
   {
