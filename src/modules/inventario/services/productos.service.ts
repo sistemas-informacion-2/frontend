@@ -64,6 +64,7 @@ export async function crearProducto(values: ProductoFormValues): Promise<Product
     nombre: values.nombre,
     descripcion: values.descripcion || undefined,
     precio: Number(values.precio),
+    descuentoPorcentaje: Number(values.descuentoPorcentaje || 0),
     sucursalIds: values.sucursalIds,
     imagenes: values.imagenes.map(toImagenPayload),
     variantes: values.variantes.map(toVariantePayload),
@@ -77,6 +78,7 @@ export async function actualizarProducto(id: number, values: ProductoFormValues)
     nombre: values.nombre,
     descripcion: values.descripcion || undefined,
     precio: Number(values.precio),
+    descuentoPorcentaje: Number(values.descuentoPorcentaje || 0),
     activo: values.activo,
     sucursalIds: values.sucursalIds,
   })

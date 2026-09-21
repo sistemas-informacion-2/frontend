@@ -133,7 +133,14 @@ export function ProductosPageView({
                           </div>
                         </td>
                         <td className="px-4 py-3">{producto.categoriaNombre}</td>
-                        <td className="px-4 py-3">Bs {producto.precio.toFixed(2)}</td>
+                        <td className="px-4 py-3">
+                          Bs {producto.precio.toFixed(2)}
+                          {producto.descuentoPorcentaje > 0 && (
+                            <span className="ml-2 rounded bg-neutral-900 px-1.5 py-0.5 text-xs font-medium text-white dark:bg-white dark:text-neutral-900">
+                              −{producto.descuentoPorcentaje}%
+                            </span>
+                          )}
+                        </td>
                         <td className="px-4 py-3">{variantesActivas} / {producto.variantes.length}</td>
                         <td className="px-4 py-3">
                           {sucursalesActivas === 0 ? (

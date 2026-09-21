@@ -78,6 +78,15 @@ export function ProductoForm({
           value={values.precio}
           onChange={(event) => onChange('precio', event.target.value)}
         />
+        <Input
+          label="Descuento (%, 0 = sin descuento)"
+          type="number"
+          step="0.01"
+          min="0"
+          max="100"
+          value={values.descuentoPorcentaje}
+          onChange={(event) => onChange('descuentoPorcentaje', event.target.value)}
+        />
         <Select
           label="Categoría"
           required

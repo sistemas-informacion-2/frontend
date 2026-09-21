@@ -16,7 +16,7 @@ import { TemporadasPage } from '@/modules/inventario/pages/TemporadasPage/Tempor
 import { ClientesPage } from '@/modules/operaciones/pages/ClientesPage/ClientesPage'
 import { EmpleadosPage } from '@/modules/operaciones/pages/EmpleadosPage/EmpleadosPage'
 import { SucursalesPage } from '@/modules/operaciones/pages/SucursalesPage/SucursalesPage'
-import { CatalogoPage } from '@/modules/comercial/pages/CatalogoPage/CatalogoPage'
+import { CatalogoPage } from '@/modules/electronico/pages/CatalogoPage/CatalogoPage'
 import { ComingSoonPage } from '@/shared/components/ComingSoonPage'
 import { ProtectedLayout } from '@/shared/components/layout/ProtectedLayout'
 import { PublicLayout } from '@/shared/components/layout/PublicLayout'
@@ -33,7 +33,6 @@ function App() {
                 <Route element={<PublicLayout />}>
                   <Route path="/" element={<CatalogoPage />} />
                   <Route path="/login" element={<LoginPage />} />
-                  <Route path="/buscar" element={<ComingSoonPage />} />
                   <Route path="/categoria/:slug" element={<ComingSoonPage />} />
                   <Route path="/carrito" element={<ComingSoonPage />} />
                   <Route path="/mi-cuenta" element={<ComingSoonPage />} />

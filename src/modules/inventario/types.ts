@@ -101,6 +101,7 @@ export interface Producto {
   nombre: string
   descripcion: string | null
   precio: number
+  descuentoPorcentaje: number
   activo: boolean
   categoriaId: number
   categoriaNombre: string
@@ -149,6 +150,7 @@ export interface ProductoFormValues {
   nombre: string
   descripcion: string
   precio: string
+  descuentoPorcentaje: string
   activo: boolean
   sucursalIds: number[]
   imagenes: ImagenProductoFormValues[]
