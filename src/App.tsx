@@ -15,6 +15,7 @@ import { MisDevolucionesPage } from '@/modules/electronico/pages/MisDevoluciones
 import { ReservasPage } from '@/modules/electronico/pages/ReservasPage/ReservasPage'
 import { MisReservasPage } from '@/modules/electronico/pages/MisReservasPage/MisReservasPage'
 import { DashboardPage } from '@/modules/reporte/pages/DashboardPage/DashboardPage'
+import { ReportesPage } from '@/modules/reporte/pages/ReportesPage/ReportesPage'
 import { LoginPage } from '@/modules/acceso/pages/LoginPage/LoginPage'
 import { PerfilPage } from '@/modules/acceso/pages/PerfilPage/PerfilPage'
 import { BitacoraPage } from '@/modules/acceso/pages/BitacoraPage/BitacoraPage'
@@ -37,6 +38,7 @@ import { CajaPage } from '@/modules/comercial/pages/CajaPage/CajaPage'
 import { ComprasPage } from '@/modules/comercial/pages/ComprasPage/ComprasPage'
 import { VentasPage } from '@/modules/comercial/pages/VentasPage/VentasPage'
 import { NotificacionesPage } from '@/modules/electronico/pages/NotificacionesPage/NotificacionesPage'
+import { ProbadorAdminPage } from '@/modules/electronico/pages/ProbadorAdminPage/ProbadorAdminPage'
 import { ComingSoonPage } from '@/shared/components/ComingSoonPage'
 import { ProtectedLayout } from '@/shared/components/layout/ProtectedLayout'
 import { PublicLayout } from '@/shared/components/layout/PublicLayout'
@@ -104,6 +106,8 @@ function App() {
                 <Route path="reservas" element={<PermissionRoute permission="electronico:reservas:gestionar"><ReservasPage /></PermissionRoute>} />
                 <Route path="devoluciones" element={<PermissionRoute permission="comercial:devoluciones:gestionar"><DevolucionesPage /></PermissionRoute>} />
                 <Route path="notificaciones" element={<PermissionRoute permission="electronico:notificaciones:gestionar"><NotificacionesPage /></PermissionRoute>} />
+                <Route path="probador-virtual" element={<PermissionRoute permission="electronico:probador:gestionar"><ProbadorAdminPage /></PermissionRoute>} />
+                <Route path="reportes" element={<PermissionRoute permission="analitica:reportes:gestionar"><ReportesPage /></PermissionRoute>} />
                 <Route path="*" element={<ComingSoonPage />} />
               </Route>
 

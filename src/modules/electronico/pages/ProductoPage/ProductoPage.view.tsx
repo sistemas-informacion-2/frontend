@@ -3,12 +3,12 @@ import type { Producto } from '@/modules/inventario/types'
 import { Button } from '@/shared/components/ui/Button'
 import { EmptyState } from '@/shared/components/ui/EmptyState'
 import { Modal } from '@/shared/components/ui/Modal'
-import { Select } from '@/shared/components/ui/Select'
 import { Skeleton } from '@/shared/components/ui/Skeleton'
 import { GaleriaProducto } from '../../components/GaleriaProducto'
+import { ProbadorVirtual } from '../../components/ProbadorVirtual'
 import { ProductoCard } from '../../components/ProductoCard'
 import { SelectorCantidad } from '../../components/SelectorCantidad'
-import type { ProductoDetalle, SucursalPublica, VarianteDetalle } from '../../types'
+import type { ProbadorVariante, ProductoDetalle, SucursalPublica, VarianteDetalle } from '../../types'
 import { PORCENTAJE_ANTICIPO_MINIMO } from '../../utils/reservas'
 
 export interface MensajeProducto {
@@ -35,13 +35,20 @@ interface ProductoPageViewProps {
   onAgregar: () => void
   onComprarAhora: () => void
   reservaAbierta: boolean
-  sucursales: SucursalPublica[]
-  idSucursalReserva: number | ''
+  /** Sucursal ya elegida en la barra de categorías (CU08): la reserva no vuelve a preguntar. */
+  sucursalActiva: SucursalPublica | null
   errorReserva: string | null
   onAbrirReserva: () => void
   onCerrarReserva: () => void
-  onSucursalReserva: (id: number | '') => void
   onConfirmarReserva: () => void
+  /** Probador virtual (CU19). */
+  probadorVariante: VarianteDetalle | null
+  probadorVarianteAssets: ProbadorVariante | undefined
+  probadorAbierto: boolean
+  onProbarPrenda: (variante: VarianteDetalle) => void
+  onCerrarProbador: () => void
+  onAgregarDesdeProbador: () => void
+  enviandoProbador: boolean
 }
 
 const TARJETA = 'rounded-xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-950'
@@ -67,13 +74,18 @@ export function ProductoPageView({
   onAgregar,
   onComprarAhora,
   reservaAbierta,
-  sucursales,
-  idSucursalReserva,
+  sucursalActiva,
   errorReserva,
   onAbrirReserva,
   onCerrarReserva,
-  onSucursalReserva,
   onConfirmarReserva,
+  probadorVariante,
+  probadorVarianteAssets,
+  probadorAbierto,
+  onProbarPrenda,
+  onCerrarProbador,
+  onAgregarDesdeProbador,
+  enviandoProbador,
 }: ProductoPageViewProps) {
   if (cargando) {
     return (
@@ -186,14 +198,23 @@ export function ProductoPageView({
                         </p>
                       </div>
 
-                      <SelectorCantidad
-                        cantidad={elegidas}
-                        maximo={maximo}
-                        etiqueta={`${variante.talla} ${variante.color}`}
-                        onMas={() => onCambiarCantidad(variante, 1)}
-                        onMenos={() => onCambiarCantidad(variante, -1)}
-                        onQuitar={() => onQuitar(variante.id)}
-                      />
+                      <div className="flex flex-col items-end gap-2">
+                        <Button
+                          variant="secondary"
+                          onClick={() => onProbarPrenda(variante)}
+                          className="rounded-full px-3 py-1.5 text-xs"
+                        >
+                          Probar prenda 👕
+                        </Button>
+                        <SelectorCantidad
+                          cantidad={elegidas}
+                          maximo={maximo}
+                          etiqueta={`${variante.talla} ${variante.color}`}
+                          onMas={() => onCambiarCantidad(variante, 1)}
+                          onMenos={() => onCambiarCantidad(variante, -1)}
+                          onQuitar={() => onQuitar(variante.id)}
+                        />
+                      </div>
                     </li>
                   )
                 })}
@@ -254,6 +275,13 @@ export function ProductoPageView({
               </Button>
             </div>
           </section>
+
+          <Link
+            to="/"
+            className="flex items-center justify-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-medium text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800"
+          >
+            ← Volver al catálogo
+          </Link>
         </div>
       </div>
 
@@ -262,18 +290,10 @@ export function ProductoPageView({
           <p className="text-neutral-600 dark:text-neutral-400">
             Apartamos {unidades} {unidades === 1 ? 'prenda' : 'prendas'} de <strong>{producto.nombre}</strong> por {bs(total)}. Para confirmarla pagas un anticipo del {PORCENTAJE_ANTICIPO_MINIMO}% con QR, PayPal o tarjeta en el paso siguiente, y el resto se cobra al retirarlas en la sucursal. Tienes 48 horas; pasado ese plazo el stock se libera.
           </p>
-          <Select
-            label="Sucursal donde retirarás"
-            value={idSucursalReserva === '' ? '' : String(idSucursalReserva)}
-            onChange={(event) => onSucursalReserva(event.target.value === '' ? '' : Number(event.target.value))}
-          >
-            <option value="">Selecciona una sucursal</option>
-            {sucursales.map((sucursal) => (
-              <option key={sucursal.id} value={sucursal.id}>
-                {sucursal.nombre} — {sucursal.ubicacion}
-              </option>
-            ))}
-          </Select>
+          <p className="rounded-md bg-neutral-100 px-3 py-2 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
+            📍 Retiras en <strong>{sucursalActiva?.nombre ?? '…'}</strong>
+            {sucursalActiva && ` — ${sucursalActiva.ubicacion}`}. Para cambiar de sucursal, usa el selector de arriba antes de reservar.
+          </p>
           {errorReserva && (
             <p role="alert" className="rounded-md bg-red-50 px-3 py-2 text-red-700 dark:bg-red-950/40 dark:text-red-300">
               {errorReserva}
@@ -289,6 +309,18 @@ export function ProductoPageView({
           </div>
         </div>
       </Modal>
+
+      <ProbadorVirtual
+        open={probadorAbierto}
+        variante={probadorVarianteAssets}
+        nombre={probadorVariante ? producto.nombre : undefined}
+        color={probadorVariante?.color}
+        talla={probadorVariante?.talla}
+        corte={probadorVariante?.corte}
+        onCerrar={onCerrarProbador}
+        onAgregarAlCarrito={onAgregarDesdeProbador}
+        agregandoAlCarrito={enviandoProbador}
+      />
     </div>
   )
 }

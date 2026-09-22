@@ -3,6 +3,7 @@ import { useDeferredValue, useState, type FormEvent } from 'react'
 import useSWR from 'swr'
 import { useAppStore } from '@/core/store/appStore'
 import { useAuthStore } from '@/core/store/authStore'
+import { Button } from '@/shared/components/ui/Button'
 import { ProductoForm } from '@/modules/inventario/components/ProductoForm'
 import { ProductoImagenesPanel } from '@/modules/inventario/components/ProductoImagenesPanel'
 import { ProductoVariantesPanel } from '@/modules/inventario/components/ProductoVariantesPanel'
@@ -180,10 +181,8 @@ export function ProductosPage() {
               sucursales={sucursales}
               editing={!!editingProducto}
               loading={saving}
-              error={error}
               onChange={updateForm}
               onSubmit={handleSubmit}
-              onCancel={closeModal}
             />
             {editingProducto && (
               <>
@@ -191,6 +190,15 @@ export function ProductosPage() {
                 <ProductoImagenesPanel producto={editingProducto} onActualizado={handleSubProductoActualizado} />
               </>
             )}
+            {error && <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/50 dark:text-red-300">{error}</p>}
+            <div className="flex justify-end gap-3 border-t border-neutral-200 pt-4 dark:border-neutral-800">
+              <Button type="button" variant="secondary" onClick={closeModal} disabled={saving}>
+                Cancelar
+              </Button>
+              <Button type="submit" form="producto-form" loading={saving}>
+                {editingProducto ? 'Guardar cambios' : 'Crear producto'}
+              </Button>
+            </div>
           </div>
         ) : null
       }

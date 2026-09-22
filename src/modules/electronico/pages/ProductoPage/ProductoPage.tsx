@@ -1,7 +1,7 @@
 import { isAxiosError } from 'axios'
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { useCarrito, useMisReservas, useProductoDetalle, useProductosRelacionados, useSucursalesPublicas } from '../../hooks'
+import { useCarrito, useMisReservas, useProductoDetalle, useProductosRelacionados, useProbadorVariante, useSucursalActiva } from '../../hooks'
 import { cargarSeleccion, guardarSeleccion, type SeleccionProducto } from '@/shared/utils/seleccionProducto'
 import type { VarianteDetalle } from '../../types'
 import { extraerMensajeError as mensajeDeError } from '../../utils/reservas'
@@ -19,11 +19,13 @@ function ProductoPageContenido() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const { producto, error, isLoading } = useProductoDetalle(idProducto)
+  // La ficha muestra el stock de la sucursal que el cliente tiene elegida (CU08),
+  // y esa misma sucursal es con la que se agrega al carrito y se reserva (CU14).
+  const { idSucursal, sucursalActiva } = useSucursalActiva()
+  const { producto, error, isLoading } = useProductoDetalle(idProducto, idSucursal ?? undefined)
   const { relacionados } = useProductosRelacionados(idProducto)
   const { autenticado, esCliente, carrito, agregar } = useCarrito()
   const { reservar } = useMisReservas()
-  const { sucursales } = useSucursalesPublicas()
 
   /**
    * idVariante -> unidades elegidas todavía sin agregar al carrito. Se guarda en el navegador: sobrevive a
@@ -34,8 +36,11 @@ function ProductoPageContenido() {
   const [enviando, setEnviando] = useState(false)
   const [mensaje, setMensaje] = useState<MensajeProducto | null>(null)
   const [reservaAbierta, setReservaAbierta] = useState(false)
-  const [idSucursalReserva, setIdSucursalReserva] = useState<number | ''>('')
   const [errorReserva, setErrorReserva] = useState<string | null>(null)
+  // Probador virtual (CU19): la variante que se está probando con la cámara.
+  const [probadorVarianteId, setProbadorVarianteId] = useState<number | null>(null)
+  const varianteProbador = probadorVarianteId === null ? null : (producto?.variantes.find((v) => v.id === probadorVarianteId) ?? null)
+  const { variante: varianteProbadorAssets } = useProbadorVariante(probadorVarianteId ?? 0)
 
   // Lo guardado puede haber quedado viejo (variante sin stock, ya en el carrito): se muestra solo lo que todavía es válido.
   const seleccion = seleccionValida(seleccionGuardada, producto?.variantes, (idVariante) =>
@@ -130,20 +135,53 @@ function ProductoPageContenido() {
   }
 
   const onConfirmarReserva = async () => {
-    if (idSucursalReserva === '') {
-      setErrorReserva('Elige la sucursal donde retirarás tus prendas.')
+    if (idSucursal === null) {
+      setErrorReserva('Todavía no se cargó tu sucursal; espera un segundo e inténtalo de nuevo.')
       return
     }
     setEnviando(true)
     setErrorReserva(null)
     try {
-      const reserva = await reservar({ idSucursal: idSucursalReserva, items: lineas })
+      const reserva = await reservar({ idSucursal, items: lineas })
       setSeleccion({})
       setReservaAbierta(false)
       // La reserva ya aparta el stock; el siguiente paso es pagar su anticipo para confirmarla.
       navigate(`/checkout/reserva/${reserva.id}`)
     } catch (requestError) {
       setErrorReserva(mensajeDeError(requestError, 'No se pudo crear la reserva. Inténtalo de nuevo.'))
+    } finally {
+      setEnviando(false)
+    }
+  }
+
+  const abrirProbador = (variante: VarianteDetalle) => {
+    setMensaje(null)
+    setProbadorVarianteId(variante.id)
+  }
+
+  const cerrarProbador = () => {
+    if (!enviando) setProbadorVarianteId(null)
+  }
+
+  /** Desde el probador (CU19) se puede confirmar el calce y pasar todo a la CU14 (carrito). */
+  const agregarDesdeProbador = async () => {
+    if (probadorVarianteId === null || !varianteProbador) return
+    setMensaje(null)
+    if (!autenticado) {
+      navigate('/login', { state: { from: location.pathname } })
+      return
+    }
+    if (!esCliente) {
+      setMensaje({ tipo: 'error', texto: 'El carrito es solo para clientes. Inicia sesión con una cuenta de cliente.' })
+      return
+    }
+    setEnviando(true)
+    try {
+      await agregar([{ idVarianteProducto: probadorVarianteId, cantidad: 1 }])
+      setProbadorVarianteId(null)
+      setMensaje({ tipo: 'ok', texto: 'Agregado a tu carrito desde el probador.' })
+    } catch (requestError) {
+      setMensaje({ tipo: 'error', texto: extraerMensajeError(requestError) })
     } finally {
       setEnviando(false)
     }
@@ -167,13 +205,18 @@ function ProductoPageContenido() {
       onAgregar={onAgregar}
       onComprarAhora={onComprarAhora}
       reservaAbierta={reservaAbierta}
-      sucursales={sucursales}
-      idSucursalReserva={idSucursalReserva}
+      sucursalActiva={sucursalActiva}
       errorReserva={errorReserva}
       onAbrirReserva={onAbrirReserva}
       onCerrarReserva={() => !enviando && setReservaAbierta(false)}
-      onSucursalReserva={setIdSucursalReserva}
       onConfirmarReserva={onConfirmarReserva}
+      probadorVariante={varianteProbador}
+      probadorVarianteAssets={varianteProbadorAssets}
+      probadorAbierto={probadorVarianteId !== null}
+      onProbarPrenda={abrirProbador}
+      onCerrarProbador={cerrarProbador}
+      onAgregarDesdeProbador={agregarDesdeProbador}
+      enviandoProbador={enviando}
     />
   )
 }

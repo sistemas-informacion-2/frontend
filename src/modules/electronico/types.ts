@@ -125,6 +125,8 @@ export interface ItemCarrito {
 
 export interface Carrito {
   id: number | null
+  /** Sucursal de la que sale el stock al pagar; null en el mismo caso que `id`. */
+  idSucursal: number | null
   items: ItemCarrito[]
   cantidadTotal: number
   total: number
@@ -254,4 +256,33 @@ export interface DatosTarjeta {
   numero: string
   vencimiento: string
   cvv: string
+}
+
+// --- Probador virtual (CU19) ---
+
+export interface ProbadorImagen {
+  id: number
+  url: string
+  esPrincipal: boolean
+  orden: number
+}
+
+/** Qué parte del cuerpo usa el probador virtual para anclar el modelo 3D (viene de la categoría del producto). */
+export type ZonaProbador = 'SUPERIOR' | 'INFERIOR' | 'COMPLETO'
+
+export interface ProbadorVariante {
+  id: number
+  sku: string
+  talla: string
+  color: string
+  corte: string
+  /** Enlace opcional al modelo 3D registrado en VARIANTE_PRODUCTO. */
+  modelo3dUrl: string | null
+  zonaProbador: ZonaProbador
+  producto: {
+    id: number
+    nombre: string
+    descripcion: string | null
+  }
+  imagenes: ProbadorImagen[]
 }

@@ -5,6 +5,7 @@ import type { Producto } from '../types'
 export interface FiltrosCatalogo {
   idCategoria?: number
   idTemporada?: number
+  idSucursal?: number
   soloOfertas?: boolean
   search?: string
 }

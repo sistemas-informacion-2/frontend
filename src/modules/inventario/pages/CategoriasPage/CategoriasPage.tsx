@@ -22,6 +22,7 @@ const EMPTY_FORM: CategoriaFormValues = {
   imagenUrl: '',
   categoriaPadreId: '',
   activo: true,
+  zonaProbador: 'SUPERIOR',
   temporadaIds: [],
 }
 
@@ -72,6 +73,7 @@ export function CategoriasPage() {
       imagenUrl: categoria.imagenUrl ?? '',
       categoriaPadreId: categoria.categoriaPadreId ?? '',
       activo: categoria.activo,
+      zonaProbador: categoria.zonaProbador,
       temporadaIds: categoria.temporadas.map((temporada) => temporada.id),
     })
     setError(null)
@@ -114,6 +116,7 @@ export function CategoriasPage() {
         imagenUrl: categoria.imagenUrl ?? '',
         categoriaPadreId: categoria.categoriaPadreId ?? '',
         activo: !categoria.activo,
+        zonaProbador: categoria.zonaProbador,
         temporadaIds: categoria.temporadas.map((temporada) => temporada.id),
       })
       await mutate()

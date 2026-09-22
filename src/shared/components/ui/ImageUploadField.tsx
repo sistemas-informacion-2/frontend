@@ -6,9 +6,11 @@ interface ImageUploadFieldProps {
   value: string
   onChange: (url: string) => void
   disabled?: boolean
+  /** Oculta el boton "Eliminar" (para paneles con su propia accion de borrado). */
+  sinBotonEliminar?: boolean
 }
 
-export function ImageUploadField({ label, value, onChange, disabled = false }: ImageUploadFieldProps) {
+export function ImageUploadField({ label, value, onChange, disabled = false, sinBotonEliminar = false }: ImageUploadFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -62,7 +64,7 @@ export function ImageUploadField({ label, value, onChange, disabled = false }: I
           <Button type="button" variant="secondary" loading={loading} disabled={disabled} onClick={() => inputRef.current?.click()}>
             {value ? 'Cambiar imagen' : 'Cargar imagen'}
           </Button>
-          {value && (
+          {value && !sinBotonEliminar && (
             <Button type="button" variant="secondary" disabled={disabled || loading} onClick={() => onChange('')}>
               Eliminar
             </Button>

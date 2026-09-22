@@ -71,6 +71,15 @@ export function CategoriaForm({
           ))}
         </Select>
         <ImageUploadField label="Imagen de categoría" value={values.imagenUrl} onChange={(url) => onChange('imagenUrl', url)} disabled={loading} />
+        <Select
+          label="Zona del probador virtual"
+          value={values.zonaProbador}
+          onChange={(event) => onChange('zonaProbador', event.target.value as CategoriaFormValues['zonaProbador'])}
+        >
+          <option value="SUPERIOR">Superior (hombros) — poleras, blusas, abrigos…</option>
+          <option value="INFERIOR">Inferior (cadera) — pantalones, faldas…</option>
+          <option value="COMPLETO">Completo (hombros a cadera) — vestidos, enterizos…</option>
+        </Select>
         {editing && (
           <Select label="Estado" value={values.activo ? 'true' : 'false'} onChange={(event) => onChange('activo', event.target.value === 'true')}>
             <option value="true">Activa</option>

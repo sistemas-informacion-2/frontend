@@ -1,4 +1,4 @@
-import type { TendenciaVenta } from '../types'
+import type { TendenciaVenta } from '../dashboard.types'
 import { formatearDiaMes, formatearMonto } from '../utils/format'
 
 interface LineaTendenciaProps {

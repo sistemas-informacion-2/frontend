@@ -3,8 +3,11 @@ import { unwrap, type Envelope } from '@/core/http/envelope'
 import type { Producto } from '@/modules/inventario/types'
 import type { ProductoDetalle } from '../types'
 
-export async function fetchProductoDetalle(id: number): Promise<ProductoDetalle> {
-  const response = await httpClient.get<Envelope<ProductoDetalle>>(`/inventario/productos/${id}/publico`)
+/** `idSucursal` acota el stock mostrado a esa sucursal (la que el cliente tiene elegida), no la suma de todas. */
+export async function fetchProductoDetalle(id: number, idSucursal?: number): Promise<ProductoDetalle> {
+  const response = await httpClient.get<Envelope<ProductoDetalle>>(`/inventario/productos/${id}/publico`, {
+    params: idSucursal ? { idSucursal } : undefined,
+  })
   return unwrap(response)
 }
 

@@ -1,3 +1,4 @@
+import { isAxiosError } from 'axios'
 import { useState } from 'react'
 import { Badge } from '@/shared/components/ui/Badge'
 import { Button } from '@/shared/components/ui/Button'
@@ -114,9 +115,7 @@ function VarianteRow({
     setError(null)
     setGuardando(true)
     try {
-      const actualizado = variante.activo
-        ? await eliminarVariante(idProducto, variante.id)
-        : await actualizarVariante(idProducto, variante.id, { ...valores, activo: true })
+      const actualizado = await actualizarVariante(idProducto, variante.id, { ...valores, activo: !variante.activo })
       onActualizado(actualizado)
     } catch {
       setError('No se pudo cambiar el estado de la variante.')
@@ -125,13 +124,32 @@ function VarianteRow({
     }
   }
 
+  const handleEliminar = async () => {
+    if (!window.confirm('¿Eliminar esta variante? Esta acción no se puede deshacer.')) return
+    setError(null)
+    setGuardando(true)
+    try {
+      const actualizado = await eliminarVariante(idProducto, variante.id)
+      onActualizado(actualizado)
+    } catch (requestError) {
+      setError(extraerMensajeError(requestError))
+    } finally {
+      setGuardando(false)
+    }
+  }
+
   return (
     <div className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800">
-      <div className="mb-2 flex items-center justify-between">
+      <div className="mb-2 flex items-center gap-3">
         <Badge tone={variante.activo ? 'success' : 'neutral'}>{variante.activo ? 'Activa' : 'Inactiva'}</Badge>
-        <button type="button" onClick={handleToggleActivo} disabled={guardando} className="text-xs font-medium text-red-600 underline hover:text-red-800 dark:text-red-400">
-          {variante.activo ? 'Desactivar' : 'Reactivar'}
-        </button>
+        <span className="ml-auto flex items-center gap-3">
+          <button type="button" onClick={handleToggleActivo} disabled={guardando} className="text-xs font-medium text-neutral-500 underline hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white">
+            {variante.activo ? 'Desactivar' : 'Reactivar'}
+          </button>
+          <button type="button" onClick={handleEliminar} disabled={guardando} className="text-xs font-medium text-red-600 underline hover:text-red-800 dark:text-red-400">
+            Eliminar
+          </button>
+        </span>
       </div>
       <div className="grid gap-2 sm:grid-cols-3">
         <Input label="SKU" value={valores.sku} onChange={(event) => setValores((c) => ({ ...c, sku: event.target.value }))} />
@@ -148,4 +166,13 @@ function VarianteRow({
       </div>
     </div>
   )
+}
+
+function extraerMensajeError(error: unknown): string {
+  if (isAxiosError(error)) {
+    const message = error.response?.data?.message
+    if (Array.isArray(message)) return message[0] ?? 'La solicitud no es válida.'
+    if (typeof message === 'string') return message
+  }
+  return 'No se pudo eliminar la variante.'
 }

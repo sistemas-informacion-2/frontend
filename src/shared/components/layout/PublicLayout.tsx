@@ -2,14 +2,17 @@ import { type FormEvent, useState } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { env } from '@/core/config/env'
 import { useAuthStore } from '@/core/store/authStore'
+import { CategoryNavBar } from '@/modules/electronico/components/CategoryNavBar'
 import { NotificationBell } from '@/modules/electronico/components/NotificationBell'
 import { StoreFooter } from '@/modules/electronico/components/StoreFooter'
+import { StoreLogoMarca } from '@/modules/electronico/components/StoreLogo'
 import { StoreSidebar } from '@/modules/electronico/components/StoreSidebar'
 import { CartIcon } from '@/shared/components/ui/CartIcon'
 import { ThemeToggle } from '@/shared/components/ui/ThemeToggle'
 
 export function PublicLayout() {
   const perfil = useAuthStore((state) => state.perfil)
+  const autenticado = useAuthStore((state) => state.isAuthenticated)
   const [menuAbierto, setMenuAbierto] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
@@ -31,14 +34,20 @@ export function PublicLayout() {
     <div className="flex min-h-screen flex-col bg-white dark:bg-neutral-950">
       <header className="sticky top-0 z-40 border-b border-neutral-100 bg-white dark:border-neutral-800 dark:bg-neutral-950">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-3 px-4 py-3 sm:gap-6 sm:px-6 sm:py-4">
-          <button
-            type="button"
-            onClick={() => setMenuAbierto(true)}
-            aria-label="Abrir menú"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-lg text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800"
-          >
-            ☰
-          </button>
+          {/* Sin sesión no hay nada que poner en el sidebar (Mi cuenta no aplica), así
+              que ni se muestra el botón de menú: solo el logo, sin acción. */}
+          {autenticado ? (
+            <button
+              type="button"
+              onClick={() => setMenuAbierto(true)}
+              aria-label="Abrir menú"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-lg text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800"
+            >
+              ☰
+            </button>
+          ) : (
+            <StoreLogoMarca />
+          )}
           <Link to="/" className="shrink-0 text-lg font-semibold tracking-tight sm:text-xl dark:text-white">
             {env.appName}
           </Link>
@@ -81,9 +90,10 @@ export function PublicLayout() {
           </div>
         </div>
 
+        <CategoryNavBar />
       </header>
 
-      <StoreSidebar open={menuAbierto} onClose={() => setMenuAbierto(false)} />
+      {autenticado && <StoreSidebar open={menuAbierto} onClose={() => setMenuAbierto(false)} />}
 
       <main className="flex-1">
         <Outlet />

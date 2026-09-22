@@ -5,7 +5,7 @@ import { Modal } from '@/shared/components/ui/Modal'
 import { Pagination } from '@/shared/components/ui/Pagination'
 import { Select } from '@/shared/components/ui/Select'
 import { Skeleton } from '@/shared/components/ui/Skeleton'
-import type { BitacoraRegistro, OperacionBitacora } from '../../types/bitacora'
+import type { BitacoraRegistro, OperacionBitacora } from '../../types'
 
 interface BitacoraPageViewProps {
   registros: BitacoraRegistro[]

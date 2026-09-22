@@ -1,11 +1,11 @@
-import { PromoBanner } from '../../components/PromoBanner'
 import { ProductoCard } from '../../components/ProductoCard'
+import { OfertasCarrusel } from '../../components/OfertasCarrusel'
 import type { Categoria, Producto } from '@/modules/inventario/types'
 import { EmptyState } from '@/shared/components/ui/EmptyState'
 import { Skeleton } from '@/shared/components/ui/Skeleton'
 
 export interface FiltroActivo {
-  clave: 'categoria' | 'temporada' | 'ofertas' | 'q'
+  clave: 'categoria' | 'temporada' | 'q'
   etiqueta: string
 }
 
@@ -13,38 +13,17 @@ interface CatalogoPageViewProps {
   categorias: Categoria[]
   productos: Producto[]
   cargando: boolean
+  /** Solo en "Todas" (sin categoría/temporada/sucursal/búsqueda): apenas se filtra o se busca algo, se oculta. */
+  mostrarOfertas: boolean
   filtros: FiltroActivo[]
   onQuitarFiltro: (clave: FiltroActivo['clave']) => void
   onQuitarTodos: () => void
-  descuentoMaximo: number
-  temporadaVigente?: string
-  onVerOfertas: () => void
 }
 
-export function CatalogoPageView({
-  categorias,
-  productos,
-  cargando,
-  filtros,
-  onQuitarFiltro,
-  onQuitarTodos,
-  descuentoMaximo,
-  temporadaVigente,
-  onVerOfertas,
-}: CatalogoPageViewProps) {
+export function CatalogoPageView({ categorias, productos, cargando, mostrarOfertas, filtros, onQuitarFiltro, onQuitarTodos }: CatalogoPageViewProps) {
   return (
     <div>
-      {descuentoMaximo > 0 && (
-        <section className="mx-auto max-w-6xl px-4 pt-6 sm:px-6 sm:pt-8">
-          <PromoBanner
-            descuentoMaximo={descuentoMaximo}
-            temporada={temporadaVigente}
-            verOfertasActivo={filtros.some((filtro) => filtro.clave === 'ofertas')}
-            onVerOfertas={onVerOfertas}
-            onVerTodo={() => onQuitarFiltro('ofertas')}
-          />
-        </section>
-      )}
+      {mostrarOfertas && <OfertasCarrusel />}
 
       <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
         {filtros.length > 0 && (

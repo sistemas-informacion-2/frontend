@@ -1,5 +1,5 @@
 import { httpClient } from '@/core/http/httpClient'
-import type { BitacoraPaginatedResponse, BitacoraQuery, BitacoraRegistro } from '../types/bitacora'
+import type { BitacoraPaginatedResponse, BitacoraQuery, BitacoraRegistro } from '../types'
 
 interface Envelope<T> {
   data: T

@@ -136,7 +136,13 @@ function ImagenCard({
         <img src={imagen.url} alt="" className="h-full w-full object-cover" />
       </div>
       <div className="space-y-1 p-2">
-        <ImageUploadField label="Imagen" value={imagen.url} onChange={(url) => void handleCambiarImagen(url)} disabled={procesando} />
+        <ImageUploadField
+          label="Imagen"
+          value={imagen.url}
+          onChange={(url) => void handleCambiarImagen(url)}
+          disabled={procesando}
+          sinBotonEliminar
+        />
         <div className="flex items-center justify-between">
           {imagen.esPrincipal ? (
             <Badge tone="success">Principal</Badge>

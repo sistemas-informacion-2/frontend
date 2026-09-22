@@ -6,7 +6,7 @@ import { Skeleton } from '@/shared/components/ui/Skeleton'
 import { BarrasSucursales } from '../../components/BarrasSucursales'
 import { KpiCard } from '../../components/KpiCard'
 import { LineaTendencia } from '../../components/LineaTendencia'
-import type { DashboardResumen } from '../../types'
+import type { DashboardResumen } from '../../dashboard.types'
 import { formatearMonto } from '../../utils/format'
 
 interface DashboardPageViewProps {

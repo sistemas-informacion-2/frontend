@@ -8,8 +8,8 @@ export async function fetchCarrito(): Promise<Carrito> {
   return unwrap(await httpClient.get<Envelope<Carrito>>('/electronico/carrito'))
 }
 
-export async function agregarAlCarrito(idVarianteProducto: number, cantidad: number): Promise<Carrito> {
-  return unwrap(await httpClient.post<Envelope<Carrito>>('/electronico/carrito/items', { idVarianteProducto, cantidad }))
+export async function agregarAlCarrito(idVarianteProducto: number, idSucursal: number, cantidad: number): Promise<Carrito> {
+  return unwrap(await httpClient.post<Envelope<Carrito>>('/electronico/carrito/items', { idVarianteProducto, idSucursal, cantidad }))
 }
 
 export async function actualizarCantidadItem(idItem: number, cantidad: number): Promise<Carrito> {

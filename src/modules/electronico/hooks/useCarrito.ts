@@ -1,9 +1,10 @@
 import useSWR from 'swr'
 import { useAuthStore } from '@/core/store/authStore'
+import { useTiendaStore } from '@/core/store/tiendaStore'
 import { actualizarCantidadItem, agregarAlCarrito, fetchCarrito, quitarItemCarrito, vaciarCarrito } from '../api'
 import type { Carrito } from '../types'
 
-const CARRITO_VACIO: Carrito = { id: null, items: [], cantidadTotal: 0, total: 0, fechaActualizacion: null }
+const CARRITO_VACIO: Carrito = { id: null, idSucursal: null, items: [], cantidadTotal: 0, total: 0, fechaActualizacion: null }
 
 export interface LineaAgregar {
   idVarianteProducto: number
@@ -17,6 +18,7 @@ export interface LineaAgregar {
 export function useCarrito() {
   const autenticado = useAuthStore((state) => state.isAuthenticated)
   const esCliente = useAuthStore((state) => state.perfil?.tipoUsuario === 'C')
+  const idSucursal = useTiendaStore((state) => state.idSucursal)
 
   const { data, isLoading, mutate } = useSWR<Carrito>(esCliente ? 'electronico/carrito' : null, fetchCarrito, {
     shouldRetryOnError: false,
@@ -42,10 +44,11 @@ export function useCarrito() {
     refrescar: () => mutate(),
     /** Agrega varias variantes en orden; si una falla, las anteriores ya quedaron en el carrito. */
     agregar: async (lineas: LineaAgregar[]) => {
+      if (idSucursal === null) throw new Error('Todavía no se eligió una sucursal; recarga la página e intenta de nuevo')
       try {
         let ultimo = carrito
         for (const linea of lineas) {
-          ultimo = await aplicar(() => agregarAlCarrito(linea.idVarianteProducto, linea.cantidad))
+          ultimo = await aplicar(() => agregarAlCarrito(linea.idVarianteProducto, idSucursal, linea.cantidad))
         }
         return ultimo
       } catch (error) {

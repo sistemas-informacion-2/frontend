@@ -2,7 +2,7 @@ import { isAxiosError } from 'axios'
 import { useDeferredValue, useState } from 'react'
 import useSWR from 'swr'
 import { listarBitacora, obtenerBitacora } from '@/modules/acceso/services/bitacora.service'
-import type { BitacoraRegistro, OperacionBitacora } from '@/modules/acceso/types/bitacora'
+import type { BitacoraRegistro, OperacionBitacora } from '@/modules/acceso/types'
 import { BitacoraPageView } from './BitacoraPage.view'
 
 const PAGE_SIZE = 10

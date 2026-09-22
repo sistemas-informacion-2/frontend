@@ -2,8 +2,6 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/core/store/authStore'
 import { useCerrarSesion } from '@/modules/acceso/hooks/useCerrarSesion'
-import { useCategorias } from '@/modules/inventario/hooks'
-import type { Categoria } from '@/modules/inventario/types'
 import { Skeleton } from '@/shared/components/ui/Skeleton'
 import { useTemporadasPublicas } from '../hooks'
 import type { EstadoTemporadaPublica } from '../types'
@@ -31,14 +29,13 @@ export function StoreSidebar({ open, onClose }: StoreSidebarProps) {
   const navigate = useNavigate()
   const location = useLocation()
   const paramsActuales = new URLSearchParams(location.pathname === '/' ? location.search : '')
-  const categoriaActiva = Number(paramsActuales.get('categoria')) || null
   const temporadaActiva = Number(paramsActuales.get('temporada')) || null
-  const { categorias, isLoading: cargandoCategorias } = useCategorias()
   const { temporadas, isLoading: cargandoTemporadas } = useTemporadasPublicas()
   const autenticado = useAuthStore((state) => state.isAuthenticated)
   const esCliente = useAuthStore((state) => state.perfil?.tipoUsuario === 'C')
-  // Un cliente dentro de "Mi cuenta" ve su menú de cuenta en lugar de categorías y temporadas.
-  const modoCuenta = esCliente && location.pathname.startsWith('/mi-cuenta')
+  // Un cliente que inició sesión ve siempre su menú de cuenta acá (esté donde esté navegando),
+  // no el de Temporadas/Contáctanos — ese es para visitantes sin sesión.
+  const modoCuenta = esCliente
   const cerrarSesion = useCerrarSesion()
 
   useEffect(() => {
@@ -55,10 +52,10 @@ export function StoreSidebar({ open, onClose }: StoreSidebarProps) {
     }
   }, [open, onClose])
 
-  const filtrarPor = (parametro: 'categoria' | 'temporada', id: number) => {
+  const filtrarPorTemporada = (id: number) => {
     onClose()
     const params = new URLSearchParams(paramsActuales)
-    params.set(parametro, String(id))
+    params.set('temporada', String(id))
     navigate(`/?${params.toString()}`)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -126,32 +123,9 @@ export function StoreSidebar({ open, onClose }: StoreSidebarProps) {
                 {item.label}
               </NavLink>
             ))}
-            <div className="my-2 border-t border-neutral-100 dark:border-neutral-800" />
-            <NavLink
-              to="/"
-              onClick={onClose}
-              className="block rounded-md px-3 py-2.5 text-sm font-medium text-neutral-900 hover:bg-neutral-100 dark:text-white dark:hover:bg-neutral-800"
-            >
-              ← Seguir comprando
-            </NavLink>
           </nav>
         ) : (
         <nav className="flex-1 space-y-1 overflow-y-auto px-2 py-3">
-          <Acordeon titulo="Categorías">
-            {cargandoCategorias ? (
-              <SkeletonLista />
-            ) : categorias.length === 0 ? (
-              <p className="px-3 py-2 text-sm text-neutral-500 dark:text-neutral-400">Aún no hay categorías.</p>
-            ) : (
-              <ListaCategorias
-                categorias={categorias}
-                nivel={0}
-                activa={categoriaActiva}
-                onSeleccionar={(id) => filtrarPor('categoria', id)}
-              />
-            )}
-          </Acordeon>
-
           <Acordeon titulo="Temporadas">
             {cargandoTemporadas ? (
               <SkeletonLista />
@@ -163,7 +137,7 @@ export function StoreSidebar({ open, onClose }: StoreSidebarProps) {
                   <li key={temporada.id}>
                     <button
                       type="button"
-                      onClick={() => filtrarPor('temporada', temporada.id)}
+                      onClick={() => filtrarPorTemporada(temporada.id)}
                       className={`flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800 ${
                         temporada.id === temporadaActiva
                           ? 'bg-neutral-100 font-semibold text-neutral-900 dark:bg-neutral-800 dark:text-white'
@@ -189,14 +163,15 @@ export function StoreSidebar({ open, onClose }: StoreSidebarProps) {
         </nav>
         )}
 
-        <div className="border-t border-neutral-100 p-4 dark:border-neutral-800">
-          <button
-            type="button"
-            className="w-full rounded-full bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white dark:bg-white dark:text-neutral-900"
-          >
-            Necesitas ayuda
-          </button>
-          {autenticado && (
+        {autenticado && (
+          <div className="border-t border-neutral-100 p-4 dark:border-neutral-800">
+            <button
+              type="button"
+              onClick={irAContacto}
+              className="w-full rounded-full bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white dark:bg-white dark:text-neutral-900"
+            >
+              Necesitas ayuda
+            </button>
             <button
               type="button"
               onClick={handleCerrarSesion}
@@ -204,8 +179,8 @@ export function StoreSidebar({ open, onClose }: StoreSidebarProps) {
             >
               Cerrar sesión
             </button>
-          )}
-        </div>
+          </div>
+        )}
       </aside>
     </div>
   )
@@ -229,42 +204,6 @@ function Acordeon({ titulo, children }: { titulo: string; children: ReactNode })
       </button>
       {abierto && <div className="pb-2 pl-2">{children}</div>}
     </div>
-  )
-}
-
-function ListaCategorias({
-  categorias,
-  nivel,
-  activa,
-  onSeleccionar,
-}: {
-  categorias: Categoria[]
-  nivel: number
-  activa: number | null
-  onSeleccionar: (id: number) => void
-}) {
-  return (
-    <ul>
-      {categorias.map((categoria) => (
-        <li key={categoria.id}>
-          <button
-            type="button"
-            onClick={() => onSeleccionar(categoria.id)}
-            style={{ paddingLeft: `${12 + nivel * 16}px` }}
-            className={`w-full rounded-md py-2 pr-3 text-left text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800 ${
-              categoria.id === activa
-                ? 'bg-neutral-100 font-semibold text-neutral-900 dark:bg-neutral-800 dark:text-white'
-                : 'text-neutral-700 dark:text-neutral-300'
-            }`}
-          >
-            {categoria.nombre}
-          </button>
-          {categoria.hijos.length > 0 && (
-            <ListaCategorias categorias={categoria.hijos} nivel={nivel + 1} activa={activa} onSeleccionar={onSeleccionar} />
-          )}
-        </li>
-      ))}
-    </ul>
   )
 }
 

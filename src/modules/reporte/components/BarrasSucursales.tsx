@@ -1,4 +1,4 @@
-import type { VentasSucursal } from '../types'
+import type { VentasSucursal } from '../dashboard.types'
 import { formatearMonto } from '../utils/format'
 
 interface BarrasSucursalesProps {
