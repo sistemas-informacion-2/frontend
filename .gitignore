@@ -23,6 +23,9 @@ dist-ssr
 *.sln
 *.sw?
 
+# MediaPipe: se copian desde node_modules con postinstall
+public/mediapipe/wasm
+
 # Sobrescrituras locales. Los .env versionados solo llevan valores
 # publicos, porque Vite los incrusta en el bundle de todas formas.
 .env.local
