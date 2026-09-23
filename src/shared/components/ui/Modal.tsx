@@ -5,9 +5,11 @@ interface ModalProps {
   title: string
   onClose: () => void
   children: ReactNode
+  /** Ancho máximo en pantallas sm+ (clase Tailwind `sm:max-w-*`). Por defecto `sm:max-w-2xl`. */
+  maxWidthClassName?: string
 }
 
-export function Modal({ open, title, onClose, children }: ModalProps) {
+export function Modal({ open, title, onClose, children, maxWidthClassName = 'sm:max-w-2xl' }: ModalProps) {
   useEffect(() => {
     if (!open) return
     const onKeyDown = (event: KeyboardEvent) => {
@@ -26,7 +28,7 @@ export function Modal({ open, title, onClose, children }: ModalProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
-        className="relative z-10 max-h-[90vh] w-full overflow-y-auto rounded-t-xl bg-white p-5 shadow-xl sm:max-w-2xl sm:rounded-xl sm:p-6 dark:bg-neutral-950"
+        className={`relative z-10 max-h-[90vh] w-full overflow-y-auto rounded-t-xl bg-white p-5 shadow-xl sm:rounded-xl sm:p-6 dark:bg-neutral-950 ${maxWidthClassName}`}
       >
         <div className="mb-5 flex items-center justify-between gap-4">
           <h2 id="modal-title" className="text-lg font-semibold text-neutral-900 dark:text-white">

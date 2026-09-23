@@ -8,6 +8,8 @@ interface LoginPageViewProps {
   password: string
   loading: boolean
   error: string | null
+  /** Ruta a la que se vuelve tras iniciar sesión; se conserva al ir a "Crear cuenta". */
+  desde?: string
   onEmailChange: (value: string) => void
   onPasswordChange: (value: string) => void
   onSubmit: (event: FormEvent<HTMLFormElement>) => void
@@ -18,6 +20,7 @@ export function LoginPageView({
   password,
   loading,
   error,
+  desde,
   onEmailChange,
   onPasswordChange,
   onSubmit,
@@ -56,9 +59,16 @@ export function LoginPageView({
           Ingresar
         </Button>
 
+        <p className="mt-4 text-center text-sm text-neutral-500 dark:text-neutral-400">
+          ¿No tienes cuenta?{' '}
+          <Link to="/registro" state={desde ? { from: desde } : undefined} className="font-medium text-neutral-900 underline dark:text-white">
+            Crear cuenta
+          </Link>
+        </p>
+
         <Link
           to="/"
-          className="mt-4 block text-center text-sm text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
+          className="mt-2 block text-center text-sm text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
         >
           Volver al catálogo
         </Link>

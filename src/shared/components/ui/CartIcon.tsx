@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { useCarrito } from '@/core/context/useCarrito'
+import { useCarrito } from '@/modules/electronico/hooks/useCarrito'
 
 export function CartIcon() {
   const { cantidadTotal } = useCarrito()

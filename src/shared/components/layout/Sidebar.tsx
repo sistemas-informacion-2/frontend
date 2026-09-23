@@ -1,3 +1,4 @@
+import { useLocation } from 'react-router-dom'
 import { useAppStore } from '@/core/store/appStore'
 import { useAuthStore } from '@/core/store/authStore'
 import { SidebarView } from './SidebarView'
@@ -34,6 +35,7 @@ const GROUPS: SidebarGroup[] = [
       { label: 'Proveedores', path: '/admin/proveedores', permission: 'inventario:proveedores:gestionar' },
       { label: 'Temporadas', path: '/admin/temporadas', permission: 'inventario:temporadas:gestionar' },
       { label: 'Inventario / Almacén', path: '/admin/almacenes', permission: 'inventario:almacen:gestionar' },
+      { label: 'Stock / Existencias', path: '/admin/stock', permission: 'inventario:almacen:gestionar' },
     ],
   },
   {
@@ -41,6 +43,7 @@ const GROUPS: SidebarGroup[] = [
     icon: '💰',
     items: [
       { label: 'Ventas Presenciales', path: '/admin/ventas', permission: 'comercial:ventas:gestionar' },
+      { label: 'Devoluciones', path: '/admin/devoluciones', permission: 'comercial:devoluciones:gestionar' },
       { label: 'Compras', path: '/admin/compras', permission: 'comercial:compras:gestionar' },
       { label: 'Caja', path: '/admin/caja', permission: 'comercial:caja:gestionar' },
       { label: 'Métodos de Pago', path: '/admin/pasarelas', permission: 'comercial:pasarelas:gestionar' },
@@ -50,7 +53,8 @@ const GROUPS: SidebarGroup[] = [
     label: 'E-Commerce Digital',
     icon: '🛒',
     items: [
-      { label: 'Carrito', path: '/admin/carritos', permission: 'electronico:carrito:leer' },
+      { label: 'Reservas', path: '/admin/reservas', permission: 'electronico:reservas:gestionar' },
+      { label: 'Ventas en línea', path: '/admin/ventas-en-linea', permission: 'electronico:ventas:leer' },
       { label: 'Probador Virtual', path: '/admin/probador-virtual', permission: 'electronico:probador:gestionar' },
       { label: 'Notificaciones Push', path: '/admin/notificaciones', permission: 'electronico:notificaciones:gestionar' },
     ],
@@ -65,7 +69,7 @@ const GROUPS: SidebarGroup[] = [
     ],
   },
   {
-    label: 'Reportes y Analítica',
+    label: 'Reportes',
     icon: '📊',
     items: [
       { label: 'Dashboard', path: '/admin/dashboard' },
@@ -82,12 +86,19 @@ interface SidebarProps {
 export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
   const collapsed = useAppStore((state) => state.sidebarCollapsed)
   const toggleCollapsed = useAppStore((state) => state.toggleSidebar)
+  const gruposAbiertos = useAppStore((state) => state.gruposAbiertos)
+  const setGrupoAbierto = useAppStore((state) => state.setGrupoAbierto)
+  const { pathname } = useLocation()
   const hasPermission = useAuthStore((state) => state.hasPermission)
 
   const groups = GROUPS.map((group) => ({
     ...group,
     items: group.items.filter((item) => !item.permission || hasPermission(item.permission)),
   })).filter((group) => group.items.length > 0)
+
+  // El grupo de la página actual es el que se ve abierto mientras la persona no haya decidido otra cosa.
+  const grupoActivo = groups.find((group) => group.items.some((item) => pathname === item.path || pathname.startsWith(`${item.path}/`)))?.label
+  const estaAbierto = (label: string) => gruposAbiertos[label] ?? label === grupoActivo
 
   return (
     <SidebarView
@@ -96,6 +107,14 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
       mobileOpen={mobileOpen}
       onCloseMobile={onCloseMobile}
       groups={groups}
+      grupoActivo={grupoActivo}
+      estaAbierto={estaAbierto}
+      onToggleGrupo={(label) => setGrupoAbierto(label, !estaAbierto(label))}
+      // Con el menú contraído solo se ve el emoji: tocarlo expande el menú y abre ese grupo.
+      onExpandirGrupo={(label) => {
+        setGrupoAbierto(label, true)
+        if (collapsed) toggleCollapsed()
+      }}
     />
   )
 }

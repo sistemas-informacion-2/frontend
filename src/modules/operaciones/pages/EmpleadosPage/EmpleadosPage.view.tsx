@@ -16,6 +16,9 @@ interface EmpleadosPageViewProps {
   error: string | null
   search: string
   activo: 'true' | 'false' | ''
+  sucursales: { id: number; nombre: string }[]
+  idSucursal: number | ''
+  onSucursal: (value: number | '') => void
   canManage: boolean
   modal: ReactNode
   onCloseModal: () => void
@@ -34,6 +37,9 @@ export function EmpleadosPageView({
   error,
   search,
   activo,
+  sucursales,
+  idSucursal,
+  onSucursal,
   canManage,
   modal,
   onCloseModal,
@@ -57,13 +63,19 @@ export function EmpleadosPageView({
       </div>
 
       <section className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-3">
           <Input
             label="Buscar"
             placeholder="Nombre, apellido, email o código"
             value={search}
             onChange={(event) => onSearch(event.target.value)}
           />
+          <Select label="Sucursal" value={idSucursal} onChange={(event) => onSucursal(event.target.value ? Number(event.target.value) : '')}>
+            <option value="">Todas (vista general)</option>
+            {sucursales.map((sucursal) => (
+              <option key={sucursal.id} value={sucursal.id}>{sucursal.nombre}</option>
+            ))}
+          </Select>
           <Select label="Registro" value={activo} onChange={(event) => onActivo(event.target.value as 'true' | 'false' | '')}>
             <option value="true">Activos</option>
             <option value="false">Inactivos</option>

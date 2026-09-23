@@ -15,6 +15,20 @@ export function getApiStatus(err: unknown): number | undefined {
 }
 
 /**
+ * Error de red: la peticion no obtuvo respuesta (backend caido/reiniciando,
+ * ERR_EMPTY_RESPONSE, timeout). No debe tratarse como sesion invalida.
+ */
+export function isNetworkError(err: unknown): boolean {
+  return isAxiosError(err) && !err.response
+}
+
+/** Error de autenticacion/autorizacion: la sesion no sirve. */
+export function isAuthError(err: unknown): boolean {
+  const status = getApiStatus(err)
+  return status === 401 || status === 403
+}
+
+/**
  * Extrae un mensaje legible de un error de axios contra la API.
  * Si no es un error de axios o no trae `message`, devuelve `fallback`.
  */

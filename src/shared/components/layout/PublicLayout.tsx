@@ -1,58 +1,53 @@
 import { type FormEvent, useState } from 'react'
-import { Link, Outlet, useNavigate } from 'react-router-dom'
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { env } from '@/core/config/env'
 import { useAuthStore } from '@/core/store/authStore'
-import { useCategorias } from '@/modules/inventario/hooks'
+import { CategoryNavBar } from '@/modules/electronico/components/CategoryNavBar'
+import { NotificationBell } from '@/modules/electronico/components/NotificationBell'
+import { StoreFooter } from '@/modules/electronico/components/StoreFooter'
+import { StoreLogoMarca } from '@/modules/electronico/components/StoreLogo'
+import { StoreSidebar } from '@/modules/electronico/components/StoreSidebar'
 import { CartIcon } from '@/shared/components/ui/CartIcon'
-import { Skeleton } from '@/shared/components/ui/Skeleton'
 import { ThemeToggle } from '@/shared/components/ui/ThemeToggle'
-
-function BarraCategorias() {
-  const { categorias, isLoading } = useCategorias()
-
-  if (isLoading) {
-    return (
-      <div className="flex gap-4 border-t border-neutral-100 px-4 py-2.5 sm:px-6 dark:border-neutral-800">
-        {Array.from({ length: 6 }).map((_, index) => (
-          <Skeleton key={index} className="h-4 w-20" />
-        ))}
-      </div>
-    )
-  }
-
-  if (categorias.length === 0) {
-    return null
-  }
-
-  return (
-    <nav className="flex gap-5 overflow-x-auto border-t border-neutral-100 px-4 py-2.5 text-sm sm:px-6 dark:border-neutral-800">
-      {categorias.map((categoria) => (
-        <Link
-          key={categoria.id}
-          to={`/categoria/${categoria.slug}`}
-          className="whitespace-nowrap text-neutral-600 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-white"
-        >
-          {categoria.nombre}
-        </Link>
-      ))}
-    </nav>
-  )
-}
 
 export function PublicLayout() {
   const perfil = useAuthStore((state) => state.perfil)
-  const [busqueda, setBusqueda] = useState('')
+  const autenticado = useAuthStore((state) => state.isAuthenticated)
+  const [menuAbierto, setMenuAbierto] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
+  const enCatalogo = location.pathname === '/'
+  const busquedaActual = enCatalogo ? (new URLSearchParams(location.search).get('q') ?? '') : ''
 
+  // La búsqueda se suma a los filtros activos del catálogo (categoría, temporada, ofertas).
   const handleBuscar = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (busqueda.trim()) navigate(`/buscar?q=${encodeURIComponent(busqueda.trim())}`)
+    const texto = String(new FormData(event.currentTarget).get('q') ?? '').trim()
+    const params = new URLSearchParams(enCatalogo ? location.search : '')
+    if (texto) params.set('q', texto)
+    else params.delete('q')
+    const query = params.toString()
+    navigate(query ? `/?${query}` : '/')
   }
 
   return (
     <div className="flex min-h-screen flex-col bg-white dark:bg-neutral-950">
-      <header className="border-b border-neutral-100 dark:border-neutral-800">
+      <header className="sticky top-0 z-40 border-b border-neutral-100 bg-white dark:border-neutral-800 dark:bg-neutral-950">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-3 px-4 py-3 sm:gap-6 sm:px-6 sm:py-4">
+          {/* Sin sesión no hay nada que poner en el sidebar (Mi cuenta no aplica), así
+              que ni se muestra el botón de menú: solo el logo, sin acción. */}
+          {autenticado ? (
+            <button
+              type="button"
+              onClick={() => setMenuAbierto(true)}
+              aria-label="Abrir menú"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-lg text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800"
+            >
+              ☰
+            </button>
+          ) : (
+            <StoreLogoMarca />
+          )}
           <Link to="/" className="shrink-0 text-lg font-semibold tracking-tight sm:text-xl dark:text-white">
             {env.appName}
           </Link>
@@ -62,9 +57,11 @@ export function PublicLayout() {
             className="order-3 w-full md:order-none md:mx-auto md:w-auto md:flex-1 md:max-w-xl"
           >
             <input
+              key={busquedaActual}
               type="search"
-              value={busqueda}
-              onChange={(event) => setBusqueda(event.target.value)}
+              name="q"
+              defaultValue={busquedaActual}
+              aria-label="Buscar productos"
               placeholder="Buscar productos, categorías…"
               className="w-full rounded-full border border-neutral-300 bg-neutral-50 px-4 py-2 text-sm outline-none focus:border-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-white"
             />
@@ -87,17 +84,22 @@ export function PublicLayout() {
                 <span className="hidden sm:inline">Iniciar sesión / Registrarse</span>
               </Link>
             )}
+            <NotificationBell />
             <CartIcon />
             <ThemeToggle />
           </div>
         </div>
 
-        <BarraCategorias />
+        <CategoryNavBar />
       </header>
+
+      {autenticado && <StoreSidebar open={menuAbierto} onClose={() => setMenuAbierto(false)} />}
 
       <main className="flex-1">
         <Outlet />
       </main>
+
+      <StoreFooter />
     </div>
   )
 }
