@@ -8,30 +8,26 @@ const CLASES_PILDORA_BASE = 'flex items-center gap-1 whitespace-nowrap rounded-f
 const CLASES_PILDORA_ACTIVA = 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900'
 const CLASES_PILDORA_INACTIVA = 'text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800'
 
-/** Emoji + color por estación, para que la píldora de temporada vigente se distinga a simple vista. */
-const ESTILO_TEMPORADA: Record<string, { emoji: string; inactiva: string; activa: string }> = {
+/** Color por estación, para que la píldora de temporada vigente se distinga a simple vista. */
+const ESTILO_TEMPORADA: Record<string, { inactiva: string; activa: string }> = {
   Invierno: {
-    emoji: '❄️',
     inactiva: 'bg-sky-50 text-sky-700 hover:bg-sky-100 dark:bg-sky-950/40 dark:text-sky-300 dark:hover:bg-sky-950/70',
     activa: 'bg-sky-500 text-white dark:bg-sky-400 dark:text-neutral-900',
   },
   Verano: {
-    emoji: '🔥',
     inactiva: 'bg-orange-50 text-orange-700 hover:bg-orange-100 dark:bg-orange-950/40 dark:text-orange-300 dark:hover:bg-orange-950/70',
     activa: 'bg-orange-500 text-white dark:bg-orange-400 dark:text-neutral-900',
   },
   Primavera: {
-    emoji: '🌱',
-    inactiva: 'bg-green-50 text-green-700 hover:bg-green-100 dark:bg-green-950/40 dark:text-green-300 dark:hover:bg-green-950/70',
-    activa: 'bg-green-500 text-white dark:bg-green-400 dark:text-neutral-900',
+    inactiva: CLASES_PILDORA_INACTIVA,
+    activa: CLASES_PILDORA_ACTIVA,
   },
   Otoño: {
-    emoji: '🍂',
     inactiva: 'bg-amber-50 text-amber-800 hover:bg-amber-100 dark:bg-amber-950/40 dark:text-amber-300 dark:hover:bg-amber-950/70',
     activa: 'bg-amber-700 text-white dark:bg-amber-600 dark:text-white',
   },
 }
-const ESTILO_TEMPORADA_POR_DEFECTO = { emoji: '📅', inactiva: CLASES_PILDORA_INACTIVA, activa: CLASES_PILDORA_ACTIVA }
+const ESTILO_TEMPORADA_POR_DEFECTO = { inactiva: CLASES_PILDORA_INACTIVA, activa: CLASES_PILDORA_ACTIVA }
 
 /**
  * Barra de categorías debajo del buscador del catálogo público: "Todas"
@@ -138,7 +134,7 @@ export function CategoryNavBar() {
                 onClick={() => irATemporada(temporadaVigente.id)}
                 className={`${CLASES_PILDORA_BASE} ${temporadaActiva === temporadaVigente.id ? estilo.activa : estilo.inactiva}`}
               >
-                {estilo.emoji} {temporadaVigente.nombre}
+                {temporadaVigente.nombre}
               </button>
             )
           })()}
@@ -165,11 +161,6 @@ export function CategoryNavBar() {
                   className={`${CLASES_PILDORA_BASE} ${abierta || seleccionada ? CLASES_PILDORA_ACTIVA : CLASES_PILDORA_INACTIVA}`}
                 >
                   {categoria.nombre}
-                  {tieneHijos && (
-                    <span aria-hidden="true" className={`text-xs transition-transform ${abierta ? 'rotate-180' : ''}`}>
-                      ▾
-                    </span>
-                  )}
                 </button>
 
                 {abierta && (
@@ -211,10 +202,7 @@ export function CategoryNavBar() {
                   aria-haspopup="menu"
                   className={`${CLASES_PILDORA_BASE} ${abierta ? CLASES_PILDORA_ACTIVA : CLASES_PILDORA_INACTIVA}`}
                 >
-                  📍 {sucursalActiva?.nombre ?? '…'}
-                  <span aria-hidden="true" className={`text-xs transition-transform ${abierta ? 'rotate-180' : ''}`}>
-                    ▾
-                  </span>
+                  {sucursalActiva?.nombre ?? '…'}
                 </button>
 
                 {abierta && (
