@@ -40,8 +40,10 @@ function CarruselPista({ ofertas, visibles, pausado }: CarruselPistaProps) {
   const contenedorRef = useRef<HTMLDivElement | null>(null)
   const pistaRef = useRef<HTMLDivElement | null>(null)
   const [anchoSlide, setAnchoSlide] = useState(0)
-  // La posición real empieza después de los clones del inicio.
-  const [indice, setIndice] = useState(visibles)
+  // La posición real empieza después de los clones del inicio (solo existen si hayLoop).
+  // Sin loop no hay clones: el índice debe arrancar en 0 o apunta fuera de la pista
+  // y la traslada entera fuera de vista (queda el cuadro en blanco).
+  const [indice, setIndice] = useState(hayLoop ? visibles : 0)
   const [sinTransicion, setSinTransicion] = useState(false)
 
   const prefijo = hayLoop ? ofertas.slice(-visibles) : []
