@@ -34,6 +34,11 @@ CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
 FROM base AS build
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+# Railway (y cualquier build de Docker) no inyecta sus Variables solas: hay
+# que declararlas como ARG para que build-arg las reciba, y como ENV para que
+# el proceso de "npm run build" (Vite) las vea en su entorno.
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
 RUN npm run build
 
 ##
