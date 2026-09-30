@@ -5,10 +5,13 @@ import { EmptyState } from '@/shared/components/ui/EmptyState'
 import { Modal } from '@/shared/components/ui/Modal'
 import { Skeleton } from '@/shared/components/ui/Skeleton'
 import { GaleriaProducto } from '../../components/GaleriaProducto'
+import { MenuProbador, type ModoProbador } from '../../components/MenuProbador'
+import { ProbadorIA } from '../../components/ProbadorIA'
 import { ProbadorVirtual } from '../../components/ProbadorVirtual'
 import { ProductoCard } from '../../components/ProductoCard'
 import { SelectorCantidad } from '../../components/SelectorCantidad'
 import type { ProbadorVariante, ProductoDetalle, SucursalPublica, VarianteDetalle } from '../../types'
+import type { DisponibilidadIA } from '../../utils/probador-ia'
 import { PORCENTAJE_ANTICIPO_MINIMO } from '../../utils/reservas'
 
 export interface MensajeProducto {
@@ -44,8 +47,11 @@ interface ProductoPageViewProps {
   /** Probador virtual (CU19). */
   probadorVariante: VarianteDetalle | null
   probadorVarianteAssets: ProbadorVariante | undefined
-  probadorAbierto: boolean
+  /** 'menu' = el cliente todavía está eligiendo entre realidad aumentada e IA; null = cerrado. */
+  probadorModo: ModoProbador | 'menu' | null
+  disponibilidadIA: DisponibilidadIA
   onProbarPrenda: (variante: VarianteDetalle) => void
+  onElegirModoProbador: (modo: ModoProbador) => void
   onCerrarProbador: () => void
   onAgregarDesdeProbador: () => void
   enviandoProbador: boolean
@@ -81,8 +87,10 @@ export function ProductoPageView({
   onConfirmarReserva,
   probadorVariante,
   probadorVarianteAssets,
-  probadorAbierto,
+  probadorModo,
+  disponibilidadIA,
   onProbarPrenda,
+  onElegirModoProbador,
   onCerrarProbador,
   onAgregarDesdeProbador,
   enviandoProbador,
@@ -310,8 +318,25 @@ export function ProductoPageView({
         </div>
       </Modal>
 
+      <MenuProbador
+        open={probadorModo === 'menu'}
+        nombreProducto={producto.nombre}
+        disponibilidadIA={disponibilidadIA}
+        onCerrar={onCerrarProbador}
+        onElegir={onElegirModoProbador}
+      />
+
+      <ProbadorIA
+        open={probadorModo === 'ia'}
+        producto={producto}
+        detalleVariante={probadorVariante ? `Talla ${probadorVariante.talla} · ${probadorVariante.color} · ${probadorVariante.corte}` : undefined}
+        onCerrar={onCerrarProbador}
+        onAgregarAlCarrito={onAgregarDesdeProbador}
+        agregandoAlCarrito={enviandoProbador}
+      />
+
       <ProbadorVirtual
-        open={probadorAbierto}
+        open={probadorModo === 'ar'}
         variante={probadorVarianteAssets}
         nombre={probadorVariante ? producto.nombre : undefined}
         color={probadorVariante?.color}

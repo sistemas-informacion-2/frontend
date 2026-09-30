@@ -39,6 +39,9 @@ COPY . .
 # el proceso de "npm run build" (Vite) las vea en su entorno.
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
+# API key del probador con IA (Decart). Queda visible en el bundle, como en la app movil.
+ARG VITE_DECART_API_KEY
+ENV VITE_DECART_API_KEY=$VITE_DECART_API_KEY
 RUN npm run build
 
 ##
