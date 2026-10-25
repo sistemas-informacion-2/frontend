@@ -3,9 +3,6 @@ export interface TemporadaResumen {
   nombre: string
 }
 
-/** Qué parte del cuerpo usa el probador virtual (CU19) para anclar el modelo 3D de las prendas de la categoría. */
-export type ZonaProbador = 'SUPERIOR' | 'INFERIOR' | 'COMPLETO'
-
 export interface Categoria {
   id: number
   nombre: string
@@ -14,7 +11,6 @@ export interface Categoria {
   imagenUrl: string | null
   activo: boolean
   categoriaPadreId: number | null
-  zonaProbador: ZonaProbador
   temporadas: TemporadaResumen[]
   hijos: Categoria[]
 }
@@ -26,7 +22,6 @@ export interface CategoriaFormValues {
   imagenUrl: string
   categoriaPadreId: number | ''
   activo: boolean
-  zonaProbador: ZonaProbador
   temporadaIds: number[]
 }
 
@@ -91,7 +86,6 @@ export interface VarianteProducto {
   talla: string
   color: string
   corte: string
-  modelo3dUrl: string | null
   activo: boolean
 }
 
@@ -146,7 +140,6 @@ export interface VarianteProductoFormValues {
   talla: string
   color: string
   corte: string
-  modelo3dUrl: string
   activo: boolean
 }
 

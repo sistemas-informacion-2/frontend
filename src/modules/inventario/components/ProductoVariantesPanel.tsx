@@ -16,7 +16,6 @@ const EMPTY: VarianteProductoFormValues = {
   talla: '',
   color: '',
   corte: '',
-  modelo3dUrl: '',
   activo: true,
 }
 
@@ -26,7 +25,6 @@ function toFormValues(variante: VarianteProducto): VarianteProductoFormValues {
     talla: variante.talla,
     color: variante.color,
     corte: variante.corte,
-    modelo3dUrl: variante.modelo3dUrl ?? '',
     activo: variante.activo,
   }
 }
@@ -72,7 +70,6 @@ export function ProductoVariantesPanel({ producto, onActualizado }: ProductoVari
           <Input label="Talla" value={nueva.talla} onChange={(event) => setNueva((c) => ({ ...c, talla: event.target.value }))} />
           <Input label="Color" value={nueva.color} onChange={(event) => setNueva((c) => ({ ...c, color: event.target.value }))} />
           <Input label="Corte" value={nueva.corte} onChange={(event) => setNueva((c) => ({ ...c, corte: event.target.value }))} />
-          <Input label="Modelo 3D URL" value={nueva.modelo3dUrl} onChange={(event) => setNueva((c) => ({ ...c, modelo3dUrl: event.target.value }))} />
         </div>
         {error && <p className="mt-2 text-xs text-red-600 dark:text-red-400">{error}</p>}
         <div className="mt-2 flex justify-end">
@@ -156,7 +153,6 @@ function VarianteRow({
         <Input label="Talla" value={valores.talla} onChange={(event) => setValores((c) => ({ ...c, talla: event.target.value }))} />
         <Input label="Color" value={valores.color} onChange={(event) => setValores((c) => ({ ...c, color: event.target.value }))} />
         <Input label="Corte" value={valores.corte} onChange={(event) => setValores((c) => ({ ...c, corte: event.target.value }))} />
-        <Input label="Modelo 3D URL" value={valores.modelo3dUrl} onChange={(event) => setValores((c) => ({ ...c, modelo3dUrl: event.target.value }))} />
       </div>
       {error && <p className="mt-2 text-xs text-red-600 dark:text-red-400">{error}</p>}
       <div className="mt-2 flex justify-end">

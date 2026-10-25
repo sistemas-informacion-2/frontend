@@ -5,10 +5,9 @@ import { EmptyState } from '@/shared/components/ui/EmptyState'
 import { Modal } from '@/shared/components/ui/Modal'
 import { Skeleton } from '@/shared/components/ui/Skeleton'
 import { GaleriaProducto } from '../../components/GaleriaProducto'
-import { ProbadorVirtual } from '../../components/ProbadorVirtual'
 import { ProductoCard } from '../../components/ProductoCard'
 import { SelectorCantidad } from '../../components/SelectorCantidad'
-import type { ProbadorVariante, ProductoDetalle, SucursalPublica, VarianteDetalle } from '../../types'
+import type { ProductoDetalle, SucursalPublica, VarianteDetalle } from '../../types'
 import { PORCENTAJE_ANTICIPO_MINIMO } from '../../utils/reservas'
 
 export interface MensajeProducto {
@@ -41,14 +40,6 @@ interface ProductoPageViewProps {
   onAbrirReserva: () => void
   onCerrarReserva: () => void
   onConfirmarReserva: () => void
-  /** Probador virtual (CU19). */
-  probadorVariante: VarianteDetalle | null
-  probadorVarianteAssets: ProbadorVariante | undefined
-  probadorAbierto: boolean
-  onProbarPrenda: (variante: VarianteDetalle) => void
-  onCerrarProbador: () => void
-  onAgregarDesdeProbador: () => void
-  enviandoProbador: boolean
 }
 
 const TARJETA = 'rounded-xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-950'
@@ -79,13 +70,6 @@ export function ProductoPageView({
   onAbrirReserva,
   onCerrarReserva,
   onConfirmarReserva,
-  probadorVariante,
-  probadorVarianteAssets,
-  probadorAbierto,
-  onProbarPrenda,
-  onCerrarProbador,
-  onAgregarDesdeProbador,
-  enviandoProbador,
 }: ProductoPageViewProps) {
   if (cargando) {
     return (
@@ -199,13 +183,6 @@ export function ProductoPageView({
                       </div>
 
                       <div className="flex flex-col items-end gap-2">
-                        <Button
-                          variant="secondary"
-                          onClick={() => onProbarPrenda(variante)}
-                          className="rounded-full px-3 py-1.5 text-xs"
-                        >
-                          Probar prenda 👕
-                        </Button>
                         <SelectorCantidad
                           cantidad={elegidas}
                           maximo={maximo}
@@ -309,18 +286,6 @@ export function ProductoPageView({
           </div>
         </div>
       </Modal>
-
-      <ProbadorVirtual
-        open={probadorAbierto}
-        variante={probadorVarianteAssets}
-        nombre={probadorVariante ? producto.nombre : undefined}
-        color={probadorVariante?.color}
-        talla={probadorVariante?.talla}
-        corte={probadorVariante?.corte}
-        onCerrar={onCerrarProbador}
-        onAgregarAlCarrito={onAgregarDesdeProbador}
-        agregandoAlCarrito={enviandoProbador}
-      />
     </div>
   )
 }

@@ -1,7 +1,7 @@
 import { isAxiosError } from 'axios'
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { useCarrito, useMisReservas, useProductoDetalle, useProductosRelacionados, useProbadorVariante, useSucursalActiva } from '../../hooks'
+import { useCarrito, useMisReservas, useProductoDetalle, useProductosRelacionados, useSucursalActiva } from '../../hooks'
 import { cargarSeleccion, guardarSeleccion, type SeleccionProducto } from '@/shared/utils/seleccionProducto'
 import type { VarianteDetalle } from '../../types'
 import { extraerMensajeError as mensajeDeError } from '../../utils/reservas'
@@ -37,10 +37,6 @@ function ProductoPageContenido() {
   const [mensaje, setMensaje] = useState<MensajeProducto | null>(null)
   const [reservaAbierta, setReservaAbierta] = useState(false)
   const [errorReserva, setErrorReserva] = useState<string | null>(null)
-  // Probador virtual (CU19): la variante que se está probando con la cámara.
-  const [probadorVarianteId, setProbadorVarianteId] = useState<number | null>(null)
-  const varianteProbador = probadorVarianteId === null ? null : (producto?.variantes.find((v) => v.id === probadorVarianteId) ?? null)
-  const { variante: varianteProbadorAssets } = useProbadorVariante(probadorVarianteId ?? 0)
 
   // Lo guardado puede haber quedado viejo (variante sin stock, ya en el carrito): se muestra solo lo que todavía es válido.
   const seleccion = seleccionValida(seleccionGuardada, producto?.variantes, (idVariante) =>
@@ -154,39 +150,6 @@ function ProductoPageContenido() {
     }
   }
 
-  const abrirProbador = (variante: VarianteDetalle) => {
-    setMensaje(null)
-    setProbadorVarianteId(variante.id)
-  }
-
-  const cerrarProbador = () => {
-    if (!enviando) setProbadorVarianteId(null)
-  }
-
-  /** Desde el probador (CU19) se puede confirmar el calce y pasar todo a la CU14 (carrito). */
-  const agregarDesdeProbador = async () => {
-    if (probadorVarianteId === null || !varianteProbador) return
-    setMensaje(null)
-    if (!autenticado) {
-      navigate('/login', { state: { from: location.pathname } })
-      return
-    }
-    if (!esCliente) {
-      setMensaje({ tipo: 'error', texto: 'El carrito es solo para clientes. Inicia sesión con una cuenta de cliente.' })
-      return
-    }
-    setEnviando(true)
-    try {
-      await agregar([{ idVarianteProducto: probadorVarianteId, cantidad: 1 }])
-      setProbadorVarianteId(null)
-      setMensaje({ tipo: 'ok', texto: 'Agregado a tu carrito desde el probador.' })
-    } catch (requestError) {
-      setMensaje({ tipo: 'error', texto: extraerMensajeError(requestError) })
-    } finally {
-      setEnviando(false)
-    }
-  }
-
   return (
     <ProductoPageView
       producto={producto}
@@ -210,13 +173,6 @@ function ProductoPageContenido() {
       onAbrirReserva={onAbrirReserva}
       onCerrarReserva={() => !enviando && setReservaAbierta(false)}
       onConfirmarReserva={onConfirmarReserva}
-      probadorVariante={varianteProbador}
-      probadorVarianteAssets={varianteProbadorAssets}
-      probadorAbierto={probadorVarianteId !== null}
-      onProbarPrenda={abrirProbador}
-      onCerrarProbador={cerrarProbador}
-      onAgregarDesdeProbador={agregarDesdeProbador}
-      enviandoProbador={enviando}
     />
   )
 }
