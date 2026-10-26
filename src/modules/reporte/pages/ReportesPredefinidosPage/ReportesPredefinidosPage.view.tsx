@@ -8,12 +8,13 @@ interface ReportesPredefinidosPageViewProps {
   puedeGestionar: boolean
   predefinidos: ReportePredefinido[]
   cargandoCatalogo: boolean
-  /** Código del predefinido que está corriendo ahora mismo, o null si ninguno. */
-  ejecutando: string | null
+  seleccionado: ReportePredefinido | null
+  ejecutando: boolean
   activo: ReportePredefinidoEjecutado | null
   error: string | null
   exportando: FormatoExportacion | null
-  onEjecutar: (codigo: string) => void
+  onSeleccionar: (codigo: string) => void
+  onGenerar: () => void
   onExportar: (formato: FormatoExportacion) => void
   onLimpiarError: () => void
 }
@@ -39,22 +40,25 @@ export function ReportesPredefinidosPageView({
   puedeGestionar,
   predefinidos,
   cargandoCatalogo,
+  seleccionado,
   ejecutando,
   activo,
   error,
   exportando,
-  onEjecutar,
+  onSeleccionar,
+  onGenerar,
   onExportar,
   onLimpiarError,
 }: ReportesPredefinidosPageViewProps) {
   const puedeExportar = !!activo && !exportando
+  const resultadoDelSeleccionado = activo && seleccionado && activo.codigo === seleccionado.codigo ? activo : null
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">Reportes predefinidos</h1>
         <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-          Consultas ya armadas para las preguntas más comunes del negocio. Ejecútalas con un clic, sin configurar nada.
+          Elige un reporte de la lista y generálo. Son consultas ya armadas por el negocio, sin necesidad de configurar nada.
         </p>
       </div>
 
@@ -76,10 +80,9 @@ export function ReportesPredefinidosPageView({
           )}
 
           {cargandoCatalogo ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {[0, 1, 2].map((indice) => (
-                <Skeleton key={indice} className="h-32 w-full" />
-              ))}
+            <div className="grid gap-6 lg:grid-cols-12">
+              <Skeleton className="h-64 w-full lg:col-span-3" />
+              <Skeleton className="h-64 w-full lg:col-span-9" />
             </div>
           ) : predefinidos.length === 0 ? (
             <EmptyState
@@ -88,77 +91,101 @@ export function ReportesPredefinidosPageView({
               description="Esta funcionalidad está pendiente de configuración."
             />
           ) : (
-            agruparPorCategoria(predefinidos).map((grupo) => (
-              <section key={grupo.categoria} className="space-y-3">
-                <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{grupo.categoria}</h2>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {grupo.items.map((predefinido) => (
-                    <div
-                      key={predefinido.codigo}
-                      className={`rounded-lg border p-4 ${
-                        activo?.codigo === predefinido.codigo
-                          ? 'border-neutral-900 bg-neutral-50 dark:border-white dark:bg-neutral-900'
-                          : 'border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950'
-                      }`}
-                    >
-                      <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">{predefinido.nombre}</h3>
-                      <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{predefinido.descripcion}</p>
-                      <Button
-                        variant="secondary"
-                        loading={ejecutando === predefinido.codigo}
-                        disabled={ejecutando !== null && ejecutando !== predefinido.codigo}
-                        onClick={() => onEjecutar(predefinido.codigo)}
-                        className="mt-3 w-full"
-                      >
-                        Ejecutar
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            ))
-          )}
+            <div className="grid gap-6 lg:grid-cols-12">
+              {/* Lista: solo selecciona, no ejecuta nada todavía. */}
+              <nav aria-label="Reportes predefinidos" className="space-y-4 rounded-lg border border-neutral-200 bg-white p-4 lg:col-span-3 dark:border-neutral-800 dark:bg-neutral-950">
+                {agruparPorCategoria(predefinidos).map((grupo) => (
+                  <div key={grupo.categoria}>
+                    <p className="px-2 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                      {grupo.categoria}
+                    </p>
+                    <ul className="mt-1 space-y-0.5">
+                      {grupo.items.map((predefinido) => {
+                        const activoEnLista = seleccionado?.codigo === predefinido.codigo
+                        return (
+                          <li key={predefinido.codigo}>
+                            <button
+                              type="button"
+                              onClick={() => onSeleccionar(predefinido.codigo)}
+                              aria-current={activoEnLista}
+                              className={`w-full rounded-md px-2 py-2 text-left text-sm transition-colors ${
+                                activoEnLista
+                                  ? 'bg-neutral-900 font-medium text-white dark:bg-white dark:text-neutral-900'
+                                  : 'text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-900'
+                              }`}
+                            >
+                              {predefinido.nombre}
+                            </button>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  </div>
+                ))}
+              </nav>
 
-          <section className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <h2 className="text-base font-semibold text-neutral-900 dark:text-white">Resultado</h2>
-                {activo && <p className="text-xs text-neutral-500 dark:text-neutral-400">{activo.nombre}</p>}
-              </div>
-              {activo && (
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-sm font-medium text-neutral-600 dark:text-neutral-300">Exportar:</span>
-                  {FORMATOS.map(({ formato, etiqueta }) => (
-                    <Button
-                      key={formato}
-                      variant="secondary"
-                      disabled={!puedeExportar}
-                      loading={exportando === formato}
-                      onClick={() => onExportar(formato)}
-                    >
-                      {etiqueta}
+              {/* Detalle: nombre + descripción del elegido, "Generar" y el resultado de la última ejecución. */}
+              <div className="space-y-6 lg:col-span-9">
+                {seleccionado && (
+                  <section className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
+                    <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">{seleccionado.nombre}</h2>
+                    <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">{seleccionado.descripcion}</p>
+                    <Button onClick={onGenerar} loading={ejecutando} className="mt-4">
+                      Generar
                     </Button>
-                  ))}
-                </div>
-              )}
-            </div>
+                  </section>
+                )}
 
-            {activo && activo.result.rows.length > 0 ? (
-              <ReportPreviewTable resultado={activo.result} pagina={1} porPagina={activo.request.limit ?? 50} onCambiarPagina={() => {}} />
-            ) : activo ? (
-              <EmptyState
-                icon={<span className="text-4xl">🔍</span>}
-                title="Sin registros"
-                description="Este reporte no encontró datos para el período configurado."
-              />
-            ) : (
-              <EmptyState
-                icon={<span className="text-4xl">📊</span>}
-                title="Elige un reporte de arriba"
-                description="El resultado de la última ejecución aparece aquí."
-              />
-            )}
-          </section>
+                <section className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
+                  <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <h2 className="text-base font-semibold text-neutral-900 dark:text-white">Resultado</h2>
+                      {resultadoDelSeleccionado && (
+                        <p className="text-xs text-neutral-500 dark:text-neutral-400">{resultadoDelSeleccionado.result.total} registros</p>
+                      )}
+                    </div>
+                    {resultadoDelSeleccionado && (
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm font-medium text-neutral-600 dark:text-neutral-300">Exportar:</span>
+                        {FORMATOS.map(({ formato, etiqueta }) => (
+                          <Button
+                            key={formato}
+                            variant="secondary"
+                            disabled={!puedeExportar}
+                            loading={exportando === formato}
+                            onClick={() => onExportar(formato)}
+                          >
+                            {etiqueta}
+                          </Button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {resultadoDelSeleccionado && resultadoDelSeleccionado.result.rows.length > 0 ? (
+                    <ReportPreviewTable
+                      resultado={resultadoDelSeleccionado.result}
+                      pagina={1}
+                      porPagina={resultadoDelSeleccionado.request.limit ?? 50}
+                      onCambiarPagina={() => {}}
+                    />
+                  ) : resultadoDelSeleccionado ? (
+                    <EmptyState
+                      icon={<span className="text-4xl">🔍</span>}
+                      title="Sin registros"
+                      description="Este reporte no encontró datos para el período configurado."
+                    />
+                  ) : (
+                    <EmptyState
+                      icon={<span className="text-4xl">📊</span>}
+                      title="Todavía no generaste este reporte"
+                      description="Pulsá «Generar» arriba para ejecutarlo."
+                    />
+                  )}
+                </section>
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>
