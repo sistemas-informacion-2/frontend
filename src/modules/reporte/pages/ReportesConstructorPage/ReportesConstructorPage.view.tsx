@@ -15,7 +15,7 @@ import type {
   ResultadoReporte,
 } from '../../reportes.types'
 
-interface ReportesPageViewProps {
+interface ReportesConstructorPageViewProps {
   nombre: string
   subtitulo: string
   puedeGestionar: boolean
@@ -24,23 +24,11 @@ interface ReportesPageViewProps {
   request: ReportRunRequest
   resultado: ResultadoReporte | null
   ejecutando: boolean
-  generando: boolean
   error: string | null
   plantillas: PlantillaReporte[]
   plantillaActivaId: number | null
   exportando: FormatoExportacion | null
   guardandoPlantilla: boolean
-  prompt: string
-  interpretacion: string
-  /** Qué intérprete respondió la última vez: IA (Gemini) o REGEX (traductor por palabras clave, modo básico sin IA). */
-  fuenteInterpretacion: 'IA' | 'REGEX' | null
-  escuchandoVoz: boolean
-  vozSoportada: boolean
-  errorVoz: string | null
-  onPrompt: (prompt: string) => void
-  onIniciarVoz: () => void
-  onDetenerVoz: () => void
-  onGenerar: () => void
   onCombinar: (parche: Partial<ReportRunRequest>) => void
   onAplicar: () => void
   onCambiarTipo: (tipo: string) => void
@@ -64,7 +52,7 @@ const FORMATOS: { formato: FormatoExportacion; etiqueta: string }[] = [
   { formato: 'html', etiqueta: 'HTML' },
 ]
 
-export function ReportesPageView({
+export function ReportesConstructorPageView({
   nombre,
   subtitulo,
   puedeGestionar,
@@ -73,22 +61,11 @@ export function ReportesPageView({
   request,
   resultado,
   ejecutando,
-  generando,
   error,
   plantillas,
   plantillaActivaId,
   exportando,
   guardandoPlantilla,
-  prompt,
-  interpretacion,
-  fuenteInterpretacion,
-  escuchandoVoz,
-  vozSoportada,
-  errorVoz,
-  onPrompt,
-  onIniciarVoz,
-  onDetenerVoz,
-  onGenerar,
   onCombinar,
   onAplicar,
   onCambiarTipo,
@@ -104,7 +81,7 @@ export function ReportesPageView({
   onGuardarPlantilla,
   onCargarPlantilla,
   onEliminarPlantilla,
-}: ReportesPageViewProps) {
+}: ReportesConstructorPageViewProps) {
   const [guardarAbierto, setGuardarAbierto] = useState(false)
   const puedeExportar = request.selectedFields.length > 0 && !ejecutando && !exportando
 
@@ -114,7 +91,7 @@ export function ReportesPageView({
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">Reportes dinámicos y generativos</h1>
+          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">Constructor de reportes</h1>
           <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
             {nombre} · {subtitulo}
           </p>
@@ -156,20 +133,6 @@ export function ReportesPageView({
 
           <div className="grid gap-6 lg:grid-cols-12">
             <div className="space-y-6 lg:col-span-4">
-              <PanelGenerativo
-                prompt={prompt}
-                interpretacion={interpretacion}
-                fuenteInterpretacion={fuenteInterpretacion}
-                generando={generando}
-                escuchandoVoz={escuchandoVoz}
-                vozSoportada={vozSoportada}
-                errorVoz={errorVoz}
-                onPrompt={onPrompt}
-                onIniciarVoz={onIniciarVoz}
-                onDetenerVoz={onDetenerVoz}
-                onGenerar={onGenerar}
-              />
-
               <PanelPlantillas
                 plantillas={plantillas}
                 plantillaActivaId={plantillaActivaId}
@@ -217,7 +180,7 @@ export function ReportesPageView({
                   <EmptyState
                     icon={<span className="text-4xl">📊</span>}
                     title="Aún no hay resultados"
-                    description="Elegí columnas y filtros y pulsá «Generar reporte», o dictá el pedido en el asistente por voz."
+                    description="Elegí columnas y filtros y pulsá «Generar reporte»."
                   />
                 )}
               </section>
@@ -238,100 +201,6 @@ export function ReportesPageView({
         </>
       )}
     </div>
-  )
-}
-
-function PanelGenerativo({
-  prompt,
-  interpretacion,
-  fuenteInterpretacion,
-  generando,
-  escuchandoVoz,
-  vozSoportada,
-  errorVoz,
-  onPrompt,
-  onIniciarVoz,
-  onDetenerVoz,
-  onGenerar,
-}: {
-  prompt: string
-  interpretacion: string
-  fuenteInterpretacion: 'IA' | 'REGEX' | null
-  generando: boolean
-  escuchandoVoz: boolean
-  vozSoportada: boolean
-  errorVoz: string | null
-  onPrompt: (prompt: string) => void
-  onIniciarVoz: () => void
-  onDetenerVoz: () => void
-  onGenerar: () => void
-}) {
-  return (
-    <section className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
-      <h2 className="text-base font-semibold text-neutral-900 dark:text-white">Asistente generativo</h2>
-      <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-        Describí el reporte en lenguaje natural, dictándolo con el micrófono o escribiéndolo. Ejemplo: «las 10 prendas más vendidas en Santa Cruz la
-        última semana».
-      </p>
-
-      <div className="mt-3 flex items-start gap-2">
-        <textarea
-          value={prompt}
-          onChange={(event) => onPrompt(event.target.value)}
-          rows={3}
-          placeholder="Ej: stock crítico en las últimas 2 semanas…"
-          className="flex-1 resize-none rounded-md border border-neutral-300 bg-white px-3 py-2.5 text-sm outline-none transition-colors focus:border-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-white"
-        />
-        {vozSoportada && (
-          <button
-            type="button"
-            onClick={escuchandoVoz ? onDetenerVoz : onIniciarVoz}
-            title={escuchandoVoz ? 'Detener dictado' : 'Dictar por voz'}
-            className={`mt-1 rounded-full border p-3 text-lg transition-colors ${
-              escuchandoVoz
-                ? 'border-red-400 bg-red-50 text-red-600 dark:border-red-700 dark:bg-red-950/40 dark:text-red-400'
-                : 'border-neutral-300 bg-white text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800'
-            }`}
-          >
-            {escuchandoVoz ? '⏹' : '🎤'}
-          </button>
-        )}
-      </div>
-
-      {!vozSoportada && (
-        <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">Tu navegador no soporta dictado por voz; escribí el pedido.</p>
-      )}
-      {errorVoz && (
-        <p role="alert" className="mt-2 rounded-md bg-red-50 px-3 py-2 text-xs text-red-700 dark:bg-red-950/40 dark:text-red-300">
-          {errorVoz}
-        </p>
-      )}
-
-      <Button onClick={onGenerar} loading={generando} disabled={!prompt.trim()} className="mt-3 w-full">
-        Generar con IA
-      </Button>
-
-      {interpretacion && (
-        <div className="mt-3 rounded-md border border-neutral-200 bg-neutral-50 p-3 text-sm dark:border-neutral-800 dark:bg-neutral-900">
-          <div className="flex items-center justify-between gap-2">
-            <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Interpretación</p>
-            {fuenteInterpretacion === 'IA' ? (
-              <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
-                ✨ Gemini
-              </span>
-            ) : fuenteInterpretacion === 'REGEX' ? (
-              <span
-                className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-800 dark:bg-amber-900/40 dark:text-amber-300"
-                title="Gemini no está configurado o no respondió; se usó el traductor por palabras clave."
-              >
-                ⚙️ Modo básico
-              </span>
-            ) : null}
-          </div>
-          <p className="mt-1 text-neutral-800 dark:text-neutral-200">{interpretacion}</p>
-        </div>
-      )}
-    </section>
   )
 }
 

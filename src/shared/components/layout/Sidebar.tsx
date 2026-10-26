@@ -72,7 +72,9 @@ const GROUPS: SidebarGroup[] = [
     icon: '📊',
     items: [
       { label: 'Dashboard', path: '/admin/dashboard' },
-      { label: 'Reportes Generativos', path: '/admin/reportes', permission: 'analitica:reportes:gestionar' },
+      { label: 'Reportes Predefinidos', path: '/admin/reportes/predefinidos', permission: 'analitica:reportes:gestionar' },
+      { label: 'Constructor de Reportes', path: '/admin/reportes/constructor', permission: 'analitica:reportes:gestionar' },
+      { label: 'Reportes por Voz / IA', path: '/admin/reportes/generativo', permission: 'analitica:reportes:gestionar' },
     ],
   },
 ]

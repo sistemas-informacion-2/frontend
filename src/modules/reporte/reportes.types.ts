@@ -72,3 +72,18 @@ export interface PlantillaReporte {
 }
 
 export type FormatoExportacion = 'pdf' | 'excel' | 'html'
+
+/** Entrada del catálogo de reportes predefinidos (listos para ejecutar con un clic). */
+export interface ReportePredefinido {
+  codigo: string
+  nombre: string
+  descripcion: string
+  categoria: string
+}
+
+export interface ReportePredefinidoEjecutado {
+  codigo: string
+  nombre: string
+  request: ReportRunRequest
+  result: ResultadoReporte
+}

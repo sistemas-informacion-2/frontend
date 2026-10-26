@@ -1,27 +1,21 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import useSWR from 'swr'
+import { useLocation } from 'react-router-dom'
 import { getApiErrorMessage } from '@/core/http/errors'
 import { useAppStore } from '@/core/store/appStore'
 import { useAuthStore } from '@/core/store/authStore'
 import { listarSucursales } from '@/modules/operaciones/services/sucursales.service'
-import { useReconocimientoVoz } from '../../hooks/useReconocimientoVoz'
-import type {
-  FormatoExportacion,
-  OrdenReporte,
-  ReportRunRequest,
-  ResultadoReporte,
-} from '../../reportes.types'
+import type { FormatoExportacion, OrdenReporte, ReportRunRequest, ResultadoReporte } from '../../reportes.types'
 import {
   crearPlantilla,
   descargarReporte,
   ejecutarReporte,
   eliminarPlantilla,
   actualizarPlantilla,
-  generarReporte,
   listarPlantillas,
   obtenerCatalogoReportes,
 } from '../../services/reportes.service'
-import { ReportesPageView } from './ReportesPage.view'
+import { ReportesConstructorPageView } from './ReportesConstructorPage.view'
 
 const POR_DEFECTO: Record<string, Partial<ReportRunRequest>> = {
   VENTAS: {
@@ -54,23 +48,29 @@ function descargarBlob(blob: Blob, nombreArchivo: string) {
   URL.revokeObjectURL(url)
 }
 
-/** CU18: Report Builder dinámico y generativo (voz o texto). */
-export function ReportesPage() {
+/**
+ * CU18: Constructor QBE (Query By Example) — arma un reporte eligiendo fuente,
+ * columnas, filtros, orden y paginación, sin escribir SQL. El catálogo de
+ * campos permitidos viene siempre del backend (whitelist real).
+ *
+ * Si se llega desde el asistente generativo con un pedido para "ajustar a
+ * mano" (`location.state.request`), arranca con esa configuración ya
+ * cargada y ejecutada, en vez de la de VENTAS por defecto.
+ */
+export function ReportesConstructorPage() {
   const perfil = useAuthStore((state) => state.perfil)
   const puedeGestionar = useAuthStore((state) => state.hasPermission('analitica:reportes:gestionar'))
   const sucursalActivaId = useAppStore((state) => state.sucursalActivaId)
+  const location = useLocation()
+  const requestInicial = (location.state as { request?: ReportRunRequest } | null)?.request
 
-  const [request, setRequest] = useState<ReportRunRequest>(() => requestPorDefecto('VENTAS'))
+  const [request, setRequest] = useState<ReportRunRequest>(() => requestInicial ?? requestPorDefecto('VENTAS'))
   const [resultado, setResultado] = useState<ResultadoReporte | null>(null)
   const [ejecutando, setEjecutando] = useState(false)
-  const [generando, setGenerando] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [exportando, setExportando] = useState<FormatoExportacion | null>(null)
   const [guardandoPlantilla, setGuardandoPlantilla] = useState(false)
   const [plantillaActivaId, setPlantillaActivaId] = useState<number | null>(null)
-  const [prompt, setPrompt] = useState('')
-  const [interpretacion, setInterpretacion] = useState('')
-  const [fuenteInterpretacion, setFuenteInterpretacion] = useState<'IA' | 'REGEX' | null>(null)
 
   const { data: catalogo } = useSWR(puedeGestionar ? 'catalogo-reportes' : null, obtenerCatalogoReportes)
   const { data: plantillas = [], mutate: mutarPlantillas } = useSWR(
@@ -78,10 +78,6 @@ export function ReportesPage() {
     listarPlantillas,
   )
   const { data: sucursales = [] } = useSWR(puedeGestionar ? 'sucursales-reportes' : null, listarSucursales)
-
-  const voz = useReconocimientoVoz({
-    onResultado: (texto) => setPrompt((actual) => (actual ? `${actual} ${texto}` : texto)),
-  })
 
   const tipoActivo = catalogo?.find((tipos) => tipos.id === request.reportType)
 
@@ -98,6 +94,17 @@ export function ReportesPage() {
     } finally {
       setEjecutando(false)
     }
+  }, [])
+
+  // Si llegamos desde el asistente generativo con una config lista ("Ajustar en el Constructor"),
+  // la ejecutamos una sola vez al montar (el ref evita repetirlo por el doble-render de StrictMode).
+  const yaEjecutoInicial = useRef(false)
+  useEffect(() => {
+    if (requestInicial && !yaEjecutoInicial.current) {
+      yaEjecutoInicial.current = true
+      void ejecutar(requestInicial)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const combinar = useCallback(
@@ -136,32 +143,12 @@ export function ReportesPage() {
     (reportType: string) => {
       const nueva = requestPorDefecto(reportType)
       setResultado(null)
-      setInterpretacion('')
-      setFuenteInterpretacion(null)
       setPlantillaActivaId(null)
       setRequest(nueva)
       void ejecutar(nueva)
     },
     [ejecutar],
   )
-
-  const generar = useCallback(async () => {
-    if (!prompt.trim() || generando) return
-    setGenerando(true)
-    setError(null)
-    try {
-      const respuesta = await generarReporte(prompt.trim())
-      setInterpretacion(respuesta.interpretacion)
-      setFuenteInterpretacion(respuesta.fuente)
-      setPlantillaActivaId(null)
-      setRequest(respuesta.request)
-      setResultado(respuesta.result)
-    } catch (err) {
-      setError(getApiErrorMessage(err, 'No se pudo interpretar el pedido.'))
-    } finally {
-      setGenerando(false)
-    }
-  }, [generando, prompt])
 
   const exportar = useCallback(
     async (formato: FormatoExportacion) => {
@@ -231,7 +218,7 @@ export function ReportesPage() {
   const centroNombre = sucursalActivaId === null ? null : (sucursales.find((s) => s.id === sucursalActivaId)?.nombre ?? null)
 
   return (
-    <ReportesPageView
+    <ReportesConstructorPageView
       nombre={perfil?.nombre ?? ''}
       subtitulo={`Rol: ${perfil?.tipoUsuario === 'A' ? 'Administrador' : perfil?.tipoUsuario === 'E' ? 'Empleado' : 'Cliente'}${
         centroNombre ? ` · ${centroNombre}` : ''
@@ -242,22 +229,11 @@ export function ReportesPage() {
       request={request}
       resultado={resultado}
       ejecutando={ejecutando}
-      generando={generando}
       error={error}
       plantillas={plantillas}
       plantillaActivaId={plantillaActivaId}
       exportando={exportando}
       guardandoPlantilla={guardandoPlantilla}
-      prompt={prompt}
-      interpretacion={interpretacion}
-      fuenteInterpretacion={fuenteInterpretacion}
-      escuchandoVoz={voz.escuchando}
-      vozSoportada={voz.soportado}
-      errorVoz={voz.error}
-      onPrompt={setPrompt}
-      onIniciarVoz={voz.iniciar}
-      onDetenerVoz={voz.detener}
-      onGenerar={() => void generar()}
       onCombinar={combinar}
       onAplicar={aplicar}
       onCambiarTipo={cambiarTipo}
