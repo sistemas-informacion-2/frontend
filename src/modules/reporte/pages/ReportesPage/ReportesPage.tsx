@@ -70,6 +70,7 @@ export function ReportesPage() {
   const [plantillaActivaId, setPlantillaActivaId] = useState<number | null>(null)
   const [prompt, setPrompt] = useState('')
   const [interpretacion, setInterpretacion] = useState('')
+  const [fuenteInterpretacion, setFuenteInterpretacion] = useState<'IA' | 'REGEX' | null>(null)
 
   const { data: catalogo } = useSWR(puedeGestionar ? 'catalogo-reportes' : null, obtenerCatalogoReportes)
   const { data: plantillas = [], mutate: mutarPlantillas } = useSWR(
@@ -136,6 +137,7 @@ export function ReportesPage() {
       const nueva = requestPorDefecto(reportType)
       setResultado(null)
       setInterpretacion('')
+      setFuenteInterpretacion(null)
       setPlantillaActivaId(null)
       setRequest(nueva)
       void ejecutar(nueva)
@@ -150,6 +152,7 @@ export function ReportesPage() {
     try {
       const respuesta = await generarReporte(prompt.trim())
       setInterpretacion(respuesta.interpretacion)
+      setFuenteInterpretacion(respuesta.fuente)
       setPlantillaActivaId(null)
       setRequest(respuesta.request)
       setResultado(respuesta.result)
@@ -247,6 +250,7 @@ export function ReportesPage() {
       guardandoPlantilla={guardandoPlantilla}
       prompt={prompt}
       interpretacion={interpretacion}
+      fuenteInterpretacion={fuenteInterpretacion}
       escuchandoVoz={voz.escuchando}
       vozSoportada={voz.soportado}
       errorVoz={voz.error}

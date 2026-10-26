@@ -32,6 +32,8 @@ interface ReportesPageViewProps {
   guardandoPlantilla: boolean
   prompt: string
   interpretacion: string
+  /** Qué intérprete respondió la última vez: IA (Gemini) o REGEX (traductor por palabras clave, modo básico sin IA). */
+  fuenteInterpretacion: 'IA' | 'REGEX' | null
   escuchandoVoz: boolean
   vozSoportada: boolean
   errorVoz: string | null
@@ -79,6 +81,7 @@ export function ReportesPageView({
   guardandoPlantilla,
   prompt,
   interpretacion,
+  fuenteInterpretacion,
   escuchandoVoz,
   vozSoportada,
   errorVoz,
@@ -156,6 +159,7 @@ export function ReportesPageView({
               <PanelGenerativo
                 prompt={prompt}
                 interpretacion={interpretacion}
+                fuenteInterpretacion={fuenteInterpretacion}
                 generando={generando}
                 escuchandoVoz={escuchandoVoz}
                 vozSoportada={vozSoportada}
@@ -240,6 +244,7 @@ export function ReportesPageView({
 function PanelGenerativo({
   prompt,
   interpretacion,
+  fuenteInterpretacion,
   generando,
   escuchandoVoz,
   vozSoportada,
@@ -251,6 +256,7 @@ function PanelGenerativo({
 }: {
   prompt: string
   interpretacion: string
+  fuenteInterpretacion: 'IA' | 'REGEX' | null
   generando: boolean
   escuchandoVoz: boolean
   vozSoportada: boolean
@@ -307,7 +313,21 @@ function PanelGenerativo({
 
       {interpretacion && (
         <div className="mt-3 rounded-md border border-neutral-200 bg-neutral-50 p-3 text-sm dark:border-neutral-800 dark:bg-neutral-900">
-          <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Interpretación</p>
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Interpretación</p>
+            {fuenteInterpretacion === 'IA' ? (
+              <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+                ✨ Gemini
+              </span>
+            ) : fuenteInterpretacion === 'REGEX' ? (
+              <span
+                className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-800 dark:bg-amber-900/40 dark:text-amber-300"
+                title="Gemini no está configurado o no respondió; se usó el traductor por palabras clave."
+              >
+                ⚙️ Modo básico
+              </span>
+            ) : null}
+          </div>
           <p className="mt-1 text-neutral-800 dark:text-neutral-200">{interpretacion}</p>
         </div>
       )}

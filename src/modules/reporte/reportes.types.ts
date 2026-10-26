@@ -58,6 +58,8 @@ export interface RespuestaGenerativo {
   interpretacion: string
   request: ReportRunRequest
   result: ResultadoReporte
+  /** Qué intérprete respondió: IA (Gemini) o REGEX (traductor por palabras clave, usado si Gemini no está configurado o falló). */
+  fuente: 'IA' | 'REGEX'
 }
 
 export interface PlantillaReporte {
