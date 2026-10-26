@@ -150,6 +150,12 @@ export function ReportesConstructorPage() {
     [ejecutar],
   )
 
+  const nuevoReporte = useCallback(() => {
+    setResultado(null)
+    setPlantillaActivaId(null)
+    setRequest(requestPorDefecto('VENTAS'))
+  }, [])
+
   const exportar = useCallback(
     async (formato: FormatoExportacion) => {
       if (!request.selectedFields.length || exportando) return
@@ -237,6 +243,7 @@ export function ReportesConstructorPage() {
       onCombinar={combinar}
       onAplicar={aplicar}
       onCambiarTipo={cambiarTipo}
+      onNuevoReporte={nuevoReporte}
       onCambiarPagina={cambiarPagina}
       onFiltroPatch={(indice, parche) => {
         setRequest((actual) => {

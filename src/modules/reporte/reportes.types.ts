@@ -29,6 +29,9 @@ export interface FiltroReporte {
   valor: string | number | boolean | null
 }
 
+/** Cómo se combinan los filtros entre sí: todos (AND, por defecto) o alguno (OR). No afecta el rango de fechas, que siempre es AND. */
+export type MatchTypeFiltro = 'AND' | 'OR'
+
 export interface OrdenReporte {
   campo: string
   direccion: 'asc' | 'desc'
@@ -39,6 +42,7 @@ export interface ReportRunRequest {
   reportType: string
   selectedFields: string[]
   filters?: FiltroReporte[]
+  matchType?: MatchTypeFiltro
   sort?: OrdenReporte
   dateFrom?: string
   dateTo?: string

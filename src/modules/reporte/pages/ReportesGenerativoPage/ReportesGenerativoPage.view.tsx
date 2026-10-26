@@ -318,6 +318,7 @@ export function ReportesGenerativoPageView({
                     tipoActivo={tipoActivo}
                     request={request}
                     ejecutando={aplicandoRefinar}
+                    etiquetaBoton="Aplicar"
                     onCambiarTipo={onCambiarTipo}
                     onCombinar={onCombinar}
                     onFiltroAgregar={onFiltroAgregar}

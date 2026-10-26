@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { Button } from '@/shared/components/ui/Button'
 import { EmptyState } from '@/shared/components/ui/EmptyState'
+import { Input } from '@/shared/components/ui/Input'
 import { Select } from '@/shared/components/ui/Select'
 import { ReportFiltersBuilder } from '../../components/reportes/ReportFiltersBuilder'
 import { ReportPreviewTable } from '../../components/reportes/ReportPreviewTable'
-import { SaveTemplateModal } from '../../components/reportes/SaveTemplateModal'
 import type {
   FiltroReporte,
   FormatoExportacion,
@@ -41,15 +41,16 @@ interface ReportesConstructorPageViewProps {
   onLimiteChange: (limite: number) => void
   onExportar: (formato: FormatoExportacion) => void
   onGuardarPlantilla: (nombre: string) => void
+  onNuevoReporte: () => void
   onCargarPlantilla: (id: number) => void
   onEliminarPlantilla: (id: number) => void
   onLimpiarError: () => void
 }
 
 const FORMATOS: { formato: FormatoExportacion; etiqueta: string }[] = [
-  { formato: 'pdf', etiqueta: 'PDF' },
-  { formato: 'excel', etiqueta: 'Excel' },
-  { formato: 'html', etiqueta: 'HTML' },
+  { formato: 'pdf', etiqueta: 'Exportar PDF' },
+  { formato: 'excel', etiqueta: 'Exportar Excel' },
+  { formato: 'html', etiqueta: 'Exportar HTML' },
 ]
 
 export function ReportesConstructorPageView({
@@ -79,39 +80,22 @@ export function ReportesConstructorPageView({
   onLimpiarError,
   onExportar,
   onGuardarPlantilla,
+  onNuevoReporte,
   onCargarPlantilla,
   onEliminarPlantilla,
 }: ReportesConstructorPageViewProps) {
-  const [guardarAbierto, setGuardarAbierto] = useState(false)
+  const [nombrePlantilla, setNombrePlantilla] = useState('')
   const puedeExportar = request.selectedFields.length > 0 && !ejecutando && !exportando
 
   const pagina = Math.floor((request.offset ?? 0) / (request.limit ?? 50)) + 1
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
-          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">Constructor de reportes</h1>
-          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-            {nombre} · {subtitulo}
-          </p>
-        </div>
-        {puedeGestionar && (
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm font-medium text-neutral-600 dark:text-neutral-300">Exportar:</span>
-            {FORMATOS.map(({ formato, etiqueta }) => (
-              <Button
-                key={formato}
-                variant="secondary"
-                disabled={!puedeExportar}
-                loading={exportando === formato}
-                onClick={() => onExportar(formato)}
-              >
-                {etiqueta}
-              </Button>
-            ))}
-          </div>
-        )}
+      <div>
+        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">Constructor de reportes QBE</h1>
+        <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+          {nombre} · {subtitulo} · Arma reportes a medida eligiendo la entidad, los campos, los filtros y los totales, sin escribir SQL.
+        </p>
       </div>
 
       {!puedeGestionar ? (
@@ -131,126 +115,106 @@ export function ReportesConstructorPageView({
             </div>
           )}
 
-          <div className="grid gap-6 lg:grid-cols-12">
-            <div className="space-y-6 lg:col-span-4">
-              <PanelPlantillas
-                plantillas={plantillas}
-                plantillaActivaId={plantillaActivaId}
-                onCargar={onCargarPlantilla}
-                onGuardarNueva={() => setGuardarAbierto(true)}
-                onEliminar={() => {
-                  if (plantillaActivaId !== null) onEliminarPlantilla(plantillaActivaId)
-                }}
-              />
-            </div>
-
-            <div className="space-y-6 lg:col-span-8">
-              <ReportFiltersBuilder
-                catalogo={catalogo}
-                tipoActivo={tipoActivo}
-                request={request}
-                ejecutando={ejecutando}
-                onCambiarTipo={onCambiarTipo}
-                onCombinar={onCombinar}
-                onFiltroAgregar={onFiltroAgregar}
-                onFiltroPatch={onFiltroPatch}
-                onFiltroBorrar={onFiltroBorrar}
-                onOrdenChange={onOrdenChange}
-                onFechasChange={onFechasChange}
-                onLimiteChange={onLimiteChange}
-                onAplicar={onAplicar}
-              />
-
-              <section className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
-                <div className="mb-4 flex items-center justify-between">
-                  <h2 className="text-base font-semibold text-neutral-900 dark:text-white">Resultado</h2>
-                  {resultado && (
-                    <span className="text-sm text-neutral-500 dark:text-neutral-400">{resultado.total} registros</span>
-                  )}
-                </div>
-                {resultado && resultado.rows.length > 0 ? (
-                  <ReportPreviewTable resultado={resultado} pagina={pagina} porPagina={request.limit ?? 50} onCambiarPagina={onCambiarPagina} />
-                ) : resultado ? (
-                  <EmptyState
-                    icon={<span className="text-4xl">🔍</span>}
-                    title="Sin registros"
-                    description="Ninguna fila coincide con los criterios actuales; prueba ampliar el rango de fechas o quitar filtros."
-                  />
-                ) : (
-                  <EmptyState
-                    icon={<span className="text-4xl">📊</span>}
-                    title="Aún no hay resultados"
-                    description="Elegí columnas y filtros y pulsá «Generar reporte»."
-                  />
-                )}
-              </section>
-            </div>
+          <div className="flex flex-wrap items-end gap-3 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
+            <Select
+              label="Plantilla guardada"
+              value={plantillaActivaId !== null ? String(plantillaActivaId) : ''}
+              onChange={(event) => {
+                if (event.target.value !== '') onCargarPlantilla(Number(event.target.value))
+              }}
+              className="min-w-64 flex-1"
+            >
+              <option value="">— Reporte nuevo —</option>
+              {plantillas.map((plantilla) => (
+                <option key={plantilla.id} value={plantilla.id}>
+                  {plantilla.nombre}
+                </option>
+              ))}
+            </Select>
+            <Button variant="secondary" onClick={onNuevoReporte}>
+              Nuevo reporte
+            </Button>
+            {plantillaActivaId !== null && (
+              <Button variant="secondary" onClick={() => onEliminarPlantilla(plantillaActivaId)}>
+                Eliminar plantilla
+              </Button>
+            )}
           </div>
 
-          <SaveTemplateModal
-            key={String(guardarAbierto)}
-            open={guardarAbierto}
-            esActualizacion={plantillaActivaId !== null}
-            guardando={guardandoPlantilla}
-            onClose={() => setGuardarAbierto(false)}
-            onGuardar={(nombrePlantilla) => {
-              setGuardarAbierto(false)
-              onGuardarPlantilla(nombrePlantilla)
-            }}
+          <ReportFiltersBuilder
+            catalogo={catalogo}
+            tipoActivo={tipoActivo}
+            request={request}
+            ejecutando={ejecutando}
+            mostrarBoton={false}
+            onCambiarTipo={onCambiarTipo}
+            onCombinar={onCombinar}
+            onFiltroAgregar={onFiltroAgregar}
+            onFiltroPatch={onFiltroPatch}
+            onFiltroBorrar={onFiltroBorrar}
+            onOrdenChange={onOrdenChange}
+            onFechasChange={onFechasChange}
+            onLimiteChange={onLimiteChange}
+            onAplicar={onAplicar}
           />
+
+          <section className="space-y-4 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
+            <div className="flex items-center gap-2">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">
+                3
+              </span>
+              <h2 className="text-base font-semibold text-neutral-900 dark:text-white">Resultado</h2>
+              {resultado && <span className="text-sm text-neutral-500 dark:text-neutral-400">{resultado.total} registros</span>}
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <Button onClick={onAplicar} loading={ejecutando} disabled={request.selectedFields.length === 0}>
+                Ejecutar vista previa
+              </Button>
+              {FORMATOS.map(({ formato, etiqueta }) => (
+                <Button key={formato} variant="secondary" disabled={!puedeExportar} loading={exportando === formato} onClick={() => onExportar(formato)}>
+                  {etiqueta}
+                </Button>
+              ))}
+            </div>
+
+            <div className="flex flex-wrap items-end gap-3">
+              <Input
+                label="Nombre de la plantilla"
+                value={nombrePlantilla}
+                onChange={(event) => setNombrePlantilla(event.target.value)}
+                placeholder="Ej.: Ventas por sucursal del mes"
+                className="min-w-64 flex-1"
+              />
+              <Button
+                variant="secondary"
+                loading={guardandoPlantilla}
+                disabled={nombrePlantilla.trim().length === 0}
+                onClick={() => {
+                  onGuardarPlantilla(nombrePlantilla.trim())
+                  setNombrePlantilla('')
+                }}
+              >
+                Guardar plantilla
+              </Button>
+            </div>
+
+            {resultado && resultado.rows.length > 0 ? (
+              <ReportPreviewTable resultado={resultado} pagina={pagina} porPagina={request.limit ?? 50} onCambiarPagina={onCambiarPagina} />
+            ) : resultado ? (
+              <EmptyState
+                icon={<span className="text-4xl">🔍</span>}
+                title="Sin registros"
+                description="Ninguna fila coincide con los criterios actuales; prueba ampliar el rango de fechas o quitar filtros."
+              />
+            ) : (
+              <p className="py-4 text-center text-sm text-neutral-500 dark:text-neutral-400">
+                Ejecuta la vista previa para ver el resultado del reporte.
+              </p>
+            )}
+          </section>
         </>
       )}
     </div>
-  )
-}
-
-function PanelPlantillas({
-  plantillas,
-  plantillaActivaId,
-  onCargar,
-  onGuardarNueva,
-  onEliminar,
-}: {
-  plantillas: PlantillaReporte[]
-  plantillaActivaId: number | null
-  onCargar: (id: number) => void
-  onGuardarNueva: () => void
-  onEliminar: () => void
-}) {
-  return (
-    <section className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
-      <h2 className="text-base font-semibold text-neutral-900 dark:text-white">Plantillas</h2>
-      <div className="mt-3 space-y-3">
-        <Select
-          label="Plantilla guardada"
-          value={plantillaActivaId !== null ? String(plantillaActivaId) : ''}
-          onChange={(event) => {
-            if (event.target.value !== '') onCargar(Number(event.target.value))
-          }}
-        >
-          <option value="">— Elegir plantilla —</option>
-          {plantillas.map((plantilla) => (
-            <option key={plantilla.id} value={plantilla.id}>
-              {plantilla.nombre}
-            </option>
-          ))}
-        </Select>
-
-        <div className="flex flex-wrap gap-2">
-          <Button variant="secondary" onClick={onGuardarNueva}>
-            Guardar configuración actual
-          </Button>
-          <Button
-            variant="secondary"
-            disabled={plantillaActivaId === null}
-            onClick={() => {
-              if (plantillaActivaId !== null) onEliminar()
-            }}
-          >
-            Eliminar
-          </Button>
-        </div>
-      </div>
-    </section>
   )
 }
