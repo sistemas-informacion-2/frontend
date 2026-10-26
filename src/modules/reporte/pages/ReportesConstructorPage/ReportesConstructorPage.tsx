@@ -17,24 +17,9 @@ import {
 } from '../../services/reportes.service'
 import { ReportesConstructorPageView } from './ReportesConstructorPage.view'
 
-const POR_DEFECTO: Record<string, Partial<ReportRunRequest>> = {
-  VENTAS: {
-    selectedFields: ['fecha_emision', 'sucursal', 'monto_total', 'cantidad'],
-    sort: { campo: 'fecha_emision', direccion: 'desc' },
-  },
-  INVENTARIO: {
-    selectedFields: ['sucursal', 'almacen', 'producto', 'stock_disponible'],
-    sort: { campo: 'producto', direccion: 'asc' },
-  },
-  COMPRAS: {
-    selectedFields: ['fecha_emision', 'proveedor', 'total', 'cantidad'],
-    sort: { campo: 'fecha_emision', direccion: 'desc' },
-  },
-}
-
-function requestPorDefecto(reportType: string): ReportRunRequest {
-  const base = POR_DEFECTO[reportType] ?? {}
-  return { reportType, selectedFields: [], filters: [], limit: 50, offset: 0, ...base }
+/** Arranca sin entidad ni campos elegidos: el usuario arma todo a mano, nada viene preseleccionado. */
+function requestVacio(reportType = ''): ReportRunRequest {
+  return { reportType, selectedFields: [], filters: [], limit: 50, offset: 0 }
 }
 
 function descargarBlob(blob: Blob, nombreArchivo: string) {
@@ -64,7 +49,7 @@ export function ReportesConstructorPage() {
   const location = useLocation()
   const requestInicial = (location.state as { request?: ReportRunRequest } | null)?.request
 
-  const [request, setRequest] = useState<ReportRunRequest>(() => requestInicial ?? requestPorDefecto('VENTAS'))
+  const [request, setRequest] = useState<ReportRunRequest>(() => requestInicial ?? requestVacio())
   const [resultado, setResultado] = useState<ResultadoReporte | null>(null)
   const [ejecutando, setEjecutando] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -139,21 +124,17 @@ export function ReportesConstructorPage() {
     [ejecutar, request],
   )
 
-  const cambiarTipo = useCallback(
-    (reportType: string) => {
-      const nueva = requestPorDefecto(reportType)
-      setResultado(null)
-      setPlantillaActivaId(null)
-      setRequest(nueva)
-      void ejecutar(nueva)
-    },
-    [ejecutar],
-  )
+  // Cambiar de entidad no ejecuta nada solo ni precarga columnas: el usuario elige todo a mano (paso 1 y 2).
+  const cambiarTipo = useCallback((reportType: string) => {
+    setResultado(null)
+    setPlantillaActivaId(null)
+    setRequest(requestVacio(reportType))
+  }, [])
 
   const nuevoReporte = useCallback(() => {
     setResultado(null)
     setPlantillaActivaId(null)
-    setRequest(requestPorDefecto('VENTAS'))
+    setRequest(requestVacio())
   }, [])
 
   const exportar = useCallback(

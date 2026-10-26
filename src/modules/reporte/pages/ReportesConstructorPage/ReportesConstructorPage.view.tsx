@@ -158,61 +158,63 @@ export function ReportesConstructorPageView({
             onAplicar={onAplicar}
           />
 
-          <section className="space-y-4 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
-            <div className="flex items-center gap-2">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">
-                3
-              </span>
-              <h2 className="text-base font-semibold text-neutral-900 dark:text-white">Resultado</h2>
-              {resultado && <span className="text-sm text-neutral-500 dark:text-neutral-400">{resultado.total} registros</span>}
-            </div>
+          {tipoActivo && (
+            <section className="space-y-4 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
+              <div className="flex items-center gap-2">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">
+                  3
+                </span>
+                <h2 className="text-base font-semibold text-neutral-900 dark:text-white">Resultado</h2>
+                {resultado && <span className="text-sm text-neutral-500 dark:text-neutral-400">{resultado.total} registros</span>}
+              </div>
 
-            <div className="flex flex-wrap gap-2">
-              <Button onClick={onAplicar} loading={ejecutando} disabled={request.selectedFields.length === 0}>
-                Ejecutar vista previa
-              </Button>
-              {FORMATOS.map(({ formato, etiqueta }) => (
-                <Button key={formato} variant="secondary" disabled={!puedeExportar} loading={exportando === formato} onClick={() => onExportar(formato)}>
-                  {etiqueta}
+              <div className="flex flex-wrap gap-2">
+                <Button onClick={onAplicar} loading={ejecutando} disabled={request.selectedFields.length === 0}>
+                  Ejecutar vista previa
                 </Button>
-              ))}
-            </div>
+                {FORMATOS.map(({ formato, etiqueta }) => (
+                  <Button key={formato} variant="secondary" disabled={!puedeExportar} loading={exportando === formato} onClick={() => onExportar(formato)}>
+                    {etiqueta}
+                  </Button>
+                ))}
+              </div>
 
-            <div className="flex flex-wrap items-end gap-3">
-              <Input
-                label="Nombre de la plantilla"
-                value={nombrePlantilla}
-                onChange={(event) => setNombrePlantilla(event.target.value)}
-                placeholder="Ej.: Ventas por sucursal del mes"
-                className="min-w-64 flex-1"
-              />
-              <Button
-                variant="secondary"
-                loading={guardandoPlantilla}
-                disabled={nombrePlantilla.trim().length === 0}
-                onClick={() => {
-                  onGuardarPlantilla(nombrePlantilla.trim())
-                  setNombrePlantilla('')
-                }}
-              >
-                Guardar plantilla
-              </Button>
-            </div>
+              <div className="flex flex-wrap items-end gap-3">
+                <Input
+                  label="Nombre de la plantilla"
+                  value={nombrePlantilla}
+                  onChange={(event) => setNombrePlantilla(event.target.value)}
+                  placeholder="Ej.: Ventas por sucursal del mes"
+                  className="min-w-64 flex-1"
+                />
+                <Button
+                  variant="secondary"
+                  loading={guardandoPlantilla}
+                  disabled={nombrePlantilla.trim().length === 0}
+                  onClick={() => {
+                    onGuardarPlantilla(nombrePlantilla.trim())
+                    setNombrePlantilla('')
+                  }}
+                >
+                  Guardar plantilla
+                </Button>
+              </div>
 
-            {resultado && resultado.rows.length > 0 ? (
-              <ReportPreviewTable resultado={resultado} pagina={pagina} porPagina={request.limit ?? 50} onCambiarPagina={onCambiarPagina} />
-            ) : resultado ? (
-              <EmptyState
-                icon={<span className="text-4xl">🔍</span>}
-                title="Sin registros"
-                description="Ninguna fila coincide con los criterios actuales; prueba ampliar el rango de fechas o quitar filtros."
-              />
-            ) : (
-              <p className="py-4 text-center text-sm text-neutral-500 dark:text-neutral-400">
-                Ejecuta la vista previa para ver el resultado del reporte.
-              </p>
-            )}
-          </section>
+              {resultado && resultado.rows.length > 0 ? (
+                <ReportPreviewTable resultado={resultado} pagina={pagina} porPagina={request.limit ?? 50} onCambiarPagina={onCambiarPagina} />
+              ) : resultado ? (
+                <EmptyState
+                  icon={<span className="text-4xl">🔍</span>}
+                  title="Sin registros"
+                  description="Ninguna fila coincide con los criterios actuales; prueba ampliar el rango de fechas o quitar filtros."
+                />
+              ) : (
+                <p className="py-4 text-center text-sm text-neutral-500 dark:text-neutral-400">
+                  Ejecuta la vista previa para ver el resultado del reporte.
+                </p>
+              )}
+            </section>
+          )}
         </>
       )}
     </div>

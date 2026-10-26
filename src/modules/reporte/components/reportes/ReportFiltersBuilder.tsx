@@ -125,6 +125,9 @@ export function ReportFiltersBuilder({
     <div className="space-y-4">
       <Paso numero={1} titulo="Entidad y campos">
         <Select label="Entidad base" value={request.reportType} onChange={(event) => onCambiarTipo(event.target.value)}>
+          <option value="" disabled hidden>
+            Selecciona qué quieres consultar
+          </option>
           {catalogo.map((tipos) => (
             <option key={tipos.id} value={tipos.id}>
               {tipos.nombre}
