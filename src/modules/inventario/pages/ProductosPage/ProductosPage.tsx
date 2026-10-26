@@ -29,7 +29,7 @@ const EMPTY_FORM: ProductoFormValues = {
   activo: true,
   sucursalIds: [],
   imagenes: [],
-  variantes: [{ sku: '', talla: '', color: '', corte: '', modelo3dUrl: '', activo: true }],
+  variantes: [{ sku: '', talla: '', color: '', corte: '', activo: true }],
 }
 
 export function ProductosPage() {

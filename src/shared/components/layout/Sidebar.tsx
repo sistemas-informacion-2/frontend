@@ -55,7 +55,6 @@ const GROUPS: SidebarGroup[] = [
     items: [
       { label: 'Reservas', path: '/admin/reservas', permission: 'electronico:reservas:gestionar' },
       { label: 'Ventas en línea', path: '/admin/ventas-en-linea', permission: 'electronico:ventas:leer' },
-      { label: 'Probador Virtual', path: '/admin/probador-virtual', permission: 'electronico:probador:gestionar' },
       { label: 'Notificaciones Push', path: '/admin/notificaciones', permission: 'electronico:notificaciones:gestionar' },
     ],
   },

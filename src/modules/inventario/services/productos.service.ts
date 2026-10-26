@@ -34,7 +34,6 @@ function toVariantePayload(variante: VarianteProductoFormValues) {
     talla: variante.talla,
     color: variante.color,
     corte: variante.corte,
-    modelo3dUrl: variante.modelo3dUrl || undefined,
   }
 }
 
