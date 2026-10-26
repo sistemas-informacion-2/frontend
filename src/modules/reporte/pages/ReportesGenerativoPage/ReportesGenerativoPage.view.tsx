@@ -185,27 +185,33 @@ export function ReportesGenerativoPageView({
           )}
 
           {hayConversacion && (
-            <div className="space-y-3">
-              {historial.map((mensaje) => (
-                <div key={mensaje.id} className="space-y-2">
-                  <div className="flex justify-end">
-                    <p className="max-w-[85%] rounded-xl bg-neutral-900 px-4 py-2.5 text-sm text-white dark:bg-emerald-700">{mensaje.prompt}</p>
-                  </div>
-                  <div className="flex justify-start">
-                    <div className="max-w-[85%] rounded-xl bg-neutral-100 px-4 py-2.5 text-sm text-neutral-800 dark:bg-neutral-900 dark:text-neutral-200">
-                      <p>{mensaje.interpretacion}</p>
-                      <div className="mt-1.5 flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400">
-                        <FuenteBadge fuente={mensaje.fuente} />
-                        <span>· reporte abajo</span>
-                        <button type="button" onClick={() => onEscuchar(mensaje.interpretacion)} className="font-medium text-neutral-700 hover:underline dark:text-neutral-300">
-                          🔊 Escuchar
-                        </button>
+            <section className="overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-950">
+              <div className="flex items-center gap-2 border-b border-neutral-200 bg-neutral-50 px-4 py-2.5 dark:border-neutral-800 dark:bg-neutral-900">
+                <span className="text-base">💬</span>
+                <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Conversación</p>
+              </div>
+              <div className="max-h-[480px] space-y-3 overflow-y-auto bg-neutral-50/60 p-4 dark:bg-neutral-900/40">
+                {historial.map((mensaje) => (
+                  <div key={mensaje.id} className="space-y-2">
+                    <div className="flex justify-end">
+                      <p className="max-w-[85%] rounded-xl bg-neutral-900 px-4 py-2.5 text-sm text-white dark:bg-emerald-700">{mensaje.prompt}</p>
+                    </div>
+                    <div className="flex justify-start">
+                      <div className="max-w-[85%] rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm text-neutral-800 shadow-sm dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-200">
+                        <p>{mensaje.interpretacion}</p>
+                        <div className="mt-1.5 flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400">
+                          <FuenteBadge fuente={mensaje.fuente} />
+                          <span>· reporte abajo</span>
+                          <button type="button" onClick={() => onEscuchar(mensaje.interpretacion)} className="font-medium text-neutral-700 hover:underline dark:text-neutral-300">
+                            🔊 Escuchar
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            </section>
           )}
 
           <section className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
