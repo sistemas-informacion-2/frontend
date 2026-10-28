@@ -1,10 +1,9 @@
 import { isAxiosError } from 'axios'
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { useCarrito, useMisReservas, useProductoDetalle, useProductosRelacionados, useProbadorVariante, useSucursalActiva } from '../../hooks'
+import { useCarrito, useMisReservas, useProductoDetalle, useProductosRelacionados, useSucursalActiva } from '../../hooks'
 import { cargarSeleccion, guardarSeleccion, type SeleccionProducto } from '@/shared/utils/seleccionProducto'
 import { decartConfigurado } from '../../api/decart'
-import type { ModoProbador } from '../../components/MenuProbador'
 import type { VarianteDetalle } from '../../types'
 import { obtenerDisponibilidadIA } from '../../utils/probador-ia'
 import { extraerMensajeError as mensajeDeError } from '../../utils/reservas'
@@ -40,13 +39,9 @@ function ProductoPageContenido() {
   const [mensaje, setMensaje] = useState<MensajeProducto | null>(null)
   const [reservaAbierta, setReservaAbierta] = useState(false)
   const [errorReserva, setErrorReserva] = useState<string | null>(null)
-  // Probador virtual (CU19): la variante que se está probando con la cámara y cómo (AR o IA).
-  // Con variante elegida pero sin modo todavía, se muestra el menú para elegirlo.
+  // Probador con IA (CU19): la variante que se está probando con la cámara.
   const [probadorVarianteId, setProbadorVarianteId] = useState<number | null>(null)
-  const [modoProbador, setModoProbador] = useState<ModoProbador | null>(null)
   const varianteProbador = probadorVarianteId === null ? null : (producto?.variantes.find((v) => v.id === probadorVarianteId) ?? null)
-  const { variante: varianteProbadorAssets } = useProbadorVariante(probadorVarianteId ?? 0)
-  const disponibilidadIA = obtenerDisponibilidadIA({ configurado: decartConfigurado, tieneImagen: (producto?.imagenes.length ?? 0) > 0 })
 
   // Lo guardado puede haber quedado viejo (variante sin stock, ya en el carrito): se muestra solo lo que todavía es válido.
   const seleccion = seleccionValida(seleccionGuardada, producto?.variantes, (idVariante) =>
@@ -162,7 +157,11 @@ function ProductoPageContenido() {
 
   const abrirProbador = (variante: VarianteDetalle) => {
     setMensaje(null)
-    setModoProbador(null)
+    const disponibilidad = obtenerDisponibilidadIA({ configurado: decartConfigurado, tieneImagen: (producto?.imagenes.length ?? 0) > 0 })
+    if (!disponibilidad.habilitado) {
+      setMensaje({ tipo: 'error', texto: disponibilidad.motivo ?? 'El probador con IA no está disponible ahora mismo.' })
+      return
+    }
     setProbadorVarianteId(variante.id)
   }
 
@@ -170,7 +169,7 @@ function ProductoPageContenido() {
     if (!enviando) setProbadorVarianteId(null)
   }
 
-  /** Desde el probador (CU19) se puede confirmar el calce y pasar todo a la CU14 (carrito). */
+  /** Desde el probador con IA (CU19) se puede confirmar el calce y pasar todo a la CU14 (carrito). */
   const agregarDesdeProbador = async () => {
     if (probadorVarianteId === null || !varianteProbador) return
     setMensaje(null)
@@ -218,11 +217,8 @@ function ProductoPageContenido() {
       onCerrarReserva={() => !enviando && setReservaAbierta(false)}
       onConfirmarReserva={onConfirmarReserva}
       probadorVariante={varianteProbador}
-      probadorVarianteAssets={varianteProbadorAssets}
-      probadorModo={probadorVarianteId === null ? null : (modoProbador ?? 'menu')}
-      disponibilidadIA={disponibilidadIA}
+      probadorAbierto={probadorVarianteId !== null}
       onProbarPrenda={abrirProbador}
-      onElegirModoProbador={setModoProbador}
       onCerrarProbador={cerrarProbador}
       onAgregarDesdeProbador={agregarDesdeProbador}
       enviandoProbador={enviando}
