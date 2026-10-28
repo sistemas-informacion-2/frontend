@@ -15,7 +15,9 @@ import { MisDevolucionesPage } from '@/modules/electronico/pages/MisDevoluciones
 import { ReservasPage } from '@/modules/electronico/pages/ReservasPage/ReservasPage'
 import { MisReservasPage } from '@/modules/electronico/pages/MisReservasPage/MisReservasPage'
 import { DashboardPage } from '@/modules/reporte/pages/DashboardPage/DashboardPage'
-import { ReportesPage } from '@/modules/reporte/pages/ReportesPage/ReportesPage'
+import { ReportesPredefinidosPage } from '@/modules/reporte/pages/ReportesPredefinidosPage/ReportesPredefinidosPage'
+import { ReportesConstructorPage } from '@/modules/reporte/pages/ReportesConstructorPage/ReportesConstructorPage'
+import { ReportesGenerativoPage } from '@/modules/reporte/pages/ReportesGenerativoPage/ReportesGenerativoPage'
 import { LoginPage } from '@/modules/acceso/pages/LoginPage/LoginPage'
 import { PerfilPage } from '@/modules/acceso/pages/PerfilPage/PerfilPage'
 import { BitacoraPage } from '@/modules/acceso/pages/BitacoraPage/BitacoraPage'
@@ -105,7 +107,10 @@ function App() {
                 <Route path="reservas" element={<PermissionRoute permission="electronico:reservas:gestionar"><ReservasPage /></PermissionRoute>} />
                 <Route path="devoluciones" element={<PermissionRoute permission="comercial:devoluciones:gestionar"><DevolucionesPage /></PermissionRoute>} />
                 <Route path="notificaciones" element={<PermissionRoute permission="electronico:notificaciones:gestionar"><NotificacionesPage /></PermissionRoute>} />
-                <Route path="reportes" element={<PermissionRoute permission="analitica:reportes:gestionar"><ReportesPage /></PermissionRoute>} />
+                <Route path="reportes" element={<Navigate to="/admin/reportes/constructor" replace />} />
+                <Route path="reportes/predefinidos" element={<PermissionRoute permission="analitica:reportes:gestionar"><ReportesPredefinidosPage /></PermissionRoute>} />
+                <Route path="reportes/constructor" element={<PermissionRoute permission="analitica:reportes:gestionar"><ReportesConstructorPage /></PermissionRoute>} />
+                <Route path="reportes/generativo" element={<PermissionRoute permission="analitica:reportes:gestionar"><ReportesGenerativoPage /></PermissionRoute>} />
                 <Route path="*" element={<ComingSoonPage />} />
               </Route>
 

@@ -1,20 +1,22 @@
 import { useState, type InputHTMLAttributes } from 'react'
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
-  label: string
+  label?: string
   error?: string
 }
 
 export function Input({ label, error, id, className = '', type, ...rest }: InputProps) {
-  const inputId = id ?? label.toLowerCase().replace(/\s+/g, '-')
+  const inputId = id ?? label?.toLowerCase().replace(/\s+/g, '-')
   const isPassword = type === 'password'
   const [visible, setVisible] = useState(false)
 
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={inputId} className="text-sm font-medium text-neutral-700">
-        {label}
-      </label>
+      {label && (
+        <label htmlFor={inputId} className="text-sm font-medium text-neutral-700">
+          {label}
+        </label>
+      )}
       <div className="relative">
         <input
           id={inputId}

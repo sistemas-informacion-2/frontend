@@ -4,6 +4,8 @@ import type {
   FormatoExportacion,
   PlantillaReporte,
   ReporteDefinicion,
+  ReportePredefinido,
+  ReportePredefinidoEjecutado,
   ReportRunRequest,
   ResultadoReporte,
   RespuestaGenerativo,
@@ -13,6 +15,16 @@ const BASE = '/reports'
 
 export async function obtenerCatalogoReportes(): Promise<ReporteDefinicion[]> {
   const response = await httpClient.get<Envelope<ReporteDefinicion[]>>(`${BASE}/catalog`)
+  return unwrap(response)
+}
+
+export async function listarReportesPredefinidos(): Promise<ReportePredefinido[]> {
+  const response = await httpClient.get<Envelope<ReportePredefinido[]>>(`${BASE}/predefinidos`)
+  return unwrap(response)
+}
+
+export async function ejecutarReportePredefinido(codigo: string): Promise<ReportePredefinidoEjecutado> {
+  const response = await httpClient.post<Envelope<ReportePredefinidoEjecutado>>(`${BASE}/predefinidos/${codigo}/ejecutar`)
   return unwrap(response)
 }
 
