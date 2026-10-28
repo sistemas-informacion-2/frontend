@@ -296,7 +296,7 @@ export function ProductoPageView({
       <Modal open={reservaAbierta} title="Reservar en sucursal" onClose={onCerrarReserva}>
         <div className="space-y-4 text-sm">
           <p className="text-neutral-600 dark:text-neutral-400">
-            Apartamos {unidades} {unidades === 1 ? 'prenda' : 'prendas'} de <strong>{producto.nombre}</strong> por {bs(total)}. Para confirmarla pagas un anticipo del {PORCENTAJE_ANTICIPO_MINIMO}% con QR, PayPal o tarjeta en el paso siguiente, y el resto se cobra al retirarlas en la sucursal. Tienes 48 horas; pasado ese plazo el stock se libera.
+            Apartamos {unidades} {unidades === 1 ? 'prenda' : 'prendas'} de <strong>{producto.nombre}</strong> por {bs(total)}. Para confirmarla pagas un anticipo del {PORCENTAJE_ANTICIPO_MINIMO}% con QR, Stripe o tarjeta en el paso siguiente, y el resto se cobra al retirarlas en la sucursal. Tienes 48 horas; pasado ese plazo el stock se libera.
           </p>
           <p className="rounded-md bg-neutral-100 px-3 py-2 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
             📍 Retiras en <strong>{sucursalActiva?.nombre ?? '…'}</strong>

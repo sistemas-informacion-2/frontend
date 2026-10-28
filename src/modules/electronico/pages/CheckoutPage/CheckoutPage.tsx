@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import useSWR, { useSWRConfig } from 'swr'
-import { confirmarQrPago, fetchMetodosOnline, fetchMiReserva, generarQrPago, iniciarPagoPaypal, pagarConTarjeta } from '../../api'
+import { confirmarQrPago, fetchMetodosOnline, fetchMiReserva, generarQrPago, iniciarPagoStripe, pagarConTarjeta } from '../../api'
 import { useCarrito } from '../../hooks'
 import type { CodigoMetodoOnline, CompraOnline, DatosTarjeta, IniciarQrRespuesta } from '../../types'
 import { bs, extraerMensajeError } from '../../utils/reservas'
@@ -56,7 +56,7 @@ function CheckoutContenido({ idReserva }: { idReserva?: number }) {
   const [redirigiendo, setRedirigiendo] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Si el navegador restaura esta página desde su caché tras volver de PayPal, el botón no debe seguir "ocupado".
+  // Si el navegador restaura esta página desde su caché tras volver de Stripe, el botón no debe seguir "ocupado".
   useEffect(() => {
     const alRestaurar = (event: PageTransitionEvent) => {
       if (event.persisted) setRedirigiendo(false)
@@ -170,13 +170,13 @@ function CheckoutContenido({ idReserva }: { idReserva?: number }) {
       }}
       onGenerarQr={() => void ejecutar(async () => setQr(await generarQrPago(idReserva)))}
       onConfirmarQr={() => qrVigente && void ejecutar(async () => terminar(await confirmarQrPago(qrVigente.referencia, idReserva)))}
-      onPagarPaypal={() =>
+      onPagarStripe={() =>
         void ejecutar(async () => {
-          const orden = await iniciarPagoPaypal(idReserva)
-          // PayPal devuelve al cliente a /checkout/paypal/retorno, donde se cobra la orden aprobada.
+          const sesion = await iniciarPagoStripe(idReserva)
+          // Stripe devuelve al cliente a /checkout/stripe/retorno, donde se cobra lo que autorizó.
           // Hasta que el navegador cambie de página el botón debe seguir ocupado: si no, parecería que no responde.
           setRedirigiendo(true)
-          window.location.assign(orden.urlAprobacion)
+          window.location.assign(sesion.urlPago)
         })
       }
     />

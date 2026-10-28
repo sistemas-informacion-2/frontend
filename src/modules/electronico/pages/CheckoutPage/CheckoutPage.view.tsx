@@ -41,7 +41,7 @@ interface CheckoutPageViewProps {
   tarjeta: DatosTarjeta
   qr: IniciarQrRespuesta | null
   procesando: boolean
-  /** true mientras el navegador va hacia PayPal: el botón debe seguir ocupado hasta que cambie de página. */
+  /** true mientras el navegador va hacia Stripe: el botón debe seguir ocupado hasta que cambie de página. */
   redirigiendo: boolean
   error: string | null
   onSeleccionar: (codigo: CodigoMetodoOnline) => void
@@ -49,16 +49,16 @@ interface CheckoutPageViewProps {
   onPagarTarjeta: (event: FormEvent<HTMLFormElement>) => void
   onGenerarQr: () => void
   onConfirmarQr: () => void
-  onPagarPaypal: () => void
+  onPagarStripe: () => void
 }
 
 const BOTON_LINK =
   'rounded-full bg-neutral-900 px-5 py-2 text-sm font-medium text-white hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200'
 
-const ICONO: Record<CodigoMetodoOnline, string> = { QR: '📱', PAYPAL: '🅿️', TARJETA: '💳' }
+const ICONO: Record<CodigoMetodoOnline, string> = { QR: '📱', STRIPE: '🔒', TARJETA: '💳' }
 const DESCRIPCION: Record<CodigoMetodoOnline, string> = {
   QR: 'Escanea el código con la app de tu banco',
-  PAYPAL: 'Paga con tu cuenta PayPal',
+  STRIPE: 'Paga con tarjeta en la página segura de Stripe',
   TARJETA: 'Tarjeta de crédito o débito',
 }
 
@@ -81,7 +81,7 @@ export function CheckoutPageView({
   onPagarTarjeta,
   onGenerarQr,
   onConfirmarQr,
-  onPagarPaypal,
+  onPagarStripe,
 }: CheckoutPageViewProps) {
   if (!autenticado || !esCliente) {
     return (
@@ -186,17 +186,17 @@ export function CheckoutPageView({
             </p>
           )}
 
-          {actual?.codigo === 'PAYPAL' && (
+          {actual?.codigo === 'STRIPE' && (
             <div className="rounded-xl border border-neutral-200 p-5 dark:border-neutral-800">
               <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                Te llevaremos a PayPal para que apruebes el pago. PayPal no opera en bolivianos: se cobra el equivalente en dólares (USD) al tipo de cambio de la tienda.
+                Te llevaremos a la página segura de Stripe para que ingreses tu tarjeta. Se cobra el equivalente en dólares (USD) al tipo de cambio de la tienda, y solo cuando confirmamos tu pedido.
               </p>
-              <Button onClick={onPagarPaypal} loading={ocupado} disabled={pedido.hayNoDisponibles} className="mt-4 rounded-full">
-                Pagar {bs(pedido.total)} con PayPal
+              <Button onClick={onPagarStripe} loading={ocupado} disabled={pedido.hayNoDisponibles} className="mt-4 rounded-full">
+                Pagar {bs(pedido.total)} con Stripe
               </Button>
               {redirigiendo && (
                 <p role="status" className="mt-3 text-sm text-neutral-500 dark:text-neutral-400">
-                  Abriendo PayPal… puede tardar unos segundos. No cierres esta ventana.
+                  Abriendo Stripe… puede tardar unos segundos. No cierres esta ventana.
                 </p>
               )}
             </div>

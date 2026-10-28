@@ -202,7 +202,7 @@ export interface Venta {
   idSucursal: number
   sucursalNombre: string
   idPasarela: number | null
-  /** Método con el que se pagó (PayPal, QR, Efectivo...). */
+  /** Método con el que se pagó (Stripe, QR, Efectivo...). */
   pasarelaMetodo: string | null
   idMovimientoCaja: number | null
   tipoVenta: TipoNotaVenta

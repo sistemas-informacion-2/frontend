@@ -7,7 +7,7 @@ import { VentasEnLineaPage } from '@/modules/electronico/pages/VentasEnLineaPage
 import { DevolucionesPage } from '@/modules/comercial/pages/DevolucionesPage/DevolucionesPage'
 import { RegistroPage } from '@/modules/acceso/pages/RegistroPage/RegistroPage'
 import { CheckoutPage, CheckoutReservaPage } from '@/modules/electronico/pages/CheckoutPage/CheckoutPage'
-import { PaypalRetornoPage } from '@/modules/electronico/pages/CheckoutPage/PaypalRetornoPage'
+import { StripeRetornoPage } from '@/modules/electronico/pages/CheckoutPage/StripeRetornoPage'
 import { CompraExitosaPage, PagoCanceladoPage } from '@/modules/electronico/pages/CheckoutPage/CheckoutResultadoPages'
 import { CuentaLayout } from '@/modules/electronico/pages/MiCuentaPage/CuentaLayout'
 import { MisComprasPage } from '@/modules/electronico/pages/MisComprasPage/MisComprasPage'
@@ -71,8 +71,8 @@ function App() {
                 <Route path="/carrito" element={<CarritoPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/checkout/reserva/:id" element={<CheckoutReservaPage />} />
-                <Route path="/checkout/paypal/retorno" element={<PaypalRetornoPage />} />
-                <Route path="/checkout/paypal/cancelado" element={<PagoCanceladoPage />} />
+                <Route path="/checkout/stripe/retorno" element={<StripeRetornoPage />} />
+                <Route path="/checkout/stripe/cancelado" element={<PagoCanceladoPage />} />
                 <Route path="/checkout/exito" element={<CompraExitosaPage />} />
                 <Route path="/mis-reservas" element={<Navigate to="/mi-cuenta/reservas" replace />} />
                 <Route path="/mi-cuenta" element={<CuentaLayout />}>

@@ -214,7 +214,7 @@ export interface CrearReservaInput {
 
 // --- Checkout del carrito (CU14) ---
 
-export type CodigoMetodoOnline = 'QR' | 'PAYPAL' | 'TARJETA'
+export type CodigoMetodoOnline = 'QR' | 'STRIPE' | 'TARJETA'
 
 export interface MetodoPagoOnline {
   id: number
@@ -225,12 +225,13 @@ export interface MetodoPagoOnline {
   simulado: boolean
 }
 
-export interface IniciarPaypalRespuesta {
-  orderId: string
-  urlAprobacion: string
+export interface IniciarStripeRespuesta {
+  sessionId: string
+  /** Página de Stripe Checkout a la que se envía al cliente para que autorice el pago. */
+  urlPago: string
   montoBob: number
-  montoPaypal: number
-  monedaPaypal: string
+  montoCobrado: number
+  monedaCobro: string
 }
 
 export interface IniciarQrRespuesta {

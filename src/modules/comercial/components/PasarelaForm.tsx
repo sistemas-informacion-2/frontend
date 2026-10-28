@@ -26,7 +26,7 @@ export function PasarelaForm({ values, editing, tieneApiKey, loading, error, onC
           required
           maxLength={30}
           disabled={editing}
-          placeholder="EFECTIVO, QR, TARJETA, PAYPAL"
+          placeholder="EFECTIVO, QR, TARJETA, STRIPE"
           value={values.codigo}
           onChange={(event) => onChange('codigo', event.target.value.toUpperCase())}
         />

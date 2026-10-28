@@ -24,7 +24,6 @@ const EMPTY_VARIANTE: VarianteProductoFormValues = {
   talla: '',
   color: '',
   corte: '',
-  modelo3dUrl: '',
   activo: true,
 }
 
@@ -157,7 +156,6 @@ export function ProductoForm({
                     <Input label="Talla" required value={variante.talla} onChange={(event) => updateVariante(index, 'talla', event.target.value)} />
                     <Input label="Color" required value={variante.color} onChange={(event) => updateVariante(index, 'color', event.target.value)} />
                     <Input label="Corte" required value={variante.corte} onChange={(event) => updateVariante(index, 'corte', event.target.value)} />
-                    <Input label="Modelo 3D URL (opcional)" value={variante.modelo3dUrl} onChange={(event) => updateVariante(index, 'modelo3dUrl', event.target.value)} />
                   </div>
                   {values.variantes.length > 1 && (
                     <button

@@ -56,7 +56,7 @@ export function PagoCanceladoPage() {
     <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
       <EmptyState
         icon={<span className="text-4xl">↩️</span>}
-        title="Cancelaste el pago en PayPal"
+        title="Cancelaste el pago en Stripe"
         description={reserva ? 'No se te cobró nada. Tu reserva sigue apartada hasta que venza su plazo; puedes pagar el anticipo cuando quieras.' : 'No se te cobró nada y tu carrito sigue como lo dejaste.'}
         action={
           <Link to={volver} className={BOTON_LINK}>

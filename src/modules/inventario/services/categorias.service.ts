@@ -18,7 +18,6 @@ export async function crearCategoria(values: CategoriaFormValues): Promise<Categ
     descripcion: values.descripcion || undefined,
     imagenUrl: values.imagenUrl || undefined,
     categoriaPadreId: values.categoriaPadreId || undefined,
-    zonaProbador: values.zonaProbador,
     temporadaIds: values.temporadaIds,
   })
   return response.data.data
@@ -32,7 +31,6 @@ export async function actualizarCategoria(id: number, values: CategoriaFormValue
     imagenUrl: values.imagenUrl || undefined,
     categoriaPadreId: values.categoriaPadreId || null,
     activo: values.activo,
-    zonaProbador: values.zonaProbador,
     temporadaIds: values.temporadaIds,
   })
   return response.data.data
