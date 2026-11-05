@@ -37,6 +37,8 @@ export function CarritoPage() {
 }
 
 function extraerMensajeError(error: unknown): string {
+  // Sin conexion el carrito local lanza errores propios (no de axios) con un mensaje ya listo para mostrar.
+  if (error instanceof Error && !isAxiosError(error)) return error.message
   if (isAxiosError(error)) {
     const message = error.response?.data?.message
     if (Array.isArray(message)) return message.join(', ')

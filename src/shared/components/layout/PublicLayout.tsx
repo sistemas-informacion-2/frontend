@@ -4,6 +4,7 @@ import { env } from '@/core/config/env'
 import { useAuthStore } from '@/core/store/authStore'
 import { CategoryNavBar } from '@/modules/electronico/components/CategoryNavBar'
 import { NotificationBell } from '@/modules/electronico/components/NotificationBell'
+import { PedidosOfflineMonitor } from '@/modules/electronico/components/PedidosOffline'
 import { StoreFooter } from '@/modules/electronico/components/StoreFooter'
 import { StoreLogoMarca } from '@/modules/electronico/components/StoreLogo'
 import { StoreSidebar } from '@/modules/electronico/components/StoreSidebar'
@@ -100,6 +101,8 @@ export function PublicLayout() {
       </main>
 
       <StoreFooter />
+
+      {perfil?.tipoUsuario === 'C' && <PedidosOfflineMonitor />}
     </div>
   )
 }

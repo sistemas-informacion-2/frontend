@@ -93,7 +93,7 @@ function ProductoPageContenido() {
 
     setEnviando(true)
     try {
-      await agregar(lineas)
+      await agregar(lineas, producto)
       setSeleccion({})
       return true
     } catch (requestError) {
@@ -105,7 +105,12 @@ function ProductoPageContenido() {
   }
 
   const onAgregar = async () => {
-    if (await agregarSeleccion()) setMensaje({ tipo: 'ok', texto: 'Agregado a tu carrito.' })
+    if (await agregarSeleccion()) {
+      setMensaje({
+        tipo: 'ok',
+        texto: navigator.onLine ? 'Agregado a tu carrito.' : 'Agregado a tu carrito sin conexión: se guardará en tu cuenta cuando vuelva la red.',
+      })
+    }
   }
 
   const onComprarAhora = async () => {
@@ -183,7 +188,7 @@ function ProductoPageContenido() {
     }
     setEnviando(true)
     try {
-      await agregar([{ idVarianteProducto: probadorVarianteId, cantidad: 1 }])
+      await agregar([{ idVarianteProducto: probadorVarianteId, cantidad: 1 }], producto)
       setProbadorVarianteId(null)
       setMensaje({ tipo: 'ok', texto: 'Agregado a tu carrito desde el probador.' })
     } catch (requestError) {
@@ -198,7 +203,8 @@ function ProductoPageContenido() {
       producto={producto}
       relacionados={relacionados}
       cargando={isLoading}
-      noEncontrado={!!error}
+      // Sin red, SWR puede tener la ficha precargada y a la vez el error de revalidarla: se muestra la ficha.
+      noEncontrado={!!error && !producto}
       seleccion={seleccion}
       enCarrito={Object.fromEntries(carrito.items.map((item) => [item.idVarianteProducto, item.cantidad]))}
       unidades={unidades}
@@ -243,6 +249,7 @@ function seleccionValida(
 }
 
 function extraerMensajeError(error: unknown): string {
+  if (error instanceof Error && !isAxiosError(error)) return error.message
   if (isAxiosError(error)) {
     const message = error.response?.data?.message
     if (Array.isArray(message)) return message.join(', ')

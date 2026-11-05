@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Service worker que genera vite-plugin-pwa al correr "npm run dev"
+# (devOptions.enabled en vite.config.ts); no es parte del build real.
+dev-dist
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

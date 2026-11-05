@@ -1,5 +1,5 @@
 import { useSearchParams } from 'react-router-dom'
-import { useSucursalActiva, useTemporadasPublicas } from '../../hooks'
+import { usePrecargaCatalogo, useSucursalActiva, useTemporadasPublicas } from '../../hooks'
 import { useCategorias, useProductos } from '@/modules/inventario/hooks'
 import { buscarCategoriaPorId } from '@/modules/inventario/services/categorias.service'
 import { CatalogoPageView, type FiltroActivo } from './CatalogoPage.view'
@@ -25,6 +25,12 @@ export function CatalogoPage() {
     idSucursal: idSucursal ?? undefined,
     search: busqueda,
   })
+
+  // RF-SYNC-01: deja listas para usar sin conexion las fichas de lo que se esta viendo (incluidas las ofertas).
+  usePrecargaCatalogo(
+    catalogo.map((producto) => producto.id),
+    idSucursal,
+  )
 
   // El carrusel de Ofertas solo tiene sentido en "Todas" (sin categoría/temporada
   // ni búsqueda; la sucursal no cuenta, porque siempre hay una puesta): apenas

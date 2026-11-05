@@ -27,6 +27,9 @@ export function useCerrarSesion() {
     clear()
     limpiarSelecciones()
     await mutate(esClavePrivada, undefined, { revalidate: false })
+    // La cache de la API del Service Worker guarda por URL, no por usuario: sin borrarla, quien entre despues en
+    // este navegador podria ver sin conexion el carrito o las reservas de la persona anterior.
+    if ('caches' in window) await caches.delete('api-cache').catch(() => false)
     navigate(destino, { replace: true })
   }
 }

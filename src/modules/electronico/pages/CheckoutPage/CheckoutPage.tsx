@@ -2,7 +2,9 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import useSWR, { useSWRConfig } from 'swr'
 import { confirmarQrPago, fetchMetodosOnline, fetchMiReserva, generarQrPago, iniciarPagoStripe, pagarConTarjeta } from '../../api'
-import { useCarrito } from '../../hooks'
+import { isNetworkError } from '@/core/http/errors'
+import { PedidoOfflinePanel } from '../../components/PedidosOffline'
+import { useCarrito, useEnLinea } from '../../hooks'
 import type { CodigoMetodoOnline, CompraOnline, DatosTarjeta, IniciarQrRespuesta } from '../../types'
 import { bs, extraerMensajeError } from '../../utils/reservas'
 import { CheckoutPageView, type PedidoPago, type SinPedido } from './CheckoutPage.view'
@@ -38,11 +40,20 @@ export function CheckoutReservaPage() {
 function CheckoutContenido({ idReserva }: { idReserva?: number }) {
   const navigate = useNavigate()
   const { mutate } = useSWRConfig()
-  const { autenticado, esCliente, carrito, isLoading: cargandoCarrito, refrescar } = useCarrito()
-  const { data: metodos = [], isLoading: cargandoMetodos } = useSWR(esCliente ? 'electronico/checkout/metodos' : null, fetchMetodosOnline, {
+  const { autenticado, esCliente, carrito, isLoading: cargandoCarrito, refrescar, tieneLineasLocales } = useCarrito()
+  const enLinea = useEnLinea()
+  const {
+    data: metodos = [],
+    error: errorMetodos,
+    isLoading: cargandoMetodos,
+    mutate: reintentarMetodos,
+  } = useSWR(esCliente ? 'electronico/checkout/metodos' : null, fetchMetodosOnline, {
     shouldRetryOnError: false,
     revalidateOnFocus: false,
   })
+  // navigator.onLine no basta: con wifi sin internet, adaptadores virtuales (WSL, VirtualBox) o el servidor caido,
+  // el navegador cree tener red. Si el servidor no responde (sin respuesta HTTP), tampoco se puede cobrar.
+  const servidorInalcanzable = isNetworkError(errorMetodos)
   const { data: reserva, isLoading: cargandoReserva } = useSWR(
     esCliente && idReserva !== undefined ? ['electronico/reservas/mias', idReserva] : null,
     () => fetchMiReserva(idReserva as number),
@@ -119,6 +130,11 @@ function CheckoutContenido({ idReserva }: { idReserva?: number }) {
   // Un QR generado con otro monto ya no vale: si el total cambia, se descarta.
   const qrVigente = qr && pedido && qr.montoBob === pedido.total ? qr : null
 
+  // RF-SYNC-01: sin red no hay pago posible; el carrito se guarda en el dispositivo y se sincroniza despues.
+  if ((!enLinea || servidorInalcanzable) && idReserva === undefined && esCliente && carrito.items.length > 0) {
+    return <PedidoOfflinePanel carrito={carrito} onReintentarConexion={() => void reintentarMetodos()} />
+  }
+
   const terminar = async (compra: CompraOnline) => {
     // El pago cambia el carrito (queda vacío) o la reserva (queda pagada): se vuelve a leer lo que se muestra en otras pantallas.
     await Promise.all([refrescar(), mutate('electronico/reservas/mias')])
@@ -143,7 +159,9 @@ function CheckoutContenido({ idReserva }: { idReserva?: number }) {
     <CheckoutPageView
       autenticado={autenticado}
       esCliente={esCliente}
-      cargando={cargandoCarrito || cargandoReserva}
+      // Con red de nuevo, lo agregado sin conexion tiene que estar en el carrito del servidor antes de cobrar:
+      // si no, se mostraria un total y se cobraria otro. useCarrito lo sube solo; mientras tanto se espera.
+      cargando={cargandoCarrito || cargandoReserva || (idReserva === undefined && tieneLineasLocales)}
       pedido={pedido}
       sinPedido={sinPedido}
       metodos={metodos}
