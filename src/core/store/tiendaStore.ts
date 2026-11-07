@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { claveAlmacenamiento } from '@/core/tenant/tienda'
 
 interface TiendaState {
   /**
@@ -21,6 +22,7 @@ export const useTiendaStore = create<TiendaState>()(
       idSucursal: null,
       setSucursal: (id) => set({ idSucursal: id }),
     }),
-    { name: 'fashionstore-tienda' },
+    // Las sucursales son de cada tienda: la elegida en una no existe en otra.
+    { name: claveAlmacenamiento('tienda') },
   ),
 )

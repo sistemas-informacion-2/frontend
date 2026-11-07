@@ -81,6 +81,7 @@ export const TIPO_USUARIO_LABEL: Record<TipoUsuario, string> = {
   A: 'Administrador',
   E: 'Empleado',
   C: 'Cliente',
+  S: 'Superadmin',
 }
 
 export const ESTADO_ACCESO_LABEL: Record<EstadoAcceso, string> = {

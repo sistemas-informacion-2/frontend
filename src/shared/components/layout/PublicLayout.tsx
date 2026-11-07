@@ -1,6 +1,6 @@
 import { type FormEvent, useState } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { env } from '@/core/config/env'
+import { useNombreTienda } from '@/core/tenant/useNombreTienda'
 import { useAuthStore } from '@/core/store/authStore'
 import { CategoryNavBar } from '@/modules/electronico/components/CategoryNavBar'
 import { NotificationBell } from '@/modules/electronico/components/NotificationBell'
@@ -11,6 +11,7 @@ import { CartIcon } from '@/shared/components/ui/CartIcon'
 import { ThemeToggle } from '@/shared/components/ui/ThemeToggle'
 
 export function PublicLayout() {
+  const nombreTienda = useNombreTienda()
   const perfil = useAuthStore((state) => state.perfil)
   const autenticado = useAuthStore((state) => state.isAuthenticated)
   const [menuAbierto, setMenuAbierto] = useState(false)
@@ -49,7 +50,7 @@ export function PublicLayout() {
             <StoreLogoMarca />
           )}
           <Link to="/" className="shrink-0 text-lg font-semibold tracking-tight sm:text-xl dark:text-white">
-            {env.appName}
+            {nombreTienda}
           </Link>
 
           <form

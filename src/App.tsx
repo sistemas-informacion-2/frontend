@@ -3,6 +3,8 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { isNetworkError } from '@/core/http/errors'
 import { AuthProvider } from '@/core/context/AuthContext'
 import { ThemeProvider } from '@/core/providers/ThemeProvider'
+import { TiendaGate } from '@/core/tenant/TiendaGate'
+import { basenameTienda } from '@/core/tenant/tienda'
 import { VentasEnLineaPage } from '@/modules/electronico/pages/VentasEnLineaPage/VentasEnLineaPage'
 import { DevolucionesPage } from '@/modules/comercial/pages/DevolucionesPage/DevolucionesPage'
 import { RegistroPage } from '@/modules/acceso/pages/RegistroPage/RegistroPage'
@@ -60,8 +62,9 @@ function App() {
       }}
     >
       <ThemeProvider>
+        <TiendaGate>
         <AuthProvider>
-          <BrowserRouter>
+          <BrowserRouter basename={basenameTienda}>
             <Routes>
               <Route element={<PublicLayout />}>
                 <Route path="/" element={<CatalogoPage />} />
@@ -118,6 +121,7 @@ function App() {
             </Routes>
           </BrowserRouter>
         </AuthProvider>
+        </TiendaGate>
       </ThemeProvider>
     </SWRConfig>
   )

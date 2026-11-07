@@ -1,4 +1,5 @@
-export type TipoUsuario = 'A' | 'E' | 'C'
+/** A = admin de la tienda, E = empleado, C = cliente, S = superadmin de la plataforma (solo /plataforma). */
+export type TipoUsuario = 'A' | 'E' | 'C' | 'S'
 
 export interface Perfil {
   id: number

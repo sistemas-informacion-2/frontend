@@ -1,9 +1,10 @@
-import { env } from '@/core/config/env'
+import { useNombreTienda } from '@/core/tenant/useNombreTienda'
 import { Skeleton } from '@/shared/components/ui/Skeleton'
 import { useSucursalesPublicas } from '../hooks'
 import { StoreLogo } from './StoreLogo'
 
 export function StoreFooter() {
+  const nombreTienda = useNombreTienda()
   const { sucursales, isLoading } = useSucursalesPublicas()
 
   const telefonos = Array.from(new Set(sucursales.map((s) => s.telefono).filter((t): t is string => !!t)))
@@ -15,7 +16,7 @@ export function StoreFooter() {
         <div>
           <StoreLogo className="text-xl text-neutral-900 dark:text-white" />
           <p className="mt-3 max-w-xs text-sm text-neutral-600 dark:text-neutral-400">
-            {env.appName}: moda para cada temporada, con atención en nuestras sucursales y compra en línea.
+            {nombreTienda}: moda para cada temporada, con atención en nuestras sucursales y compra en línea.
           </p>
         </div>
 
@@ -79,7 +80,7 @@ export function StoreFooter() {
       </div>
 
       <div className="border-t border-neutral-200 py-4 text-center text-xs text-neutral-500 dark:border-neutral-800 dark:text-neutral-500">
-        © {new Date().getFullYear()} {env.appName}. Todos los derechos reservados.
+        © {new Date().getFullYear()} {nombreTienda}. Todos los derechos reservados.
       </div>
     </footer>
   )

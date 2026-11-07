@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { env } from '@/core/config/env'
+import { useNombreTienda } from '@/core/tenant/useNombreTienda'
 import { StoreLogoMarca } from '@/modules/electronico/components/StoreLogo'
 import type { SidebarGroup } from './Sidebar'
 
@@ -28,6 +28,7 @@ export function SidebarView({
   onToggleGrupo,
   onExpandirGrupo,
 }: SidebarViewProps) {
+  const nombreTienda = useNombreTienda()
   return (
     <>
       <div
@@ -45,7 +46,7 @@ export function SidebarView({
           {!collapsed && (
             <span className="flex min-w-0 items-center gap-2">
               <StoreLogoMarca />
-              <span className="truncate text-sm font-semibold">{env.appName} Admin</span>
+              <span className="truncate text-sm font-semibold">{nombreTienda} Admin</span>
             </span>
           )}
 

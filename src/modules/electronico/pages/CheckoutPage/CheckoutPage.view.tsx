@@ -1,6 +1,6 @@
 import { QRCodeSVG } from 'qrcode.react'
 import type { FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/Button'
 import { EmptyState } from '@/shared/components/ui/EmptyState'
 import { Input } from '@/shared/components/ui/Input'
@@ -83,6 +83,8 @@ export function CheckoutPageView({
   onConfirmarQr,
   onPagarStripe,
 }: CheckoutPageViewProps) {
+  // Ruta dentro de la tienda (sin /t/:slug): el login vuelve aqui con navigate, que ya agrega el basename.
+  const { pathname } = useLocation()
   if (!autenticado || !esCliente) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
@@ -91,7 +93,7 @@ export function CheckoutPageView({
           title={autenticado ? 'El pago es solo para clientes' : 'Inicia sesión para pagar'}
           description={autenticado ? 'Entraste con una cuenta del personal.' : 'Inicia sesión para terminar tu pago.'}
           action={
-            <Link to="/login" state={{ from: window.location.pathname }} className={BOTON_LINK}>
+            <Link to="/login" state={{ from: pathname }} className={BOTON_LINK}>
               Iniciar sesión
             </Link>
           }
