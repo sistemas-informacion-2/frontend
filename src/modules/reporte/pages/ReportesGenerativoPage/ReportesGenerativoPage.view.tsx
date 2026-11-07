@@ -169,7 +169,7 @@ export function ReportesGenerativoPageView({
 
       {!puedeGestionar ? (
         <EmptyState
-          icon={<span className="text-4xl">📊</span>}
+          ilustracion="grafico"
           title="No tienes acceso a los reportes"
           description="Contacta a un administrador si crees que deberías poder generarlos."
         />
@@ -345,7 +345,7 @@ export function ReportesGenerativoPageView({
                 <ReportPreviewTable resultado={resultado} pagina={1} porPagina={resultado.rows.length} onCambiarPagina={() => {}} />
               ) : (
                 <EmptyState
-                  icon={<span className="text-4xl">🔍</span>}
+                  ilustracion="busqueda"
                   title="Sin registros"
                   description="Ninguna fila coincide con lo que entendimos de tu pedido; probá reformularlo o usar «Refinar»."
                 />

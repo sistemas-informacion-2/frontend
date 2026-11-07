@@ -64,7 +64,7 @@ export function ReportesPredefinidosPageView({
 
       {!puedeGestionar ? (
         <EmptyState
-          icon={<span className="text-4xl">📊</span>}
+          ilustracion="grafico"
           title="No tienes acceso a los reportes"
           description="Contacta a un administrador si crees que deberías poder consultarlos."
         />
@@ -86,7 +86,7 @@ export function ReportesPredefinidosPageView({
             </div>
           ) : predefinidos.length === 0 ? (
             <EmptyState
-              icon={<span className="text-4xl">🗂️</span>}
+              ilustracion="carpeta"
               title="Todavía no hay reportes predefinidos"
               description="Esta funcionalidad está pendiente de configuración."
             />
@@ -171,13 +171,13 @@ export function ReportesPredefinidosPageView({
                     />
                   ) : resultadoDelSeleccionado ? (
                     <EmptyState
-                      icon={<span className="text-4xl">🔍</span>}
+                      ilustracion="busqueda"
                       title="Sin registros"
                       description="Este reporte no encontró datos para el período configurado."
                     />
                   ) : (
                     <EmptyState
-                      icon={<span className="text-4xl">📊</span>}
+                      ilustracion="grafico"
                       title="Todavía no generaste este reporte"
                       description="Pulsá «Generar» arriba para ejecutarlo."
                     />

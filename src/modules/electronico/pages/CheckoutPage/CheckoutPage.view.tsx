@@ -89,7 +89,7 @@ export function CheckoutPageView({
     return (
       <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
         <EmptyState
-          icon={<span className="text-4xl">🔒</span>}
+          ilustracion="candado"
           title={autenticado ? 'El pago es solo para clientes' : 'Inicia sesión para pagar'}
           description={autenticado ? 'Entraste con una cuenta del personal.' : 'Inicia sesión para terminar tu pago.'}
           action={
@@ -115,7 +115,7 @@ export function CheckoutPageView({
     return (
       <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
         <EmptyState
-          icon={<span className="text-4xl">🧾</span>}
+          ilustracion="recibo"
           title={sinPedido?.titulo ?? 'No hay nada que pagar'}
           description={sinPedido?.descripcion}
           action={

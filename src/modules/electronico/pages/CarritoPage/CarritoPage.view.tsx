@@ -29,7 +29,7 @@ export function CarritoPageView({ autenticado, esCliente, carrito, cargando, err
     return (
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
         <EmptyState
-          icon={<span className="text-4xl">🛒</span>}
+          ilustracion="carrito"
           title={autenticado ? 'El carrito es solo para clientes' : 'Inicia sesión para ver tu carrito'}
           description={
             autenticado
@@ -60,7 +60,7 @@ export function CarritoPageView({ autenticado, esCliente, carrito, cargando, err
     return (
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
         <EmptyState
-          icon={<span className="text-4xl">🛒</span>}
+          ilustracion="carrito"
           title="Tu carrito está vacío"
           description="Explora el catálogo y agrega las prendas que te gusten."
           action={

@@ -32,7 +32,7 @@ export function MisDevolucionesPageView({
   onPageChange,
 }: MisDevolucionesPageViewProps) {
   if (!esCliente) {
-    return <EmptyState icon={<span className="text-4xl">↩️</span>} title="Las devoluciones son solo para clientes" description="Entraste con una cuenta del personal." />
+    return <EmptyState ilustracion="devolucion" title="Las devoluciones son solo para clientes" description="Entraste con una cuenta del personal." />
   }
 
   return (
@@ -52,7 +52,7 @@ export function MisDevolucionesPageView({
             ))}
           </div>
         ) : devoluciones.length === 0 ? (
-          <EmptyState icon={<span className="text-4xl">↩️</span>} title="No tienes devoluciones" description="Aquí verás las devoluciones y reembolsos que se registren a tu nombre." />
+          <EmptyState ilustracion="devolucion" title="No tienes devoluciones" description="Aquí verás las devoluciones y reembolsos que se registren a tu nombre." />
         ) : (
           <ul className="space-y-3">
             {devoluciones.map((devolucion) => (

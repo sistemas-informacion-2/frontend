@@ -100,7 +100,7 @@ export function ReportesConstructorPageView({
 
       {!puedeGestionar ? (
         <EmptyState
-          icon={<span className="text-4xl">📊</span>}
+          ilustracion="grafico"
           title="No tienes acceso a la gestión de reportes"
           description="Contacta a un administrador si crees que deberías poder generar reportes."
         />
@@ -204,7 +204,7 @@ export function ReportesConstructorPageView({
                 <ReportPreviewTable resultado={resultado} pagina={pagina} porPagina={request.limit ?? 50} onCambiarPagina={onCambiarPagina} />
               ) : resultado ? (
                 <EmptyState
-                  icon={<span className="text-4xl">🔍</span>}
+                  ilustracion="busqueda"
                   title="Sin registros"
                   description="Ninguna fila coincide con los criterios actuales; prueba ampliar el rango de fechas o quitar filtros."
                 />

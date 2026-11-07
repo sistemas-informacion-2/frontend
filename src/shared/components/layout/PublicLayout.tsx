@@ -2,6 +2,7 @@ import { type FormEvent, useState } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useNombreTienda } from '@/core/tenant/useNombreTienda'
 import { useAuthStore } from '@/core/store/authStore'
+import { BarraAnuncios } from '@/modules/electronico/components/BarraAnuncios'
 import { CategoryNavBar } from '@/modules/electronico/components/CategoryNavBar'
 import { NotificationBell } from '@/modules/electronico/components/NotificationBell'
 import { StoreFooter } from '@/modules/electronico/components/StoreFooter'
@@ -9,12 +10,14 @@ import { StoreLogoMarca } from '@/modules/electronico/components/StoreLogo'
 import { StoreSidebar } from '@/modules/electronico/components/StoreSidebar'
 import { CartIcon } from '@/shared/components/ui/CartIcon'
 import { ThemeToggle } from '@/shared/components/ui/ThemeToggle'
+import { useScrollado } from '@/shared/hooks/useScrollado'
 
 export function PublicLayout() {
   const nombreTienda = useNombreTienda()
   const perfil = useAuthStore((state) => state.perfil)
   const autenticado = useAuthStore((state) => state.isAuthenticated)
   const [menuAbierto, setMenuAbierto] = useState(false)
+  const scrollado = useScrollado()
   const navigate = useNavigate()
   const location = useLocation()
   const enCatalogo = location.pathname === '/'
@@ -32,8 +35,14 @@ export function PublicLayout() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-white dark:bg-neutral-950">
-      <header className="sticky top-0 z-40 border-b border-neutral-100 bg-white dark:border-neutral-800 dark:bg-neutral-950">
+    <div data-zona="tienda" className="flex min-h-screen flex-col bg-white dark:bg-neutral-950">
+      <BarraAnuncios />
+      {/* Vidrio esmerilado: deja ver, desenfocado, lo que pasa por debajo al hacer scroll. */}
+      <header
+        className={`sticky top-0 z-40 border-b bg-white/80 backdrop-blur-md transition-shadow duration-300 dark:bg-neutral-950/80 ${
+          scrollado ? 'border-neutral-200 shadow-sm dark:border-neutral-800' : 'border-transparent'
+        }`}
+      >
         <div className="flex flex-wrap items-center gap-x-4 gap-y-3 px-4 py-3 sm:gap-6 sm:px-6 sm:py-4">
           {/* Sin sesión no hay nada que poner en el sidebar (Mi cuenta no aplica), así
               que ni se muestra el botón de menú: solo el logo, sin acción. */}
@@ -49,7 +58,7 @@ export function PublicLayout() {
           ) : (
             <StoreLogoMarca />
           )}
-          <Link to="/" className="shrink-0 text-lg font-semibold tracking-tight sm:text-xl dark:text-white">
+          <Link to="/" className="shrink-0 font-display text-xl font-semibold tracking-tight sm:text-2xl dark:text-white">
             {nombreTienda}
           </Link>
 

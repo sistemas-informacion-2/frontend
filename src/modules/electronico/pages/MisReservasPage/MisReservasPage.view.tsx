@@ -38,7 +38,7 @@ export function MisReservasPageView({
     return (
       <div className="py-6">
         <EmptyState
-          icon={<span className="text-4xl">📌</span>}
+          ilustracion="reserva"
           title={autenticado ? 'Las reservas son solo para clientes' : 'Inicia sesión para ver tus reservas'}
           description={
             autenticado
@@ -69,7 +69,7 @@ export function MisReservasPageView({
     return (
       <div className="py-6">
         <EmptyState
-          icon={<span className="text-4xl">📌</span>}
+          ilustracion="reserva"
           title="Aún no tienes reservas"
           description="Elige tus prendas en el catálogo y usa el botón Reservar para apartarlas en la sucursal que prefieras."
           action={

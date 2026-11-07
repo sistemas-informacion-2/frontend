@@ -101,7 +101,7 @@ export function ProductoPageView({
     return (
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
         <EmptyState
-          icon={<span className="text-4xl">🔎</span>}
+          ilustracion="busqueda"
           title="No encontramos este producto"
           description="Puede que ya no esté disponible."
           action={

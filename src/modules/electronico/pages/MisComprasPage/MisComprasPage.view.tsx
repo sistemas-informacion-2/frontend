@@ -29,7 +29,7 @@ const TIPO: Record<Venta['tipoVenta'], string> = {
 
 export function MisComprasPageView({ esCliente, compras, meta, cargando, error, abierta, detalle, onVer, onCerrar, onPageChange }: MisComprasPageViewProps) {
   if (!esCliente) {
-    return <EmptyState icon={<span className="text-4xl">🧾</span>} title="Las compras son solo para clientes" description="Entraste con una cuenta del personal." />
+    return <EmptyState ilustracion="recibo" title="Las compras son solo para clientes" description="Entraste con una cuenta del personal." />
   }
 
   return (
@@ -48,7 +48,7 @@ export function MisComprasPageView({ esCliente, compras, meta, cargando, error, 
           </div>
         ) : compras.length === 0 ? (
           <EmptyState
-            icon={<span className="text-4xl">🧾</span>}
+            ilustracion="recibo"
             title="Aún no tienes compras"
             description="Cuando compres en la tienda o retires una reserva, la nota de venta aparecerá aquí."
             action={

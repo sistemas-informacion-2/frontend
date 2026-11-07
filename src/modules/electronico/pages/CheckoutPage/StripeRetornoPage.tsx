@@ -39,7 +39,7 @@ export function StripeRetornoPage() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
         <EmptyState
-          icon={<span className="text-4xl">🔒</span>}
+          ilustracion="candado"
           title="Inicia sesión para confirmar tu pago"
           description="Tu sesión se cerró mientras pagabas. Inicia sesión de nuevo y vuelve a intentarlo."
           action={
@@ -56,7 +56,7 @@ export function StripeRetornoPage() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
         <EmptyState
-          icon={<span className="text-4xl">⚠️</span>}
+          ilustracion="alerta"
           title="No recibimos el pago de Stripe"
           description="Falta el identificador del pago. Vuelve al pago e inténtalo de nuevo."
           action={
@@ -73,7 +73,7 @@ export function StripeRetornoPage() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
         <EmptyState
-          icon={<span className="text-4xl">⚠️</span>}
+          ilustracion="alerta"
           title="No pudimos completar tu compra"
           description={error}
           action={
