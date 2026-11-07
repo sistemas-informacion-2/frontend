@@ -42,7 +42,8 @@ export function VentaForm({
   const stockPorVariante = new Map(stock.map((item) => [item.idVarianteProducto, item]))
   const lineas = values.items.map((item) => {
     const variante = item.idVarianteProducto === '' ? undefined : stockPorVariante.get(Number(item.idVarianteProducto))
-    const precio = variante?.precio ?? 0
+    // Lo que cobra el backend: precio con el descuento vigente del producto.
+    const precio = variante?.precioVenta ?? variante?.precio ?? 0
     const cantidad = Number(item.cantidad) || 0
     return { item, variante, subtotal: precio * cantidad }
   })

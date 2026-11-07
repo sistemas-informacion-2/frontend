@@ -189,7 +189,10 @@ export interface InventarioItem {
   productoNombre: string
   talla: string
   color: string
+  /** Precio de lista. */
   precio: number
+  /** Precio que se cobra hoy, con el descuento del producto. */
+  precioVenta: number
   stockDisponible: number
   stockReservado: number
   stockMinimo: number
