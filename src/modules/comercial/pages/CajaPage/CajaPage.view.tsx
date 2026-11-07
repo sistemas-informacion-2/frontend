@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { etiquetaCategoria } from '../../categoriasCaja'
 import { Badge } from '@/shared/components/ui/Badge'
 import { Button } from '@/shared/components/ui/Button'
 import { EmptyState } from '@/shared/components/ui/EmptyState'
@@ -217,6 +218,8 @@ interface FilaCaja {
   monto: number
   fechaHora: string
   observaciones: string | null
+  /** Categoría del movimiento del cajón ("Gasto operativo · Alquiler"). */
+  categoria?: string
   /** Método de pago cuando la fila es un cobro en línea. */
   enLinea?: string
 }
@@ -230,6 +233,7 @@ function filasCaja(caja: Caja): FilaCaja[] {
     monto: movimiento.monto,
     fechaHora: movimiento.fechaHora,
     observaciones: movimiento.observaciones,
+    categoria: etiquetaCategoria(movimiento.categoria, movimiento.subcategoriaGasto),
   }))
   const cobros: FilaCaja[] = caja.cobrosEnLinea.map((cobro) => ({
     clave: `c-${cobro.id}`,
@@ -249,6 +253,7 @@ function FilaMovimiento({ fila }: { fila: FilaCaja }) {
       <td className="px-3 py-2">
         <div className="flex flex-wrap items-center gap-1.5">
           <Badge tone={fila.tipo === 'INGRESO' ? 'success' : 'danger'}>{fila.tipo === 'INGRESO' ? 'Ingreso' : 'Egreso'}</Badge>
+          {fila.categoria && <Badge tone="neutral">{fila.categoria}</Badge>}
           {fila.enLinea && <Badge tone="neutral">{`En línea · ${fila.enLinea}`}</Badge>}
         </div>
       </td>

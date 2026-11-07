@@ -2,7 +2,8 @@ import type { FormEvent } from 'react'
 import { Button } from '@/shared/components/ui/Button'
 import { Input } from '@/shared/components/ui/Input'
 import { Select } from '@/shared/components/ui/Select'
-import type { MovimientoCajaFormValues } from '../types'
+import { CATEGORIA_CAJA_LABEL, CATEGORIAS_MANUALES, SUBCATEGORIA_GASTO_LABEL } from '../categoriasCaja'
+import type { CategoriaMovimientoCaja, MovimientoCajaFormValues, SubcategoriaGasto, TipoMovimientoCaja } from '../types'
 
 interface MovimientoCajaFormProps {
   values: MovimientoCajaFormValues
@@ -27,7 +28,12 @@ export function MovimientoCajaForm({
         <Select
           label="Tipo"
           value={values.tipo}
-          onChange={(event) => onChange('tipo', event.target.value as MovimientoCajaFormValues['tipo'])}
+          onChange={(event) => {
+            const tipo = event.target.value as TipoMovimientoCaja
+            onChange('tipo', tipo)
+            // Cada tipo tiene sus propias categorias: un retiro no puede ser un ingreso.
+            onChange('categoria', tipo === 'INGRESO' ? 'OTRO_INGRESO' : 'GASTO_OPERATIVO')
+          }}
         >
           <option value="INGRESO">Ingreso</option>
           <option value="EGRESO">Egreso</option>
@@ -41,6 +47,34 @@ export function MovimientoCajaForm({
           value={values.monto}
           onChange={(event) => onChange('monto', event.target.value)}
         />
+        <Select
+          label="Categoría"
+          value={values.categoria}
+          onChange={(event) => onChange('categoria', event.target.value as CategoriaMovimientoCaja)}
+        >
+          {CATEGORIAS_MANUALES[values.tipo].map((categoria) => (
+            <option key={categoria} value={categoria}>
+              {CATEGORIA_CAJA_LABEL[categoria]}
+            </option>
+          ))}
+        </Select>
+        {values.categoria === 'GASTO_OPERATIVO' ? (
+          <Select
+            label="Tipo de gasto"
+            required
+            value={values.subcategoriaGasto}
+            onChange={(event) => onChange('subcategoriaGasto', event.target.value as SubcategoriaGasto | '')}
+          >
+            <option value="">Elige el tipo de gasto</option>
+            {(Object.keys(SUBCATEGORIA_GASTO_LABEL) as SubcategoriaGasto[]).map((subcategoria) => (
+              <option key={subcategoria} value={subcategoria}>
+                {SUBCATEGORIA_GASTO_LABEL[subcategoria]}
+              </option>
+            ))}
+          </Select>
+        ) : (
+          <div className="hidden sm:block" />
+        )}
         <div className="sm:col-span-2">
           <Input
             label="Concepto"
