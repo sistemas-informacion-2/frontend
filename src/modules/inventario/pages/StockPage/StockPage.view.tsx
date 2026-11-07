@@ -29,6 +29,7 @@ interface StockPageViewProps {
   onBajoMinimo: (value: boolean) => void
   onCreate: () => void
   onAjustar: (item: InventarioItem) => void
+  onTransferir: (item: InventarioItem) => void
   onPageChange: (page: number) => void
   onCloseModal: () => void
 }
@@ -52,6 +53,7 @@ export function StockPageView({
   onBajoMinimo,
   onCreate,
   onAjustar,
+  onTransferir,
   onPageChange,
   onCloseModal,
 }: StockPageViewProps) {
@@ -140,7 +142,12 @@ export function StockPageView({
                     </td>
                     <td className="px-4 py-3 text-right">
                       {canManage && (
-                        <button type="button" onClick={() => onAjustar(item)} className="text-sm font-medium text-neutral-700 underline hover:text-neutral-950 dark:text-neutral-300 dark:hover:text-white">Ajustar</button>
+                        <div className="flex justify-end gap-3">
+                          <button type="button" onClick={() => onAjustar(item)} className="text-sm font-medium text-neutral-700 underline hover:text-neutral-950 dark:text-neutral-300 dark:hover:text-white">Ajustar</button>
+                          {almacenes.length > 1 && (
+                            <button type="button" onClick={() => onTransferir(item)} className="text-sm font-medium text-neutral-700 underline hover:text-neutral-950 dark:text-neutral-300 dark:hover:text-white">Transferir</button>
+                          )}
+                        </div>
                       )}
                     </td>
                   </tr>

@@ -235,3 +235,22 @@ export interface AjusteStockFormValues {
   cantidad: string
   motivo: string
 }
+
+export interface TransferenciaStockFormValues {
+  idAlmacenDestino: string
+  cantidad: string
+  motivo: string
+}
+
+export interface Transferencia {
+  id: number
+  almacenOrigen: { id: number; nombre: string; sucursal: string }
+  almacenDestino: { id: number; nombre: string; sucursal: string }
+  idVarianteProducto: number
+  sku: string
+  productoNombre: string
+  cantidad: number
+  motivo: string | null
+  idUsuario: number | null
+  fechaHora: string
+}

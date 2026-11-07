@@ -5,6 +5,8 @@ import type {
   InventarioPaginatedResponse,
   InventarioQuery,
   StockFormValues,
+  Transferencia,
+  TransferenciaStockFormValues,
 } from '../types'
 
 interface Envelope<T> {
@@ -55,6 +57,21 @@ export async function ajustarStock(id: number, values: AjusteStockFormValues): P
     tipo: values.tipo,
     cantidad: Number(values.cantidad || 0),
     motivo: values.motivo || undefined,
+  })
+  return response.data.data
+}
+
+/** Mueve unidades disponibles de la fila `item` (su almacen) a otro almacen; queda en el kardex de los dos. */
+export async function transferirStock(
+  item: Pick<InventarioItem, 'idAlmacen' | 'idVarianteProducto'>,
+  values: TransferenciaStockFormValues,
+): Promise<Transferencia> {
+  const response = await httpClient.post<Envelope<Transferencia>>('/inventario/transferencias', {
+    idAlmacenOrigen: item.idAlmacen,
+    idAlmacenDestino: Number(values.idAlmacenDestino),
+    idVarianteProducto: item.idVarianteProducto,
+    cantidad: Number(values.cantidad || 0),
+    motivo: values.motivo.trim() || undefined,
   })
   return response.data.data
 }

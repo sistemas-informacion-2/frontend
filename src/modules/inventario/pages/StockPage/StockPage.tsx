@@ -6,13 +6,15 @@ import { useAuthStore } from '@/core/store/authStore'
 import { listarSucursales } from '@/modules/operaciones/services/sucursales.service'
 import { listarProductos } from '@/modules/inventario/services/productos.service'
 import { listarAlmacenes } from '@/modules/inventario/services/almacenes.service'
-import { ajustarStock, listarStock, registrarStock } from '@/modules/inventario/services/inventario.service'
+import { ajustarStock, listarStock, registrarStock, transferirStock } from '@/modules/inventario/services/inventario.service'
 import { AjusteStockForm } from '@/modules/inventario/components/AjusteStockForm'
 import { StockForm } from '@/modules/inventario/components/StockForm'
+import { TransferenciaStockForm } from '@/modules/inventario/components/TransferenciaStockForm'
 import type {
   AjusteStockFormValues,
   InventarioItem,
   StockFormValues,
+  TransferenciaStockFormValues,
 } from '@/modules/inventario/types'
 import { StockPageView } from './StockPage.view'
 
@@ -34,6 +36,12 @@ const EMPTY_AJUSTE_FORM: AjusteStockFormValues = {
   motivo: '',
 }
 
+const EMPTY_TRANSFERENCIA_FORM: TransferenciaStockFormValues = {
+  idAlmacenDestino: '',
+  cantidad: '',
+  motivo: '',
+}
+
 export function StockPage() {
   const canManage = useAuthStore((state) => state.hasPermission('inventario:almacen:gestionar'))
   const [page, setPage] = useState(1)
@@ -50,6 +58,8 @@ export function StockPage() {
   const [crearOpen, setCrearOpen] = useState(false)
   const [ajusteItem, setAjusteItem] = useState<InventarioItem | null>(null)
   const [ajusteForm, setAjusteForm] = useState<AjusteStockFormValues>(EMPTY_AJUSTE_FORM)
+  const [transferenciaItem, setTransferenciaItem] = useState<InventarioItem | null>(null)
+  const [transferenciaForm, setTransferenciaForm] = useState<TransferenciaStockFormValues>(EMPTY_TRANSFERENCIA_FORM)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -96,6 +106,12 @@ export function StockPage() {
     setError(null)
   }
 
+  const openTransferencia = (item: InventarioItem) => {
+    setTransferenciaItem(item)
+    setTransferenciaForm({ ...EMPTY_TRANSFERENCIA_FORM })
+    setError(null)
+  }
+
   const handleSubmitCrear = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (!stockForm.idAlmacen || !stockForm.idVarianteProducto) {
@@ -123,6 +139,27 @@ export function StockPage() {
     try {
       await ajustarStock(ajusteItem.id, ajusteForm)
       setAjusteItem(null)
+      await mutate()
+    } catch (requestError) {
+      setError(extraerMensajeError(requestError))
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleSubmitTransferencia = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!transferenciaItem) return
+    if (!transferenciaForm.idAlmacenDestino) {
+      setError('Selecciona el almacén destino')
+      return
+    }
+    setSaving(true)
+    setError(null)
+    try {
+      await transferirStock(transferenciaItem, transferenciaForm)
+      setTransferenciaItem(null)
+      // El destino puede ser una fila nueva o estar en otra pagina: se recarga el listado.
       await mutate()
     } catch (requestError) {
       setError(extraerMensajeError(requestError))
@@ -162,11 +199,13 @@ export function StockPage() {
       }}
       onCreate={openCrear}
       onAjustar={openAjuste}
+      onTransferir={openTransferencia}
       onPageChange={setPage}
       onCloseModal={() => {
         if (saving) return
         setCrearOpen(false)
         setAjusteItem(null)
+        setTransferenciaItem(null)
       }}
       modal={
         crearOpen ? (
@@ -189,6 +228,17 @@ export function StockPage() {
             onChange={(field, value) => setAjusteForm((current) => ({ ...current, [field]: value }))}
             onSubmit={handleSubmitAjuste}
             onCancel={() => setAjusteItem(null)}
+          />
+        ) : transferenciaItem ? (
+          <TransferenciaStockForm
+            values={transferenciaForm}
+            item={transferenciaItem}
+            almacenes={almacenes}
+            loading={saving}
+            error={error}
+            onChange={(field, value) => setTransferenciaForm((current) => ({ ...current, [field]: value }))}
+            onSubmit={handleSubmitTransferencia}
+            onCancel={() => setTransferenciaItem(null)}
           />
         ) : null
       }
