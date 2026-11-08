@@ -4,7 +4,8 @@ import useSWR, { useSWRConfig } from 'swr'
 import { confirmarQrPago, fetchMetodosOnline, fetchMiReserva, generarQrPago, iniciarPagoStripe, pagarConTarjeta } from '../../api'
 import { isNetworkError } from '@/core/http/errors'
 import { PedidoOfflinePanel } from '../../components/PedidosOffline'
-import { useCarrito, useEnLinea, usePedidosOffline } from '../../hooks'
+import { useAuthStore } from '@/core/store/authStore'
+import { useCarrito, useEnLinea, usePedidosOffline, useSucursalesPublicas } from '../../hooks'
 import type { CodigoMetodoOnline, CompraOnline, DatosTarjeta, IniciarQrRespuesta } from '../../types'
 import { bs, extraerMensajeError } from '../../utils/reservas'
 import { CheckoutPageView, type PedidoPago, type SinPedido } from './CheckoutPage.view'
@@ -63,6 +64,9 @@ function CheckoutContenido({ idReserva }: { idReserva?: number }) {
   const [elegido, setElegido] = useState<CodigoMetodoOnline | null>(null)
   // Si viene de una compra hecha sin conexion, arranca con el metodo que el cliente eligio entonces.
   const metodoDeCompraOffline = usePedidosOffline().find((compra) => compra.estado_sincronizacion === 'COMPRA_PENDIENTE_PAGO')?.metodo_pago ?? null
+  const [paso, setPaso] = useState<1 | 2 | 3>(1)
+  const perfil = useAuthStore((state) => state.perfil)
+  const { sucursales } = useSucursalesPublicas()
   const [tarjeta, setTarjeta] = useState<DatosTarjeta>(TARJETA_VACIA)
   const [qr, setQr] = useState<IniciarQrRespuesta | null>(null)
   const [procesando, setProcesando] = useState(false)
@@ -160,6 +164,17 @@ function CheckoutContenido({ idReserva }: { idReserva?: number }) {
 
   return (
     <CheckoutPageView
+      // Pagar una reserva o retomar una compra hecha sin conexión ya no necesita los pasos previos.
+      pasos={
+        idReserva === undefined && !metodoDeCompraOffline
+          ? {
+              actual: paso,
+              sucursalNombre: sucursales.find((sucursal) => sucursal.id === carrito.idSucursal)?.nombre ?? 'Sucursal elegida en la tienda',
+              cliente: { nombre: `${perfil?.nombre ?? ''} ${perfil?.apellido ?? ''}`.trim(), email: perfil?.email ?? '' },
+              onIrA: setPaso,
+            }
+          : undefined
+      }
       autenticado={autenticado}
       esCliente={esCliente}
       // Con red de nuevo, lo agregado sin conexion tiene que estar en el carrito del servidor antes de cobrar:

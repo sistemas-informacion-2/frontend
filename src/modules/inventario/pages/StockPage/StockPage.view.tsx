@@ -59,7 +59,7 @@ export function StockPageView({
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">Stock por almacén</h1>
+          <h1 className="text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl dark:text-neutral-50">Stock por almacén</h1>
           <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
             Existencias de cada variante en cada almacén, con alertas de stock mínimo.
           </p>
@@ -85,7 +85,7 @@ export function StockPageView({
           <label className="flex items-end gap-2 pb-2 text-sm text-neutral-700 dark:text-neutral-300">
             <input
               type="checkbox"
-              className="h-4 w-4 rounded border-neutral-300 text-neutral-900 focus:ring-neutral-900 dark:border-neutral-700"
+              className="h-4 w-4 rounded border-neutral-300 text-neutral-900 focus:ring-brand-ring dark:border-neutral-700"
               checked={bajoMinimo}
               onChange={(event) => onBajoMinimo(event.target.checked)}
             />
@@ -108,21 +108,21 @@ export function StockPageView({
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[900px] text-left text-sm">
-              <thead className="border-b border-neutral-200 bg-neutral-50 text-xs uppercase tracking-wide text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
+              <thead className="border-b border-neutral-200 bg-neutral-50 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900/50 dark:text-neutral-400">
                 <tr>
-                  <th className="px-4 py-3 font-medium">Producto</th>
-                  <th className="px-4 py-3 font-medium">SKU</th>
-                  <th className="px-4 py-3 font-medium">Almacén</th>
-                  <th className="px-4 py-3 font-medium">Disponible</th>
-                  <th className="px-4 py-3 font-medium">Reservado</th>
-                  <th className="px-4 py-3 font-medium">Mín / Máx</th>
-                  <th className="px-4 py-3 font-medium">Estado</th>
-                  <th className="px-4 py-3 text-right font-medium">Acciones</th>
+                  <th className="px-4 py-3 font-semibold">Producto</th>
+                  <th className="px-4 py-3 font-semibold">SKU</th>
+                  <th className="px-4 py-3 font-semibold">Almacén</th>
+                  <th className="px-4 py-3 font-semibold">Disponible</th>
+                  <th className="px-4 py-3 font-semibold">Reservado</th>
+                  <th className="px-4 py-3 font-semibold">Mín / Máx</th>
+                  <th className="px-4 py-3 font-semibold">Estado</th>
+                  <th className="px-4 py-3 text-right font-semibold">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
                 {items.map((item) => (
-                  <tr key={item.id} className="text-neutral-700 dark:text-neutral-300">
+                  <tr key={item.id} className="text-neutral-700 dark:text-neutral-300 transition-colors hover:bg-neutral-50/80 dark:hover:bg-neutral-900/40">
                     <td className="px-4 py-3 font-medium text-neutral-900 dark:text-white">{item.productoNombre}</td>
                     <td className="px-4 py-3">
                       <p className="font-mono text-xs text-neutral-500 dark:text-neutral-400">{item.sku}</p>
@@ -151,7 +151,7 @@ export function StockPageView({
         )}
       </section>
 
-      {meta && <Pagination page={meta.page} totalPages={meta.totalPages} onPageChange={onPageChange} />}
+      {meta && <Pagination page={meta.page} totalPages={meta.totalPages} total={meta.total} limit={meta.limit} onPageChange={onPageChange} />}
 
       <Modal open={!!modal} title={modal ? 'Inventario' : ''} onClose={onCloseModal}>
         {modal}

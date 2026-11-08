@@ -1,4 +1,4 @@
-import { isAxiosError } from 'axios'
+import { extraerMensajeError } from '@/shared/utils/error'
 import { useState } from 'react'
 import { Badge } from '@/shared/components/ui/Badge'
 import { Button } from '@/shared/components/ui/Button'
@@ -129,7 +129,7 @@ function VarianteRow({
       const actualizado = await eliminarVariante(idProducto, variante.id)
       onActualizado(actualizado)
     } catch (requestError) {
-      setError(extraerMensajeError(requestError))
+      setError(extraerMensajeError(requestError, 'No se pudo eliminar la variante.'))
     } finally {
       setGuardando(false)
     }
@@ -164,11 +164,3 @@ function VarianteRow({
   )
 }
 
-function extraerMensajeError(error: unknown): string {
-  if (isAxiosError(error)) {
-    const message = error.response?.data?.message
-    if (Array.isArray(message)) return message[0] ?? 'La solicitud no es válida.'
-    if (typeof message === 'string') return message
-  }
-  return 'No se pudo eliminar la variante.'
-}

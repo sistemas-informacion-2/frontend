@@ -18,7 +18,7 @@ export function RegistroPageView({ values, loading, error, desde, onChange, onSu
   return (
     <div className="flex min-h-[calc(100vh-73px)] items-center justify-center px-4 py-8">
       <form onSubmit={onSubmit} className="w-full max-w-md rounded-lg border border-neutral-200 p-8 dark:border-neutral-800">
-        <h1 className="mb-1 text-2xl font-semibold dark:text-white">Crear cuenta</h1>
+        <h1 className="mb-1 text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl dark:text-neutral-50">Crear cuenta</h1>
         <p className="mb-6 text-sm text-neutral-500 dark:text-neutral-400">
           Regístrate para guardar tu carrito, reservar prendas y seguir tus compras.
         </p>

@@ -1,30 +1,30 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type MouseEvent as EventoClic } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useCategorias } from '@/modules/inventario/hooks'
 import { Skeleton } from '@/shared/components/ui/Skeleton'
 import { useSucursalActiva, useTemporadasPublicas } from '../hooks'
 
 const CLASES_PILDORA_BASE = 'flex items-center gap-1 whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-medium transition-colors'
-const CLASES_PILDORA_ACTIVA = 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900'
+const CLASES_PILDORA_ACTIVA = 'bg-brand-solid text-brand-on shadow-sm'
 const CLASES_PILDORA_INACTIVA = 'text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800'
 
 /** Color por estación, para que la píldora de temporada vigente se distinga a simple vista. */
 const ESTILO_TEMPORADA: Record<string, { inactiva: string; activa: string }> = {
   Invierno: {
-    inactiva: 'bg-sky-50 text-sky-700 hover:bg-sky-100 dark:bg-sky-950/40 dark:text-sky-300 dark:hover:bg-sky-950/70',
-    activa: 'bg-sky-500 text-white dark:bg-sky-400 dark:text-neutral-900',
+    inactiva: CLASES_PILDORA_ACTIVA,
+    activa: CLASES_PILDORA_ACTIVA,
   },
   Verano: {
-    inactiva: 'bg-orange-50 text-orange-700 hover:bg-orange-100 dark:bg-orange-950/40 dark:text-orange-300 dark:hover:bg-orange-950/70',
-    activa: 'bg-orange-500 text-white dark:bg-orange-400 dark:text-neutral-900',
+    inactiva: CLASES_PILDORA_ACTIVA,
+    activa: CLASES_PILDORA_ACTIVA,
   },
   Primavera: {
     inactiva: CLASES_PILDORA_INACTIVA,
     activa: CLASES_PILDORA_ACTIVA,
   },
   Otoño: {
-    inactiva: 'bg-amber-50 text-amber-800 hover:bg-amber-100 dark:bg-amber-950/40 dark:text-amber-300 dark:hover:bg-amber-950/70',
-    activa: 'bg-amber-700 text-white dark:bg-amber-600 dark:text-white',
+    inactiva: CLASES_PILDORA_ACTIVA,
+    activa: CLASES_PILDORA_ACTIVA,
   },
 }
 const ESTILO_TEMPORADA_POR_DEFECTO = { inactiva: CLASES_PILDORA_INACTIVA, activa: CLASES_PILDORA_ACTIVA }
@@ -58,6 +58,13 @@ export function CategoryNavBar() {
   // 'sucursal' es un valor centinela: el desplegable de sucursal usa el mismo
   // mecanismo de apertura/cierre que las categorías (mismo click-afuera, mismo Escape).
   const [abiertaId, setAbiertaId] = useState<number | 'sucursal' | null>(null)
+  // Los desplegables van con posicion fija: dentro de una fila con scroll horizontal, una absoluta quedaria recortada.
+  const [ancla, setAncla] = useState({ left: 0, top: 0 })
+  const alternar = (id: number | 'sucursal', event: EventoClic<HTMLButtonElement>) => {
+    const caja = event.currentTarget.getBoundingClientRect()
+    setAncla({ left: Math.max(8, Math.min(caja.left, window.innerWidth - 208)), top: caja.bottom + 4 })
+    setAbiertaId((actual) => (actual === id ? null : id))
+  }
   const contenedorRef = useRef<HTMLDivElement | null>(null)
 
   const enCatalogo = location.pathname === '/'
@@ -114,10 +121,7 @@ export function CategoryNavBar() {
 
   return (
     <div ref={contenedorRef} className="relative border-b border-neutral-100 dark:border-neutral-800">
-      {/* flex-wrap en vez de overflow-x-auto: un scroll horizontal aquí obliga al
-          navegador a recortar también el eje vertical, y eso tapaba el desplegable
-          de subcategorías (se abría, pero quedaba invisible). */}
-      <nav aria-label="Categorías" className="flex flex-wrap justify-center gap-1 px-4 py-1.5 sm:px-6">
+      <nav aria-label="Categorías" onScroll={() => setAbiertaId(null)} className="flex gap-1.5 overflow-x-auto px-4 py-2 [scrollbar-width:none] sm:px-6 [&>:first-child]:ml-auto [&>:last-child]:mr-auto">
         <button
           type="button"
           onClick={irATodas}
@@ -155,7 +159,7 @@ export function CategoryNavBar() {
               <div key={categoria.id} className="relative shrink-0">
                 <button
                   type="button"
-                  onClick={() => (tieneHijos ? setAbiertaId(abierta ? null : categoria.id) : irACategoria(categoria.id))}
+                  onClick={(event) => (tieneHijos ? alternar(categoria.id, event) : irACategoria(categoria.id))}
                   aria-expanded={tieneHijos ? abierta : undefined}
                   aria-haspopup={tieneHijos ? 'menu' : undefined}
                   className={`${CLASES_PILDORA_BASE} ${abierta || seleccionada ? CLASES_PILDORA_ACTIVA : CLASES_PILDORA_INACTIVA}`}
@@ -166,7 +170,8 @@ export function CategoryNavBar() {
                 {abierta && (
                   <div
                     role="menu"
-                    className="absolute left-0 top-full z-30 mt-1 min-w-48 rounded-lg border border-neutral-200 bg-white py-1.5 shadow-lg dark:border-neutral-800 dark:bg-neutral-900"
+                    style={ancla}
+                    className="fixed z-50 min-w-48 rounded-lg border border-neutral-200 bg-white py-1.5 shadow-lg dark:border-neutral-800 dark:bg-neutral-900"
                   >
                     {categoria.hijos.map((hijo) => (
                       <button
@@ -197,7 +202,7 @@ export function CategoryNavBar() {
               <div className="relative shrink-0">
                 <button
                   type="button"
-                  onClick={() => setAbiertaId(abierta ? null : 'sucursal')}
+                  onClick={(event) => alternar('sucursal', event)}
                   aria-expanded={abierta}
                   aria-haspopup="menu"
                   className={`${CLASES_PILDORA_BASE} ${abierta ? CLASES_PILDORA_ACTIVA : CLASES_PILDORA_INACTIVA}`}
@@ -208,7 +213,8 @@ export function CategoryNavBar() {
                 {abierta && (
                   <div
                     role="menu"
-                    className="absolute right-0 top-full z-30 mt-1 min-w-48 rounded-lg border border-neutral-200 bg-white py-1.5 shadow-lg dark:border-neutral-800 dark:bg-neutral-900"
+                    style={ancla}
+                    className="fixed z-50 min-w-48 rounded-lg border border-neutral-200 bg-white py-1.5 shadow-lg dark:border-neutral-800 dark:bg-neutral-900"
                   >
                     {sucursales.map((sucursal) => (
                       <button

@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react'
+import { Sparkles } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/shared/components/ui/Button'
 import { Modal } from '@/shared/components/ui/Modal'
 import { useProbadorIA, type EstadoProbadorIA } from '../hooks/useProbadorIA'
@@ -30,16 +31,20 @@ const MENSAJE_CONEXION_PERDIDA = 'Se perdió la conexión con el probador.'
  * prenda del producto ya puesta. La sesión vive solo mientras el modal está abierto (Modal no monta
  * a sus hijos cerrado), así que al cerrarlo se apaga la cámara y se deja de facturar.
  */
-export function ProbadorIA({ open, onCerrar, ...resto }: ProbadorIAProps) {
+export function ProbadorIA({ open, onCerrar, producto, ...resto }: ProbadorIAProps) {
+  const inicial = elegirImagenPrenda(producto.imagenes)?.url ?? null
+  const [elegida, setElegida] = useState<string | null>(null)
+  const imagenUrl = elegida ?? inicial
+
   return (
     <Modal open={open} title="Probador con IA" onClose={onCerrar} maxWidthClassName="sm:max-w-3xl">
-      <ProbadorIAContenido onCerrar={onCerrar} {...resto} />
+      {/* Cada prenda es una sesión nueva con Decart: al elegir otra, el contenido se vuelve a montar. */}
+      <ProbadorIAContenido key={imagenUrl} imagenUrl={imagenUrl} onElegirImagen={setElegida} onCerrar={onCerrar} producto={producto} {...resto} />
     </Modal>
   )
 }
 
-function ProbadorIAContenido({ producto, detalleVariante, onCerrar, onAgregarAlCarrito, agregandoAlCarrito }: Omit<ProbadorIAProps, 'open'>) {
-  const imagenUrl = elegirImagenPrenda(producto.imagenes)?.url ?? null
+function ProbadorIAContenido({ imagenUrl, onElegirImagen, producto, detalleVariante, onCerrar, onAgregarAlCarrito, agregandoAlCarrito }: Omit<ProbadorIAProps, 'open'> & { imagenUrl: string | null; onElegirImagen: (url: string) => void }) {
   const prompt = construirPromptProbador(producto)
   const { estado, remoteStream, error, reintentar } = useProbadorIA({ prompt, imagenUrl })
 
@@ -62,9 +67,37 @@ function ProbadorIAContenido({ producto, detalleVariante, onCerrar, onAgregarAlC
   const mensajeError = estado === 'desconectado' ? MENSAJE_CONEXION_PERDIDA : error?.mensaje
   const puedeReintentar = estado === 'desconectado' || (estado === 'error' && error?.reintentable)
 
+  // El video se muestra en espejo: la foto se guarda igual a como la persona se está viendo.
+  const capturar = () => {
+    const video = videoRef.current
+    const lienzo = document.createElement('canvas')
+    if (!video || video.videoWidth === 0) return
+    lienzo.width = video.videoWidth
+    lienzo.height = video.videoHeight
+    const contexto = lienzo.getContext('2d')
+    if (!contexto) return
+    contexto.translate(lienzo.width, 0)
+    contexto.scale(-1, 1)
+    contexto.drawImage(video, 0, 0)
+    const enlace = document.createElement('a')
+    enlace.href = lienzo.toDataURL('image/png')
+    enlace.download = `probador-${producto.nombre.toLowerCase().replace(/\s+/g, '-')}.png`
+    enlace.click()
+  }
+
   return (
     <div className="space-y-4">
-      <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-neutral-900">
+      <div className="flex gap-3">
+      {producto.imagenes.length > 1 && (
+        <div role="group" aria-label="Elegir prenda" className="flex max-h-72 shrink-0 flex-col gap-2 overflow-y-auto [scrollbar-width:none]">
+          {producto.imagenes.map((imagen) => (
+            <button key={imagen.id} type="button" onClick={() => onElegirImagen(imagen.url)} aria-pressed={imagen.url === imagenUrl} aria-label={`Probar imagen ${imagen.orden + 1}`} className={`h-20 w-16 shrink-0 overflow-hidden rounded-lg border-2 transition-colors ${imagen.url === imagenUrl ? 'border-brand' : 'border-transparent opacity-70 hover:opacity-100'}`}>
+              <img src={imagen.url} alt="" className="h-full w-full object-cover" />
+            </button>
+          ))}
+        </div>
+      )}
+      <div className="relative aspect-video min-w-0 flex-1 overflow-hidden rounded-xl bg-neutral-900">
         {/* Efecto espejo: el cliente se ve como frente a un espejo, igual que en la app móvil. */}
         <video
           ref={videoRef}
@@ -87,6 +120,19 @@ function ProbadorIAContenido({ producto, detalleVariante, onCerrar, onAgregarAlC
           <span className={`h-2.5 w-2.5 rounded-full ${indicador.punto}`} aria-hidden="true" />
           {indicador.texto}
         </div>
+        {/* Marco guía: ayuda a colocarse de cuerpo entero frente a la cámara. */}
+        <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full text-white/30">
+          <g fill="none" stroke="currentColor" strokeWidth="0.6" strokeDasharray="2 1.5">
+            <circle cx="50" cy="20" r="8" />
+            <path d="M34 92 V50 Q34 34 50 34 Q66 34 66 50 V92" />
+          </g>
+        </svg>
+        {remoteStream && (
+          <button type="button" onClick={capturar} className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full bg-brand-solid px-4 py-2 text-sm font-medium text-brand-on shadow-lg transition-all hover:bg-brand-solid-hover active:scale-95">
+            <Sparkles className="h-4 w-4" aria-hidden="true" /> Capturar
+          </button>
+        )}
+      </div>
       </div>
 
       <div className="flex items-center gap-3 rounded-xl border border-neutral-200 px-3 py-2 dark:border-neutral-800">
@@ -115,7 +161,7 @@ function ProbadorIAContenido({ producto, detalleVariante, onCerrar, onAgregarAlC
         </Button>
         {onAgregarAlCarrito && (
           <Button onClick={onAgregarAlCarrito} loading={agregandoAlCarrito}>
-            Agregar esta prenda al carrito 🛒
+            Agregar esta prenda al carrito
           </Button>
         )}
       </div>

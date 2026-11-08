@@ -1,3 +1,5 @@
+import { ArrowLeft, Check, CreditCard, FileText, Lock, MapPin, QrCode, Receipt } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import type { FormEvent } from 'react'
 import { Link } from 'react-router-dom'
@@ -29,7 +31,16 @@ export interface SinPedido {
   etiqueta: string
 }
 
+/** Pasos previos al pago de una compra; una reserva o una compra hecha sin conexión van directo al pago. */
+export interface PasosCheckout {
+  actual: 1 | 2 | 3
+  sucursalNombre: string
+  cliente: { nombre: string; email: string }
+  onIrA: (paso: 1 | 2 | 3) => void
+}
+
 interface CheckoutPageViewProps {
+  pasos?: PasosCheckout
   autenticado: boolean
   esCliente: boolean
   cargando: boolean
@@ -53,16 +64,77 @@ interface CheckoutPageViewProps {
 }
 
 const BOTON_LINK =
-  'rounded-full bg-neutral-900 px-5 py-2 text-sm font-medium text-white hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200'
+  'rounded-full bg-brand-solid px-5 py-2 text-sm font-medium text-brand-on transition-colors hover:bg-brand-solid-hover'
 
-const ICONO: Record<CodigoMetodoOnline, string> = { QR: '📱', STRIPE: '🔒', TARJETA: '💳' }
+const ICONO: Record<CodigoMetodoOnline, LucideIcon> = { QR: QrCode, STRIPE: Lock, TARJETA: CreditCard }
+const PASOS = ['Entrega / Sucursal', 'Datos de facturación', 'Método de pago']
 const DESCRIPCION: Record<CodigoMetodoOnline, string> = {
   QR: 'Escanea el código con la app de tu banco',
   STRIPE: 'Paga con tarjeta en la página segura de Stripe',
   TARJETA: 'Tarjeta de crédito o débito',
 }
 
+function IconoMetodo({ codigo }: { codigo: CodigoMetodoOnline }) {
+  const Icono = ICONO[codigo]
+  return <Icono className="h-6 w-6 text-brand" strokeWidth={1.75} aria-hidden="true" />
+}
+
+function Stepper({ actual }: { actual: 1 | 2 | 3 }) {
+  return (
+    <ol className="mb-6 flex items-center gap-2 sm:gap-3">
+      {PASOS.map((nombre, indice) => {
+        const numero = indice + 1
+        const hecho = numero < actual
+        const activo = numero === actual
+        return (
+          <li key={nombre} aria-current={activo ? 'step' : undefined} className="flex min-w-0 flex-1 items-center gap-2">
+            <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition-colors ${hecho || activo ? 'bg-brand-solid text-brand-on' : 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400'}`}>
+              {hecho ? <Check className="h-4 w-4" aria-hidden="true" /> : numero}
+            </span>
+            <span className={`truncate text-xs sm:text-sm ${activo ? 'font-semibold text-neutral-900 dark:text-neutral-50' : 'text-neutral-500 dark:text-neutral-400'} ${activo ? '' : 'hidden sm:inline'}`}>{nombre}</span>
+            {numero < PASOS.length && <span className={`h-px flex-1 ${hecho ? 'bg-brand' : 'bg-neutral-200 dark:bg-neutral-800'}`} aria-hidden="true" />}
+          </li>
+        )
+      })}
+    </ol>
+  )
+}
+
+function PasoPrevio({ pasos }: { pasos: PasosCheckout }) {
+  const entrega = pasos.actual === 1
+  return (
+    <div className="animate-fade-in rounded-xl border border-neutral-200 p-5 dark:border-neutral-800">
+      <div className="flex items-start gap-3">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-light text-brand">{entrega ? <MapPin className="h-5 w-5" aria-hidden="true" /> : <FileText className="h-5 w-5" aria-hidden="true" />}</span>
+        <div className="min-w-0">
+          <h2 className="text-base font-semibold text-neutral-800 dark:text-neutral-200">{entrega ? 'Retiras en sucursal' : 'La nota de venta sale a tu nombre'}</h2>
+          {entrega ? (
+            <>
+              <p className="mt-1 text-sm font-medium text-neutral-900 dark:text-neutral-100">{pasos.sucursalNombre}</p>
+              <p className="mt-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">Tus prendas salen del stock de esta sucursal. Puedes cambiarla en la barra superior de la tienda.</p>
+            </>
+          ) : (
+            <>
+              <p className="mt-1 truncate text-sm font-medium text-neutral-900 dark:text-neutral-100">{pasos.cliente.nombre}</p>
+              <p className="truncate text-sm text-neutral-600 dark:text-neutral-400">{pasos.cliente.email}</p>
+            </>
+          )}
+        </div>
+      </div>
+      <div className="mt-5 flex flex-wrap justify-end gap-3">
+        {!entrega && (
+          <Button variant="secondary" onClick={() => pasos.onIrA(1)}>
+            Atrás
+          </Button>
+        )}
+        <Button onClick={() => pasos.onIrA(entrega ? 2 : 3)}>Continuar</Button>
+      </div>
+    </div>
+  )
+}
+
 export function CheckoutPageView({
+  pasos,
   autenticado,
   esCliente,
   cargando,
@@ -87,7 +159,7 @@ export function CheckoutPageView({
     return (
       <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
         <EmptyState
-          icon={<span className="text-4xl">🔒</span>}
+          icon={<Lock className="h-7 w-7" strokeWidth={1.5} aria-hidden="true" />}
           title={autenticado ? 'El pago es solo para clientes' : 'Inicia sesión para pagar'}
           description={autenticado ? 'Entraste con una cuenta del personal.' : 'Inicia sesión para terminar tu pago.'}
           action={
@@ -113,7 +185,7 @@ export function CheckoutPageView({
     return (
       <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
         <EmptyState
-          icon={<span className="text-4xl">🧾</span>}
+          icon={<Receipt className="h-7 w-7" strokeWidth={1.5} aria-hidden="true" />}
           title={sinPedido?.titulo ?? 'No hay nada que pagar'}
           description={sinPedido?.descripcion}
           action={
@@ -132,14 +204,21 @@ export function CheckoutPageView({
   return (
     <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:py-10">
       <div className="mb-5 flex items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-white">{pedido.titulo}</h1>
+        <h1 className="text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl dark:text-neutral-50">{pedido.titulo}</h1>
         <Link to={pedido.volver.to} className="text-sm text-neutral-600 underline hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white">
-          ← {pedido.volver.etiqueta}
+          <ArrowLeft className="inline h-4 w-4 align-text-bottom" aria-hidden="true" /> {pedido.volver.etiqueta}
         </Link>
       </div>
 
+      {pasos && <Stepper actual={pasos.actual} />}
+
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-        <section className="space-y-5">
+        {pasos && pasos.actual < 3 ? <PasoPrevio pasos={pasos} /> : <section className="space-y-5">
+          {pasos && (
+            <button type="button" onClick={() => pasos.onIrA(2)} className="inline-flex items-center gap-1 text-sm text-neutral-600 hover:text-brand dark:text-neutral-400">
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Volver a los datos
+            </button>
+          )}
           <div>
             <h2 className="mb-3 text-sm font-semibold text-neutral-900 dark:text-white">Elige cómo pagar</h2>
             {cargandoMetodos ? (
@@ -159,13 +238,11 @@ export function CheckoutPageView({
                     disabled={ocupado}
                     className={`rounded-xl border p-4 text-left transition-colors disabled:opacity-60 ${
                       metodo.codigo === seleccionado
-                        ? 'border-neutral-900 bg-neutral-50 dark:border-white dark:bg-neutral-900'
+                        ? 'border-brand bg-brand-light/50 ring-1 ring-brand'
                         : 'border-neutral-200 hover:border-neutral-400 dark:border-neutral-800 dark:hover:border-neutral-600'
                     }`}
                   >
-                    <span className="text-2xl" aria-hidden="true">
-                      {ICONO[metodo.codigo]}
-                    </span>
+                    <IconoMetodo codigo={metodo.codigo} />
                     <p className="mt-2 text-sm font-semibold text-neutral-900 dark:text-white">{metodo.metodo}</p>
                     <p className="text-xs text-neutral-500 dark:text-neutral-400">{DESCRIPCION[metodo.codigo]}</p>
                   </button>
@@ -253,7 +330,7 @@ export function CheckoutPageView({
               </Button>
             </form>
           )}
-        </section>
+        </section>}
 
         <aside className="h-fit rounded-xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-950">
           <h2 className="text-base font-semibold text-neutral-900 dark:text-white">{pedido.resumenTitulo}</h2>

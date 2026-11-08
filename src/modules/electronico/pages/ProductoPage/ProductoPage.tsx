@@ -1,4 +1,4 @@
-import { isAxiosError } from 'axios'
+import { extraerMensajeError } from '@/shared/utils/error'
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useCarrito, useMisReservas, useProductoDetalle, useProductosRelacionados, useSucursalActiva } from '../../hooks'
@@ -97,7 +97,7 @@ function ProductoPageContenido() {
       setSeleccion({})
       return true
     } catch (requestError) {
-      setMensaje({ tipo: 'error', texto: extraerMensajeError(requestError) })
+      setMensaje({ tipo: 'error', texto: extraerMensajeError(requestError, 'No se pudo agregar al carrito. Inténtalo de nuevo.') })
       return false
     } finally {
       setEnviando(false)
@@ -192,7 +192,7 @@ function ProductoPageContenido() {
       setProbadorVarianteId(null)
       setMensaje({ tipo: 'ok', texto: 'Agregado a tu carrito desde el probador.' })
     } catch (requestError) {
-      setMensaje({ tipo: 'error', texto: extraerMensajeError(requestError) })
+      setMensaje({ tipo: 'error', texto: extraerMensajeError(requestError, 'No se pudo agregar al carrito. Inténtalo de nuevo.') })
     } finally {
       setEnviando(false)
     }
@@ -248,12 +248,3 @@ function seleccionValida(
   return valida
 }
 
-function extraerMensajeError(error: unknown): string {
-  if (error instanceof Error && !isAxiosError(error)) return error.message
-  if (isAxiosError(error)) {
-    const message = error.response?.data?.message
-    if (Array.isArray(message)) return message.join(', ')
-    if (typeof message === 'string') return message
-  }
-  return 'No se pudo agregar al carrito. Inténtalo de nuevo.'
-}

@@ -29,7 +29,7 @@ Ambas quedan en `devDependencies`: no viajan al bundle final, solo se usan en bu
 | `src/modules/electronico/offline/pedidosOffline.ts` | Lado de la página de RF-SYNC-01: guardar, enviar y reintentar pedidos |
 | `src/modules/electronico/components/PedidosOffline.tsx` | Checkout sin conexión, avisos y modal de resolución del 409 |
 | `pwa-assets.config.ts` | Config del generador de íconos (`npm run pwa:icons`) |
-| `public/pwa-icon.svg` | Ícono fuente (bolsa de compras sobre fondo morado de marca `#863bff`) |
+| `public/pwa-icon.svg` | Ícono fuente (bolsa de compras sobre fondo negro de marca `#09090b`) |
 | `public/pwa-*.png`, `public/maskable-icon-512x512.png`, `public/apple-touch-icon-180x180.png`, `public/favicon.ico` | Íconos generados, no se editan a mano — se regeneran con `npm run pwa:icons` |
 | `index.html` | Agrega `theme-color` y metatags `apple-mobile-web-app-*` (iOS no lee el manifest para estas cosas) |
 | `src/main.tsx` | Registra el service worker (`registerSW` de `virtual:pwa-register`) |

@@ -1,3 +1,4 @@
+import { ShoppingCart } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/Button'
 import { EmptyState } from '@/shared/components/ui/EmptyState'
@@ -18,7 +19,7 @@ interface CarritoPageViewProps {
 }
 
 const BOTON_LINK =
-  'rounded-full bg-neutral-900 px-5 py-2 text-sm font-medium text-white hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200'
+  'rounded-full bg-brand-solid px-5 py-2 text-sm font-medium text-brand-on transition-colors hover:bg-brand-solid-hover'
 
 function bs(valor: number): string {
   return `Bs ${valor.toFixed(2)}`
@@ -29,7 +30,7 @@ export function CarritoPageView({ autenticado, esCliente, carrito, cargando, err
     return (
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
         <EmptyState
-          icon={<span className="text-4xl">🛒</span>}
+          icon={<ShoppingCart className="h-7 w-7" strokeWidth={1.5} aria-hidden="true" />}
           title={autenticado ? 'El carrito es solo para clientes' : 'Inicia sesión para ver tu carrito'}
           description={
             autenticado
@@ -60,7 +61,7 @@ export function CarritoPageView({ autenticado, esCliente, carrito, cargando, err
     return (
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
         <EmptyState
-          icon={<span className="text-4xl">🛒</span>}
+          icon={<ShoppingCart className="h-7 w-7" strokeWidth={1.5} aria-hidden="true" />}
           title="Tu carrito está vacío"
           description="Explora el catálogo y agrega las prendas que te gusten."
           action={
@@ -78,7 +79,7 @@ export function CarritoPageView({ autenticado, esCliente, carrito, cargando, err
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:py-10">
       <div className="mb-5 flex items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-white">Tu carrito</h1>
+        <h1 className="text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl dark:text-neutral-50">Tu carrito</h1>
         <button
           type="button"
           onClick={onVaciar}
@@ -164,7 +165,7 @@ export function CarritoPageView({ autenticado, esCliente, carrito, cargando, err
           ) : (
             <Link
               to="/checkout"
-              className="mt-5 flex w-full items-center justify-center rounded-full bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+              className="mt-5 flex w-full items-center justify-center rounded-full bg-brand-solid px-4 py-2.5 text-sm font-medium text-brand-on transition-colors hover:bg-brand-solid-hover"
             >
               Finalizar compra
             </Link>

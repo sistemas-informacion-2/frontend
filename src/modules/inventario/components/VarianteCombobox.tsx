@@ -1,3 +1,4 @@
+import { Search, X } from 'lucide-react'
 import { useId, useMemo, useState, type KeyboardEvent } from 'react'
 import type { InventarioItem } from '../types'
 
@@ -103,7 +104,7 @@ export function VarianteCombobox({ label, opciones, value, onChange, placeholder
             setAbierto(true)
           }}
           onKeyDown={alPulsar}
-          className="w-full min-w-0 truncate rounded-md border border-neutral-300 bg-white py-2.5 pl-3 pr-9 text-sm outline-none transition-colors focus:border-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-white"
+          className="w-full min-w-0 truncate rounded-md border border-neutral-300 bg-white py-2.5 pl-3 pr-9 text-sm outline-none transition-colors focus:border-brand dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-brand"
         />
         {seleccionada && !abierto ? (
           <button
@@ -116,11 +117,11 @@ export function VarianteCombobox({ label, opciones, value, onChange, placeholder
             }}
             className="absolute inset-y-0 right-0 flex w-9 items-center justify-center text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
           >
-            ✕
+            <X className="h-4 w-4" aria-hidden="true" />
           </button>
         ) : (
           <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 flex w-9 items-center justify-center text-neutral-400">
-            🔍
+            <Search className="h-4 w-4" aria-hidden="true" />
           </span>
         )}
       </div>

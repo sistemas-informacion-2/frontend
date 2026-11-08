@@ -51,7 +51,7 @@ export function ReservasPageView({
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">Reservas</h1>
+          <h1 className="text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl dark:text-neutral-50">Reservas</h1>
           <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
             Aparta prendas contra un anticipo, cobra el saldo al retirarlas o libera el stock si vence el plazo.
             {sucursalNombre ? ` Sucursal: ${sucursalNombre}.` : ' Mostrando todas las sucursales.'}
@@ -93,21 +93,21 @@ export function ReservasPageView({
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[900px] text-left text-sm">
-              <thead className="border-b border-neutral-200 bg-neutral-50 text-xs uppercase tracking-wide text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
+              <thead className="border-b border-neutral-200 bg-neutral-50 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900/50 dark:text-neutral-400">
                 <tr>
-                  <th className="px-4 py-3 font-medium">Código</th>
-                  <th className="px-4 py-3 font-medium">Cliente</th>
-                  <th className="px-4 py-3 font-medium">Sucursal</th>
-                  <th className="px-4 py-3 font-medium">Retirar hasta</th>
-                  <th className="px-4 py-3 font-medium">Total</th>
-                  <th className="px-4 py-3 font-medium">Anticipo</th>
-                  <th className="px-4 py-3 font-medium">Estado</th>
-                  <th className="px-4 py-3 text-right font-medium">Acciones</th>
+                  <th className="px-4 py-3 font-semibold">Código</th>
+                  <th className="px-4 py-3 font-semibold">Cliente</th>
+                  <th className="px-4 py-3 font-semibold">Sucursal</th>
+                  <th className="px-4 py-3 font-semibold">Retirar hasta</th>
+                  <th className="px-4 py-3 font-semibold">Total</th>
+                  <th className="px-4 py-3 font-semibold">Anticipo</th>
+                  <th className="px-4 py-3 font-semibold">Estado</th>
+                  <th className="px-4 py-3 text-right font-semibold">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
                 {reservas.map((reserva) => (
-                  <tr key={reserva.id} className="text-neutral-700 dark:text-neutral-300">
+                  <tr key={reserva.id} className="text-neutral-700 dark:text-neutral-300 transition-colors hover:bg-neutral-50/80 dark:hover:bg-neutral-900/40">
                     <td className="px-4 py-3 font-mono text-xs text-neutral-500 dark:text-neutral-400">{reserva.codigoReserva}</td>
                     <td className="px-4 py-3">{reserva.clienteNombre}</td>
                     <td className="px-4 py-3">{reserva.sucursalNombre}</td>
@@ -117,7 +117,7 @@ export function ReservasPageView({
                         <span className="block text-xs text-neutral-500 dark:text-neutral-400">{tiempoRestante(reserva.fechaLimite)}</span>
                       )}
                     </td>
-                    <td className="px-4 py-3">{bs(reserva.montoTotal)}</td>
+                    <td className="px-4 py-3 text-right font-semibold tabular-nums">{bs(reserva.montoTotal)}</td>
                     <td className="px-4 py-3">
                       {bs(reserva.anticipoPagado)}
                       <span className="block text-xs text-neutral-500 dark:text-neutral-400">de {bs(reserva.montoAnticipo)}</span>
@@ -143,7 +143,7 @@ export function ReservasPageView({
 
         {meta && meta.totalPages > 1 && (
           <div className="p-4">
-            <Pagination page={meta.page} totalPages={meta.totalPages} onPageChange={onPageChange} />
+            <Pagination page={meta.page} totalPages={meta.totalPages} total={meta.total} limit={meta.limit} onPageChange={onPageChange} />
           </div>
         )}
       </section>

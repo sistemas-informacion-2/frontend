@@ -1,4 +1,3 @@
-import { mensajeSinConexion } from '@/core/http/errors'
 import type { EstadoReserva } from '../types'
 
 export const PORCENTAJE_ANTICIPO_MINIMO = 20
@@ -30,9 +29,4 @@ export function tiempoRestante(iso: string, ahora: number = Date.now()): string 
   return `${Math.floor(horas / 24)} d ${horas % 24} h`
 }
 
-export function extraerMensajeError(error: unknown, porDefecto = 'No se pudo completar la operación.'): string {
-  const message = (error as { response?: { data?: { message?: unknown } } })?.response?.data?.message
-  if (Array.isArray(message)) return String(message[0] ?? porDefecto)
-  if (typeof message === 'string') return message
-  return mensajeSinConexion(error) ?? porDefecto
-}
+export { extraerMensajeError } from '@/shared/utils/error'

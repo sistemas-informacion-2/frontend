@@ -1,4 +1,4 @@
-import { isAxiosError } from 'axios'
+import { extraerMensajeError } from '@/shared/utils/error'
 import { useDeferredValue, useState } from 'react'
 import useSWR from 'swr'
 import { listarBitacora, obtenerBitacora } from '@/modules/acceso/services/bitacora.service'
@@ -18,5 +18,3 @@ export function BitacoraPage() {
   }
   return <BitacoraPageView registros={data?.items ?? []} meta={data?.meta} loading={isLoading} error={error ? extraerMensajeError(error) : null} tablaAfectada={tablaAfectada} operacion={operacion} fechaDesde={fechaDesde} fechaHasta={fechaHasta} usuarioId={usuarioId} detalle={detalle} onTablaAfectada={(value) => { setTablaAfectada(value); setPage(1) }} onOperacion={(value) => { setOperacion(value); setPage(1) }} onFechaDesde={(value) => { setFechaDesde(value); setPage(1) }} onFechaHasta={(value) => { setFechaHasta(value); setPage(1) }} onUsuarioId={(value) => { setUsuarioId(value); setPage(1) }} onClearFilters={clear} onPageChange={setPage} onDetalle={abrirDetalle} onCloseDetalle={() => setDetalle(null)} />
 }
-
-function extraerMensajeError(error: unknown): string { if (isAxiosError(error)) { const message = error.response?.data?.message; if (Array.isArray(message)) return message[0] ?? 'La solicitud no es válida.'; if (typeof message === 'string') return message } return 'No se pudo cargar la bitácora.' }

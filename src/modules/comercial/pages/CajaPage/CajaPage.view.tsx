@@ -47,7 +47,7 @@ export function CajaPageView({
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">Caja</h1>
+          <h1 className="text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl dark:text-neutral-50">Caja</h1>
           <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
             Abre el turno de caja, registra ingresos y egresos y ciérralo con el arqueo.
           </p>
@@ -104,13 +104,13 @@ export function CajaPageView({
 
           <div className="overflow-x-auto">
             <table className="w-full min-w-[640px] text-left text-sm">
-              <thead className="border-b border-neutral-200 bg-neutral-50 text-xs uppercase tracking-wide text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
+              <thead className="border-b border-neutral-200 bg-neutral-50 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900/50 dark:text-neutral-400">
                 <tr>
-                  <th className="px-3 py-2 font-medium">Tipo</th>
-                  <th className="px-3 py-2 font-medium">Concepto</th>
-                  <th className="px-3 py-2 font-medium">Monto</th>
-                  <th className="px-3 py-2 font-medium">Fecha</th>
-                  <th className="px-3 py-2 font-medium">Observaciones</th>
+                  <th className="px-3 py-2 font-semibold">Tipo</th>
+                  <th className="px-3 py-2 font-semibold">Concepto</th>
+                  <th className="px-3 py-2 font-semibold">Monto</th>
+                  <th className="px-3 py-2 font-semibold">Fecha</th>
+                  <th className="px-3 py-2 font-semibold">Observaciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
@@ -151,19 +151,19 @@ export function CajaPageView({
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full min-w-[860px] text-left text-sm">
-                <thead className="border-b border-neutral-200 bg-neutral-50 text-xs uppercase tracking-wide text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
+                <thead className="border-b border-neutral-200 bg-neutral-50 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900/50 dark:text-neutral-400">
                   <tr>
-                    <th className="px-4 py-3 font-medium">Estado</th>
-                    <th className="px-4 py-3 font-medium">Cajero</th>
-                    <th className="px-4 py-3 font-medium">Apertura</th>
-                    <th className="px-4 py-3 font-medium">Cierre</th>
-                    <th className="px-4 py-3 font-medium">Monto inicial</th>
-                    <th className="px-4 py-3 font-medium">Monto final</th>
+                    <th className="px-4 py-3 font-semibold">Estado</th>
+                    <th className="px-4 py-3 font-semibold">Cajero</th>
+                    <th className="px-4 py-3 font-semibold">Apertura</th>
+                    <th className="px-4 py-3 font-semibold">Cierre</th>
+                    <th className="px-4 py-3 font-semibold">Monto inicial</th>
+                    <th className="px-4 py-3 font-semibold">Monto final</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
                   {cajas.map((caja) => (
-                    <tr key={caja.id} className="text-neutral-700 dark:text-neutral-300">
+                    <tr key={caja.id} className="text-neutral-700 dark:text-neutral-300 transition-colors hover:bg-neutral-50/80 dark:hover:bg-neutral-900/40">
                       <td className="px-4 py-3">
                         <Badge tone={caja.estado === 'Abierta' ? 'success' : 'neutral'}>{caja.estado}</Badge>
                       </td>

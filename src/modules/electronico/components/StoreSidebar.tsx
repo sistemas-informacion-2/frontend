@@ -1,3 +1,4 @@
+import { ChevronDown, X } from 'lucide-react'
 import { useEffect, useState, type ReactNode } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/core/store/authStore'
@@ -99,13 +100,13 @@ export function StoreSidebar({ open, onClose }: StoreSidebarProps) {
             aria-label="Cerrar menú"
             className="rounded-md px-2 py-1 text-neutral-500 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800"
           >
-            ✕
+            <X className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
 
         {modoCuenta ? (
           <nav aria-label="Mi cuenta" className="flex-1 space-y-1 overflow-y-auto px-2 py-3">
-            <p className="px-3 pb-1 text-xs font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Mi cuenta</p>
+            <p className="px-3 pb-1 text-xs font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-400">Mi cuenta</p>
             {ITEMS_CUENTA.map((item) => (
               <NavLink
                 key={item.to}
@@ -115,7 +116,7 @@ export function StoreSidebar({ open, onClose }: StoreSidebarProps) {
                 className={({ isActive }) =>
                   `block rounded-md px-3 py-2.5 text-sm font-medium ${
                     isActive
-                      ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900'
+                      ? 'bg-brand-solid text-brand-on'
                       : 'text-neutral-900 hover:bg-neutral-100 dark:text-white dark:hover:bg-neutral-800'
                   }`
                 }
@@ -145,7 +146,7 @@ export function StoreSidebar({ open, onClose }: StoreSidebarProps) {
                       }`}
                     >
                       <span>{temporada.nombre}</span>
-                      <span className="text-xs text-neutral-400 dark:text-neutral-500">{ESTADO_LABEL[temporada.estado]}</span>
+                      <span className="text-xs text-neutral-400 dark:text-neutral-400">{ESTADO_LABEL[temporada.estado]}</span>
                     </button>
                   </li>
                 ))}
@@ -168,7 +169,7 @@ export function StoreSidebar({ open, onClose }: StoreSidebarProps) {
             <button
               type="button"
               onClick={irAContacto}
-              className="w-full rounded-full bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white dark:bg-white dark:text-neutral-900"
+              className="w-full rounded-full bg-brand-solid px-4 py-2.5 text-sm font-medium text-brand-on"
             >
               Necesitas ayuda
             </button>
@@ -199,7 +200,7 @@ function Acordeon({ titulo, children }: { titulo: string; children: ReactNode })
       >
         {titulo}
         <span aria-hidden="true" className={`text-neutral-400 transition-transform ${abierto ? 'rotate-180' : ''}`}>
-          ▾
+          <ChevronDown className="h-4 w-4" aria-hidden="true" />
         </span>
       </button>
       {abierto && <div className="pb-2 pl-2">{children}</div>}

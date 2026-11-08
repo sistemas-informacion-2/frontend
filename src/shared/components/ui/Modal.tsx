@@ -1,3 +1,4 @@
+import { X } from 'lucide-react'
 import { useEffect, type ReactNode } from 'react'
 
 interface ModalProps {
@@ -22,13 +23,13 @@ export function Modal({ open, title, onClose, children, maxWidthClassName = 'sm:
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 p-0 sm:items-center sm:p-4" role="presentation">
+    <div className="fixed inset-0 z-[60] flex animate-fade-in items-end justify-center bg-black/40 p-0 sm:items-center sm:p-4" role="presentation">
       <button type="button" aria-label="Cerrar ventana" onClick={onClose} className="absolute inset-0 cursor-default" />
       <section
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
-        className={`relative z-10 max-h-[90vh] w-full overflow-y-auto rounded-t-xl bg-white p-5 shadow-xl sm:rounded-xl sm:p-6 dark:bg-neutral-950 ${maxWidthClassName}`}
+        className={`relative z-10 max-h-[90vh] w-full overflow-y-auto animate-sheet-up rounded-t-2xl bg-white p-5 shadow-xl sm:animate-fade-in sm:rounded-xl sm:p-6 dark:bg-neutral-950 ${maxWidthClassName}`}
       >
         <div className="mb-5 flex items-center justify-between gap-4">
           <h2 id="modal-title" className="text-lg font-semibold text-neutral-900 dark:text-white">
@@ -40,7 +41,7 @@ export function Modal({ open, title, onClose, children, maxWidthClassName = 'sm:
             aria-label="Cerrar ventana"
             className="rounded-md px-2 py-1 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800"
           >
-            ✕
+            <X className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
         {children}

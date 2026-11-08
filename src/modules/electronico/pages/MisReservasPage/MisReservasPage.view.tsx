@@ -1,3 +1,4 @@
+import { Bookmark } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/Button'
 import { EmptyState } from '@/shared/components/ui/EmptyState'
@@ -21,7 +22,7 @@ interface MisReservasPageViewProps {
 }
 
 const BOTON_LINK =
-  'rounded-full bg-neutral-900 px-5 py-2 text-sm font-medium text-white hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200'
+  'rounded-full bg-brand-solid px-5 py-2 text-sm font-medium text-brand-on transition-colors hover:bg-brand-solid-hover'
 
 export function MisReservasPageView({
   autenticado,
@@ -38,7 +39,7 @@ export function MisReservasPageView({
     return (
       <div className="py-6">
         <EmptyState
-          icon={<span className="text-4xl">📌</span>}
+          icon={<Bookmark className="h-7 w-7" strokeWidth={1.5} aria-hidden="true" />}
           title={autenticado ? 'Las reservas son solo para clientes' : 'Inicia sesión para ver tus reservas'}
           description={
             autenticado
@@ -69,7 +70,7 @@ export function MisReservasPageView({
     return (
       <div className="py-6">
         <EmptyState
-          icon={<span className="text-4xl">📌</span>}
+          icon={<Bookmark className="h-7 w-7" strokeWidth={1.5} aria-hidden="true" />}
           title="Aún no tienes reservas"
           description="Elige tus prendas en el catálogo y usa el botón Reservar para apartarlas en la sucursal que prefieras."
           action={
@@ -152,7 +153,7 @@ export function MisReservasPageView({
                   <p>Tu reserva está apartada, pero se confirma al pagar el anticipo de {bs(reserva.montoAnticipo)}.</p>
                   <Link
                     to={`/checkout/reserva/${reserva.id}`}
-                    className="mt-2 inline-block rounded-full bg-neutral-900 px-4 py-1.5 text-sm font-medium text-white hover:bg-neutral-700 dark:bg-white dark:text-neutral-900"
+                    className="mt-2 inline-block rounded-full bg-brand-solid px-4 py-1.5 text-sm font-medium text-brand-on transition-colors hover:bg-brand-solid-hover"
                   >
                     Pagar anticipo
                   </Link>

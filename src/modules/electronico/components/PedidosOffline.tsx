@@ -237,7 +237,7 @@ export function PedidosOfflineMonitor() {
 
         {completadas.map((pedido) => (
           <div key={pedido.id_local_offline} className="rounded-xl border border-emerald-300 bg-white p-4 text-sm shadow-lg dark:border-emerald-800 dark:bg-neutral-900 dark:text-neutral-100">
-            <p className="font-medium text-emerald-700 dark:text-emerald-400">Compra confirmada ✓</p>
+            <p className="font-medium text-emerald-700 dark:text-emerald-400">Compra confirmada</p>
             {pedido.codigo_nota && <p className="mt-1 text-neutral-600 dark:text-neutral-400">Tu nota de venta es la {pedido.codigo_nota}.</p>}
             <button type="button" onClick={() => void quitarPedido(pedido.id_local_offline)} className="mt-2 text-neutral-500 hover:underline">
               Entendido

@@ -45,12 +45,12 @@ export function ReservaDetalle({ reserva, pasarelas, ocupado, error, onCobrarAnt
 
       <div className="overflow-x-auto">
         <table className="w-full min-w-[520px] text-left">
-          <thead className="border-b border-neutral-200 text-xs uppercase tracking-wide text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">
+          <thead className="border-b border-neutral-200 bg-neutral-50 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900/50 dark:text-neutral-400">
             <tr>
-              <th className="px-3 py-2 font-medium">Prenda</th>
-              <th className="px-3 py-2 font-medium">P. unitario</th>
-              <th className="px-3 py-2 font-medium">Cantidad</th>
-              <th className="px-3 py-2 font-medium">Subtotal</th>
+              <th className="px-3 py-2 font-semibold">Prenda</th>
+              <th className="px-3 py-2 font-semibold">P. unitario</th>
+              <th className="px-3 py-2 font-semibold">Cantidad</th>
+              <th className="px-3 py-2 font-semibold">Subtotal</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
@@ -62,9 +62,9 @@ export function ReservaDetalle({ reserva, pasarelas, ocupado, error, onCobrarAnt
                     Talla {detalle.talla} · {detalle.color} · {detalle.sku}
                   </span>
                 </td>
-                <td className="px-3 py-2">{bs(detalle.precioUnitario)}</td>
+                <td className="px-3 py-2 text-right font-semibold tabular-nums">{bs(detalle.precioUnitario)}</td>
                 <td className="px-3 py-2">{detalle.cantidad}</td>
-                <td className="px-3 py-2">{bs(detalle.subtotal)}</td>
+                <td className="px-3 py-2 text-right font-semibold tabular-nums">{bs(detalle.subtotal)}</td>
               </tr>
             ))}
           </tbody>

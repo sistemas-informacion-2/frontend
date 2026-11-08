@@ -45,7 +45,7 @@ export function CategoriasPageView({
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">Categorías</h1>
+          <h1 className="text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl dark:text-neutral-50">Categorías</h1>
           <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">Organiza la taxonomía del catálogo público.</p>
         </div>
         {canManage && <Button onClick={onCreate}>Nueva categoría</Button>}
@@ -81,13 +81,13 @@ export function CategoriasPageView({
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[700px] text-left text-sm">
-              <thead className="border-b border-neutral-200 bg-neutral-50 text-xs uppercase tracking-wide text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
+              <thead className="border-b border-neutral-200 bg-neutral-50 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900/50 dark:text-neutral-400">
                 <tr>
-                  <th className="px-4 py-3 font-medium">Categoría</th>
-                  <th className="px-4 py-3 font-medium">Slug</th>
-                  <th className="px-4 py-3 font-medium">Temporadas</th>
-                  <th className="px-4 py-3 font-medium">Estado</th>
-                  <th className="px-4 py-3 text-right font-medium">Acciones</th>
+                  <th className="px-4 py-3 font-semibold">Categoría</th>
+                  <th className="px-4 py-3 font-semibold">Slug</th>
+                  <th className="px-4 py-3 font-semibold">Temporadas</th>
+                  <th className="px-4 py-3 font-semibold">Estado</th>
+                  <th className="px-4 py-3 text-right font-semibold">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
@@ -130,7 +130,7 @@ function CategoriaRows({
         <td className="px-4 py-3 text-neutral-500 dark:text-neutral-400">{categoria.slug}</td>
         <td className="px-4 py-3">
           {categoria.temporadas.length === 0 ? (
-            <span className="text-xs text-neutral-400 dark:text-neutral-500">Sin temporadas</span>
+            <span className="text-xs text-neutral-400 dark:text-neutral-400">Sin temporadas</span>
           ) : (
             <div className="flex flex-wrap gap-1">
               {categoria.temporadas.map((temporada) => (

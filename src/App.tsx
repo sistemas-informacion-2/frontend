@@ -44,6 +44,7 @@ import { ComingSoonPage } from '@/shared/components/ComingSoonPage'
 import { ProtectedLayout } from '@/shared/components/layout/ProtectedLayout'
 import { PublicLayout } from '@/shared/components/layout/PublicLayout'
 import { PermissionRoute } from '@/shared/components/routing/PermissionRoute'
+import { ScrollAlInicio } from '@/shared/components/routing/ScrollAlInicio'
 
 function App() {
   return (
@@ -62,6 +63,7 @@ function App() {
       <ThemeProvider>
         <AuthProvider>
           <BrowserRouter>
+            <ScrollAlInicio />
             <Routes>
               <Route element={<PublicLayout />}>
                 <Route path="/" element={<CatalogoPage />} />

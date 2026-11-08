@@ -1,3 +1,4 @@
+import { BarChart3, Search, X } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/shared/components/ui/Button'
 import { EmptyState } from '@/shared/components/ui/EmptyState'
@@ -92,7 +93,7 @@ export function ReportesConstructorPageView({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">Constructor de reportes QBE</h1>
+        <h1 className="text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl dark:text-neutral-50">Constructor de reportes QBE</h1>
         <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
           {nombre} · {subtitulo} · Arma reportes a medida eligiendo la entidad, los campos, los filtros y los totales, sin escribir SQL.
         </p>
@@ -100,7 +101,7 @@ export function ReportesConstructorPageView({
 
       {!puedeGestionar ? (
         <EmptyState
-          icon={<span className="text-4xl">📊</span>}
+          icon={<BarChart3 className="h-7 w-7" strokeWidth={1.5} aria-hidden="true" />}
           title="No tienes acceso a la gestión de reportes"
           description="Contacta a un administrador si crees que deberías poder generar reportes."
         />
@@ -110,7 +111,7 @@ export function ReportesConstructorPageView({
             <div className="flex items-start justify-between gap-3 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
               <span>{error}</span>
               <button type="button" onClick={onLimpiarError} aria-label="Cerrar aviso" className="text-red-500 hover:text-red-700">
-                ✕
+                <X className="h-4 w-4" aria-hidden="true" />
               </button>
             </div>
           )}
@@ -210,7 +211,7 @@ export function ReportesConstructorPageView({
                 <ReportPreviewTable resultado={resultado} pagina={pagina} porPagina={request.limit ?? 50} onCambiarPagina={onCambiarPagina} />
               ) : resultado ? (
                 <EmptyState
-                  icon={<span className="text-4xl">🔍</span>}
+                  icon={<Search className="h-7 w-7" strokeWidth={1.5} aria-hidden="true" />}
                   title="Sin registros"
                   description="Ninguna fila coincide con los criterios actuales; prueba ampliar el rango de fechas o quitar filtros."
                 />

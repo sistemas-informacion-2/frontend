@@ -1,3 +1,4 @@
+import { Receipt } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import type { Venta } from '@/modules/comercial/types'
@@ -29,7 +30,7 @@ const TIPO: Record<Venta['tipoVenta'], string> = {
 
 export function MisComprasPageView({ esCliente, compras, meta, cargando, error, abierta, detalle, onVer, onCerrar, onPageChange }: MisComprasPageViewProps) {
   if (!esCliente) {
-    return <EmptyState icon={<span className="text-4xl">🧾</span>} title="Las compras son solo para clientes" description="Entraste con una cuenta del personal." />
+    return <EmptyState icon={<Receipt className="h-7 w-7" strokeWidth={1.5} aria-hidden="true" />} title="Las compras son solo para clientes" description="Entraste con una cuenta del personal." />
   }
 
   return (
@@ -48,11 +49,11 @@ export function MisComprasPageView({ esCliente, compras, meta, cargando, error, 
           </div>
         ) : compras.length === 0 ? (
           <EmptyState
-            icon={<span className="text-4xl">🧾</span>}
+            icon={<Receipt className="h-7 w-7" strokeWidth={1.5} aria-hidden="true" />}
             title="Aún no tienes compras"
             description="Cuando compres en la tienda o retires una reserva, la nota de venta aparecerá aquí."
             action={
-              <Link to="/" className="rounded-full bg-neutral-900 px-5 py-2 text-sm font-medium text-white hover:bg-neutral-700 dark:bg-white dark:text-neutral-900">
+              <Link to="/" className="rounded-full bg-brand-solid px-5 py-2 text-sm font-medium text-brand-on transition-colors hover:bg-brand-solid-hover">
                 Ir al catálogo
               </Link>
             }
@@ -84,7 +85,7 @@ export function MisComprasPageView({ esCliente, compras, meta, cargando, error, 
 
         {meta && meta.totalPages > 1 && (
           <div className="mt-4">
-            <Pagination page={meta.page} totalPages={meta.totalPages} onPageChange={onPageChange} />
+            <Pagination page={meta.page} totalPages={meta.totalPages} total={meta.total} limit={meta.limit} onPageChange={onPageChange} />
           </div>
         )}
       </div>

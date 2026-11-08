@@ -25,7 +25,7 @@ export function ReportPreviewTable({ resultado, pagina, porPagina, onCambiarPagi
     <div className="space-y-4">
       <div className="overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
         <table className="w-full text-left text-sm">
-          <thead className="bg-neutral-50 dark:bg-neutral-900">
+          <thead className="border-b border-neutral-200 bg-neutral-50 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900/50 dark:text-neutral-400">
             <tr>
               <th className="py-3 pl-4 pr-2 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
                 #
@@ -42,8 +42,8 @@ export function ReportPreviewTable({ resultado, pagina, porPagina, onCambiarPagi
           </thead>
           <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
             {resultado.rows.map((fila, indice) => (
-              <tr key={indice} className="text-neutral-800 dark:text-neutral-200">
-                <td className="py-2.5 pl-4 pr-2 text-neutral-400 dark:text-neutral-500">
+              <tr key={indice} className="text-neutral-800 dark:text-neutral-200 transition-colors hover:bg-neutral-50/80 dark:hover:bg-neutral-900/40">
+                <td className="py-2.5 pl-4 pr-2 text-neutral-400 dark:text-neutral-400">
                   {(pagina - 1) * porPagina + indice + 1}
                 </td>
                 {fila.map((celda, columna) => (

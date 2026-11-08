@@ -1,3 +1,4 @@
+import { BarChart3, MessageSquare, Mic, Search, Settings, Sparkles, Square, Volume2, VolumeX, X } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { EmptyState } from '@/shared/components/ui/EmptyState'
 import { KpiCard } from '../../components/KpiCard'
@@ -69,14 +70,14 @@ const EJEMPLOS = [
 function FuenteBadge({ fuente }: { fuente: 'IA' | 'REGEX' }) {
   return fuente === 'IA' ? (
     <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
-      ✨ Gemini
+      <Sparkles className="inline h-4 w-4 align-text-bottom" aria-hidden="true" /> Gemini
     </span>
   ) : (
     <span
       className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-800 dark:bg-amber-900/40 dark:text-amber-300"
       title="Gemini no está configurado o no respondió; se usó el traductor por palabras clave."
     >
-      ⚙️ Modo básico
+      <Settings className="inline h-4 w-4 align-text-bottom" aria-hidden="true" /> Modo básico
     </span>
   )
 }
@@ -147,7 +148,7 @@ export function ReportesGenerativoPageView({
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
         <div>
-          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">Reportes por voz / generativos</h1>
+          <h1 className="text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl dark:text-neutral-50">Reportes por voz / generativos</h1>
           <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
             Preguntale al asistente en voz alta o por texto: te responde, lee la respuesta y te muestra el reporte.
           </p>
@@ -156,7 +157,7 @@ export function ReportesGenerativoPageView({
           <div className="flex flex-wrap items-center gap-2">
             {fuenteActual && <FuenteBadge fuente={fuenteActual} />}
             <Button variant="secondary" onClick={onAlternarVoz}>
-              {vozActivada ? '🔊 Voz activada' : '🔇 Voz desactivada'}
+              {vozActivada ? <><Volume2 className="inline h-4 w-4 align-text-bottom" aria-hidden="true" /> Voz activada</> : <><VolumeX className="inline h-4 w-4 align-text-bottom" aria-hidden="true" /> Voz desactivada</>}
             </Button>
             {hayConversacion && (
               <Button variant="secondary" onClick={onNuevaConversacion}>
@@ -169,7 +170,7 @@ export function ReportesGenerativoPageView({
 
       {!puedeGestionar ? (
         <EmptyState
-          icon={<span className="text-4xl">📊</span>}
+          icon={<BarChart3 className="h-7 w-7" strokeWidth={1.5} aria-hidden="true" />}
           title="No tienes acceso a los reportes"
           description="Contacta a un administrador si crees que deberías poder generarlos."
         />
@@ -179,7 +180,7 @@ export function ReportesGenerativoPageView({
             <div className="flex items-start justify-between gap-3 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
               <span>{error}</span>
               <button type="button" onClick={onLimpiarError} aria-label="Cerrar aviso" className="text-red-500 hover:text-red-700">
-                ✕
+                <X className="h-4 w-4" aria-hidden="true" />
               </button>
             </div>
           )}
@@ -187,7 +188,7 @@ export function ReportesGenerativoPageView({
           {hayConversacion && (
             <section className="overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-950">
               <div className="flex items-center gap-2 border-b border-neutral-200 bg-neutral-50 px-4 py-2.5 dark:border-neutral-800 dark:bg-neutral-900">
-                <span className="text-base">💬</span>
+                <MessageSquare className="h-4 w-4 shrink-0" aria-hidden="true" />
                 <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Conversación</p>
               </div>
               <div className="max-h-[480px] space-y-3 overflow-y-auto bg-neutral-50/60 p-4 dark:bg-neutral-900/40">
@@ -203,7 +204,7 @@ export function ReportesGenerativoPageView({
                           <FuenteBadge fuente={mensaje.fuente} />
                           <span>· reporte abajo</span>
                           <button type="button" onClick={() => onEscuchar(mensaje.interpretacion)} className="font-medium text-neutral-700 hover:underline dark:text-neutral-300">
-                            🔊 Escuchar
+                            <Volume2 className="inline h-4 w-4 align-text-bottom" aria-hidden="true" /> Escuchar
                           </button>
                         </div>
                       </div>
@@ -229,7 +230,7 @@ export function ReportesGenerativoPageView({
                     escuchandoVoz ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700'
                   }`}
                 >
-                  {escuchandoVoz ? '⏹' : '🎤'}
+                  {escuchandoVoz ? <Square className="inline h-4 w-4 align-text-bottom" aria-hidden="true" /> : <Mic className="inline h-4 w-4 align-text-bottom" aria-hidden="true" />}
                 </button>
                 <p className="text-center text-xs text-neutral-500 dark:text-neutral-400">
                   {vozSoportada ? 'Presiona el micrófono y dicta tu consulta' : 'Tu navegador no soporta dictado por voz'}
@@ -242,7 +243,7 @@ export function ReportesGenerativoPageView({
                   onChange={(event) => onPrompt(event.target.value)}
                   rows={3}
                   placeholder={hayConversacion ? 'Ej.: ¿y en La Paz?' : `Ej.: ${EJEMPLOS[0]}`}
-                  className="w-full resize-none rounded-md border border-neutral-300 bg-white px-3 py-2.5 text-sm outline-none transition-colors focus:border-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-white"
+                  className="w-full resize-none rounded-md border border-neutral-300 bg-white px-3 py-2.5 text-sm outline-none transition-colors focus:border-brand dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-brand"
                 />
                 <Button onClick={onGenerar} loading={generando} disabled={!prompt.trim()}>
                   Enviar
@@ -345,7 +346,7 @@ export function ReportesGenerativoPageView({
                 <ReportPreviewTable resultado={resultado} pagina={1} porPagina={resultado.rows.length} onCambiarPagina={() => {}} />
               ) : (
                 <EmptyState
-                  icon={<span className="text-4xl">🔍</span>}
+                  icon={<Search className="h-7 w-7" strokeWidth={1.5} aria-hidden="true" />}
                   title="Sin registros"
                   description="Ninguna fila coincide con lo que entendimos de tu pedido; probá reformularlo o usar «Refinar»."
                 />

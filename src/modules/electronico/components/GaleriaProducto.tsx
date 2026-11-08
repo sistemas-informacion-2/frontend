@@ -1,3 +1,4 @@
+import { ShoppingBag } from 'lucide-react'
 import { useState } from 'react'
 import type { ImagenProducto } from '@/modules/inventario/types'
 
@@ -18,9 +19,9 @@ export function GaleriaProducto({ imagenes, nombre }: GaleriaProductoProps) {
   const mover = (paso: number) => setIndice((current) => (current + paso + ordenadas.length) % ordenadas.length)
 
   return (
-    <div className="flex flex-col-reverse gap-3 md:flex-row">
+    <div className="flex flex-col-reverse gap-3 md:flex-row md:items-start">
       {hayVarias && (
-        <div className="flex gap-2 overflow-x-auto md:max-h-[640px] md:flex-col md:overflow-x-hidden md:overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex gap-2 overflow-x-auto md:max-h-[560px] md:flex-col md:overflow-x-hidden md:overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {ordenadas.map((imagen, posicion) => (
             <button
               key={imagen.id}
@@ -42,7 +43,7 @@ export function GaleriaProducto({ imagenes, nombre }: GaleriaProductoProps) {
         {actual ? (
           <img src={actual.url} alt={`${nombre} (imagen ${indice + 1})`} className="h-full w-full object-cover" />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-5xl text-neutral-300 dark:text-neutral-600">🛍️</div>
+          <div className="flex h-full w-full items-center justify-center text-5xl text-neutral-300 dark:text-neutral-600"><ShoppingBag className="h-12 w-12" strokeWidth={1.25} aria-hidden="true" /></div>
         )}
 
         {hayVarias && (
