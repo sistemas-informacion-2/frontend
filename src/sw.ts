@@ -17,6 +17,7 @@ import { NavigationRoute, registerRoute } from 'workbox-routing'
 import { NetworkFirst, NetworkOnly, StaleWhileRevalidate } from 'workbox-strategies'
 import { CABECERA_DATO_FRESCO } from './core/offline/adminOfflineDb'
 import {
+  MENSAJE_NOTIFICACION_NUEVA,
   MENSAJE_PEDIDO_ACTUALIZADO,
   MENSAJE_SINCRONIZAR,
   NOMBRE_COLA,
@@ -142,6 +143,58 @@ registerRoute(
 // Navegadores sin Background Sync (Firefox, Safari): la pagina avisa al volver la red y la cola se procesa aqui.
 self.addEventListener('message', (event) => {
   if ((event.data as { tipo?: string } | null)?.tipo === MENSAJE_SINCRONIZAR) event.waitUntil(procesarCola().catch(() => undefined))
+})
+
+// ---------------------------------------------------------------- notificaciones push
+
+interface AvisoPush {
+  titulo?: string
+  mensaje?: string
+  url?: string
+  etiqueta?: string
+}
+
+function leerAviso(evento: PushEvent): AvisoPush {
+  try {
+    return (evento.data?.json() ?? {}) as AvisoPush
+  } catch {
+    return { mensaje: evento.data?.text() }
+  }
+}
+
+// Llega aunque la pagina este cerrada: el navegador despierta al Service Worker solo para esto.
+self.addEventListener('push', (evento) => {
+  const aviso = leerAviso(evento)
+  evento.waitUntil(
+    (async () => {
+      await self.registration.showNotification(aviso.titulo ?? 'FashionStore', {
+        body: aviso.mensaje ?? '',
+        icon: '/pwa-192x192.png',
+        badge: '/pwa-64x64.png',
+        tag: aviso.etiqueta,
+        data: { url: aviso.url ?? '/' },
+      })
+      const pestanas = await self.clients.matchAll({ type: 'window' })
+      for (const pestana of pestanas) pestana.postMessage({ tipo: MENSAJE_NOTIFICACION_NUEVA })
+    })(),
+  )
+})
+
+self.addEventListener('notificationclick', (evento) => {
+  evento.notification.close()
+  const url = new URL((evento.notification.data as { url?: string } | null)?.url ?? '/', self.location.origin).href
+  evento.waitUntil(
+    (async () => {
+      const pestanas = await self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+      const abierta = pestanas.find((pestana) => new URL(pestana.url).origin === self.location.origin)
+      if (!abierta) {
+        await self.clients.openWindow(url)
+        return
+      }
+      await abierta.focus()
+      await abierta.navigate(url)
+    })(),
+  )
 })
 
 // ---------------------------------------------------------------- cacheo en tiempo de ejecucion

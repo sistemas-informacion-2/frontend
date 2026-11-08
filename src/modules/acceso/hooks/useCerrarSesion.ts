@@ -3,6 +3,7 @@ import { useSWRConfig } from 'swr'
 import { ALMACEN_REPORTES, vaciar } from '@/core/offline/adminOfflineDb'
 import { useAuthStore } from '@/core/store/authStore'
 import { limpiarSelecciones } from '@/shared/utils/seleccionProducto'
+import { desvincularWebPush } from '@/modules/electronico/services/webPush.service'
 import { logout as logoutRequest } from '../api'
 
 /**
@@ -24,6 +25,7 @@ export function useCerrarSesion() {
   const { mutate } = useSWRConfig()
 
   return async (destino: string) => {
+    await desvincularWebPush().catch(() => undefined)
     if (refreshToken) await logoutRequest(refreshToken).catch(() => undefined)
     clear()
     limpiarSelecciones()

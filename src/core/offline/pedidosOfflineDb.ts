@@ -65,6 +65,8 @@ export const MENSAJE_PEDIDO_ACTUALIZADO = 'PEDIDO_OFFLINE_ACTUALIZADO'
 /** Mensaje que la pagina manda al Service Worker para que procese la cola ya (navegadores sin Background Sync). */
 export const MENSAJE_SINCRONIZAR = 'SINCRONIZAR_PEDIDOS_OFFLINE'
 export const NOMBRE_COLA = 'cola-compras-offline'
+/** Mensaje que el Service Worker manda a las pestanas abiertas al recibir un push. */
+export const MENSAJE_NOTIFICACION_NUEVA = 'NOTIFICACION_PUSH_NUEVA'
 export const RUTA_SYNC = '/api/electronico/checkout/sync'
 
 const NOMBRE_DB = 'fashionstore-offline'

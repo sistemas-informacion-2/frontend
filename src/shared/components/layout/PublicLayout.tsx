@@ -5,6 +5,7 @@ import { useAuthStore } from '@/core/store/authStore'
 import { CategoryNavBar } from '@/modules/electronico/components/CategoryNavBar'
 import { NotificationBell } from '@/modules/electronico/components/NotificationBell'
 import { PedidosOfflineMonitor } from '@/modules/electronico/components/PedidosOffline'
+import { InvitacionWebPush } from '@/modules/electronico/components/PanelWebPush'
 import { StoreFooter } from '@/modules/electronico/components/StoreFooter'
 import { StoreLogoMarca } from '@/modules/electronico/components/StoreLogo'
 import { StoreSidebar } from '@/modules/electronico/components/StoreSidebar'
@@ -103,6 +104,7 @@ export function PublicLayout() {
       <StoreFooter />
 
       {perfil?.tipoUsuario === 'C' && <PedidosOfflineMonitor />}
+      {perfil && <InvitacionWebPush />}
     </div>
   )
 }

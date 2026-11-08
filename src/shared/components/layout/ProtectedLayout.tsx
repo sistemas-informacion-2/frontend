@@ -3,6 +3,7 @@ import { Link, Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@/core/store/authStore'
 import { useCerrarSesion } from '@/modules/acceso/hooks/useCerrarSesion'
 import { NotificationBell } from '@/modules/electronico/components/NotificationBell'
+import { InvitacionWebPush } from '@/modules/electronico/components/PanelWebPush'
 import { useEnLinea } from '@/modules/electronico/hooks'
 import { Button } from '@/shared/components/ui/Button'
 import { ThemeToggle } from '@/shared/components/ui/ThemeToggle'
@@ -57,6 +58,7 @@ export function ProtectedLayout() {
 
   return (
     <div className="flex h-screen bg-neutral-50 dark:bg-neutral-900">
+      <InvitacionWebPush />
       <Sidebar mobileOpen={mobileNavOpen} onCloseMobile={() => setMobileNavOpen(false)} />
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">

@@ -152,6 +152,32 @@ por diseño**, no es una limitación del service worker — están explícitamen
 afuera de cualquier estrategia de cache para que nunca se sirva una respuesta
 vieja o falsa en algo que mueve dinero o sesión.
 
+## Notificaciones push en segundo plano (Web Push)
+
+Llegan aunque la tienda esté cerrada. Usan claves VAPID y el servicio push de cada navegador, sin costo; el canal de Expo sigue atendiendo a la app móvil.
+
+1. Al entrar se invita a activar los avisos (también están en **Mi perfil → Avisos en este dispositivo**). Con ese clic el navegador pide permiso y se suscribe con la clave pública.
+2. La suscripción se guarda en `suscripcion_web_push` (una fila por navegador).
+3. `NotificacionesService.notificarPorPush` firma y cifra cada aviso con `web-push`, en segundo plano. Un fallo nunca afecta a la compra o devolución que lo originó.
+4. `sw.ts` recibe el evento `push` y muestra la notificación; al tocarla abre la tienda con la campana desplegada.
+
+Las suscripciones vencidas (404 o 410) se borran solas. Solo se aceptan direcciones de los servicios push de los navegadores. Al cerrar sesión se desvincula el dispositivo, y al entrar se vincula a la cuenta que inicia sesión.
+
+**Puesta en marcha.** Genera las claves una sola vez con `npx web-push generate-vapid-keys` y define `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` y `VAPID_SUBJECT` en el backend; usa las mismas en producción, porque si cambian cada navegador debe reactivar los avisos. Exige HTTPS (`localhost` es la excepción). En iPhone funciona solo con la tienda agregada a la pantalla de inicio (iOS 16.4 o posterior). En producción `synchronize` está apagado, así que crea la tabla:
+
+```sql
+CREATE TABLE IF NOT EXISTS suscripcion_web_push (
+  id serial PRIMARY KEY,
+  id_usuario int NOT NULL REFERENCES usuario(id) ON DELETE CASCADE,
+  endpoint text NOT NULL UNIQUE,
+  p256dh varchar(255) NOT NULL,
+  auth varchar(100) NOT NULL,
+  fecha_actualizacion timestamp NOT NULL DEFAULT now()
+);
+```
+
+Si una prueba dice "enviado" y no aparece nada, revisa que el sistema operativo permita las notificaciones de ese navegador (en Windows: Configuración → Sistema → Notificaciones).
+
 ## Consideraciones para el despliegue en AWS
 
 Un service worker necesita un **contexto seguro** (HTTPS) para registrarse —

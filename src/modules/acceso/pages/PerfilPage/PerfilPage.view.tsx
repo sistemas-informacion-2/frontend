@@ -1,3 +1,4 @@
+import { PanelWebPush } from '@/modules/electronico/components/PanelWebPush'
 import type { FormEvent } from 'react'
 import { CambiarPasswordForm } from '@/modules/acceso/components/CambiarPasswordForm'
 import { PerfilForm } from '@/modules/acceso/components/PerfilForm'
@@ -146,6 +147,8 @@ export function PerfilPageView({
           </div>
         )}
       </section>
+
+      <PanelWebPush />
     </div>
   )
 }
