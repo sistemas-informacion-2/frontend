@@ -55,6 +55,8 @@ export interface ResultadoReporte {
   columnLabels: string[]
   rows: Array<Array<string | number | boolean | null>>
   total: number
+  /** Solo sin conexion: cuando se guardo este resultado. */
+  guardadoEn?: string
 }
 
 export interface RespuestaGenerativo {
@@ -90,4 +92,6 @@ export interface ReportePredefinidoEjecutado {
   nombre: string
   request: ReportRunRequest
   result: ResultadoReporte
+  /** Solo sin conexion: cuando se guardo este resultado. */
+  guardadoEn?: string
 }

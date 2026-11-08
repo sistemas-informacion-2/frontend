@@ -7,13 +7,14 @@ import {
   actualizarPedido,
   eliminarPedido,
   guardarPedido,
+  type MetodoPagoCompra,
   guardarSesionCompartida,
   interpretarRespuestaSync,
   listarPedidos,
   type PedidoOffline,
 } from '@/core/offline/pedidosOfflineDb'
 import { mutate } from 'swr'
-import type { Carrito } from '../types'
+import type { Carrito, MetodoPagoOnline } from '../types'
 import { sincronizarCarritoLocal } from './carritoOffline'
 
 /**
@@ -23,7 +24,7 @@ import { sincronizarCarritoLocal } from './carritoOffline'
  *  - compartirle el token vigente (el SW no puede leer localStorage),
  *  - reenviar con la sesion renovada los pedidos que volvieron con 401, y
  *  - reintentar al volver la red en navegadores sin Background Sync (Firefox, Safari) o cuando todavia no habia SW.
- * El backend es idempotente por `id_local`, asi que un pedido enviado a la vez por la pagina y el SW no se duplica.
+ * El backend es idempotente por `id_local_offline`, asi que una compra enviada a la vez por la pagina y el SW no se duplica.
  */
 
 const INTERVALO_REINTENTO_MS = 30_000
@@ -36,15 +37,36 @@ function avisarCambio(): void {
 }
 
 function nuevoIdLocal(): string {
-  return `off_${Date.now()}${Math.random().toString(36).slice(2, 8)}`
+  return `compra_off_${Date.now()}${Math.random().toString(36).slice(2, 8)}`
+}
+
+const CLAVE_METODOS = 'fashionstore-metodos-pago'
+
+/** Sin red no se pueden pedir los metodos de pago: se recuerda la ultima lista para que el cliente elija. */
+export function recordarMetodosPago(metodos: MetodoPagoOnline[]): void {
+  try {
+    localStorage.setItem(CLAVE_METODOS, JSON.stringify(metodos))
+  } catch {
+    // Sin almacenamiento, la compra se guarda igual y el metodo se elige al pagar.
+  }
+}
+
+export function metodosPagoRecordados(): MetodoPagoOnline[] {
+  try {
+    return JSON.parse(localStorage.getItem(CLAVE_METODOS) ?? '[]') as MetodoPagoOnline[]
+  } catch {
+    return []
+  }
 }
 
 /** Pedido armado con el carrito que ya estaba cargado (memoria o cache del SW), listo para enviarse. */
-export async function crearPedidoOffline(carrito: Carrito, idSucursal: number, sucursalNombre: string, idCliente: number): Promise<PedidoOffline> {
+export async function crearPedidoOffline(carrito: Carrito, idSucursal: number, sucursalNombre: string, metodoPago: MetodoPagoCompra | null, idCliente: number): Promise<PedidoOffline> {
   const ahora = new Date().toISOString()
   const pedido: PedidoOffline = {
-    id_local: nuevoIdLocal(),
+    id_local_offline: nuevoIdLocal(),
+    tipo_transaccion: 'COMPRA_DIRECTA',
     id_sucursal: idSucursal,
+    metodo_pago: metodoPago,
     id_cliente: idCliente,
     detalles: carrito.items.map((item) => ({
       id_variante: item.idVarianteProducto,
@@ -52,14 +74,13 @@ export async function crearPedidoOffline(carrito: Carrito, idSucursal: number, s
       precio_unitario: item.precioUnitario,
       descripcion: `${item.productoNombre} (${item.talla}/${item.color})`,
     })),
-    estado_sincronizacion: 'PENDIENTE_ENVIO',
+    estado_sincronizacion: 'COMPRA_PENDIENTE_SINCRONIZACION',
     fecha_creacion: ahora,
     fecha_actualizacion: ahora,
     sucursal_nombre: sucursalNombre,
     total: carrito.total,
     mensaje_error: null,
     items_afectados: [],
-    reserva: null,
   }
   await guardarPedido(pedido)
   avisarCambio()
@@ -71,7 +92,7 @@ export async function enviarPedido(pedido: PedidoOffline): Promise<PedidoOffline
   let cambios: Partial<PedidoOffline> | null
   try {
     const respuesta = await httpClient.post('/electronico/checkout/sync', {
-      idLocal: pedido.id_local,
+      idLocal: pedido.id_local_offline,
       idSucursal: pedido.id_sucursal,
       detalles: pedido.detalles.map((detalle) => ({ idVariante: detalle.id_variante, cantidad: detalle.cantidad, precioUnitario: detalle.precio_unitario })),
       fechaCreacion: pedido.fecha_creacion,
@@ -79,12 +100,28 @@ export async function enviarPedido(pedido: PedidoOffline): Promise<PedidoOffline
     cambios = interpretarRespuestaSync(respuesta.status, respuesta.data)
   } catch (error) {
     // Sin respuesta (sin red y sin SW que lo encole): sigue pendiente y se reintenta al volver la red.
-    cambios = isAxiosError(error) && error.response ? interpretarRespuestaSync(error.response.status, error.response.data) : { estado_sincronizacion: 'PENDIENTE_ENVIO' }
+    cambios = isAxiosError(error) && error.response ? interpretarRespuestaSync(error.response.status, error.response.data) : { estado_sincronizacion: 'COMPRA_PENDIENTE_SINCRONIZACION' }
   }
-  const actualizado = await actualizarPedido(pedido.id_local, cambios ?? { estado_sincronizacion: 'PENDIENTE_ENVIO', mensaje_error: 'El servidor no respondio; se reintentara solo.' })
+  const actualizado = await actualizarPedido(pedido.id_local_offline, cambios ?? { estado_sincronizacion: 'COMPRA_PENDIENTE_SINCRONIZACION', mensaje_error: 'El servidor no respondio; se reintentara solo.' })
   avisarCambio()
   return actualizado ?? pedido
 }
+
+/** Tras pagar en el checkout, la compra ya tiene Nota de Venta: se confirma y se deja de mostrar como pendiente. */
+async function comprobarPago(pedido: PedidoOffline): Promise<void> {
+  try {
+    const respuesta = await httpClient.get(`/electronico/checkout/sync/${pedido.id_local_offline}`)
+    const compra = (respuesta.data as { data: { estadoSincronizacion: string; codigoNota: string | null } }).data
+    if (compra.estadoSincronizacion !== 'COMPLETADA') return
+    await actualizarPedido(pedido.id_local_offline, { estado_sincronizacion: 'COMPRA_COMPLETADA', codigo_nota: compra.codigoNota })
+    avisarCambio()
+    void mutate('electronico/carrito')
+  } catch {
+    // Sin red: se vuelve a comprobar en el siguiente intento.
+  }
+}
+
+const porEnviar = (pedido: PedidoOffline) => pedido.estado_sincronizacion === 'COMPRA_PENDIENTE_SINCRONIZACION' || pedido.estado_sincronizacion === 'REQUIERE_SESION'
 
 let sincronizando = false
 
@@ -97,25 +134,19 @@ export async function sincronizarPendientes(): Promise<void> {
   sincronizando = true
   try {
     navigator.serviceWorker?.controller?.postMessage({ tipo: MENSAJE_SINCRONIZAR })
-    const pendientes = (await listarPedidos()).filter(
-      (pedido) => pedido.id_cliente === perfil.id && (pedido.estado_sincronizacion === 'PENDIENTE_ENVIO' || pedido.estado_sincronizacion === 'REQUIERE_SESION'),
-    )
-    for (const pedido of pendientes) await enviarPedido(pedido)
+    const propios = (await listarPedidos()).filter((pedido) => pedido.id_cliente === perfil.id)
+    for (const pedido of propios.filter(porEnviar)) await enviarPedido(pedido)
+    for (const pedido of propios.filter((candidato) => candidato.estado_sincronizacion === 'COMPRA_PENDIENTE_PAGO')) await comprobarPago(pedido)
   } finally {
     sincronizando = false
   }
 }
 
-/** Resolucion del 409 por stock: reintenta el mismo pedido retirando en otra sucursal. */
-export function cambiarSucursalPedido(idLocal: string, idSucursal: number, sucursalNombre: string): Promise<PedidoOffline | undefined> {
-  return reintentarPedido(idLocal, { id_sucursal: idSucursal, sucursal_nombre: sucursalNombre })
-}
-
-/** Vuelve a enviar un pedido rechazado (p. ej. despues de cancelar otra reserva para liberar el limite). */
+/** Vuelve a enviar una compra rechazada. */
 export async function reintentarPedido(idLocal: string, cambios: Partial<PedidoOffline> = {}): Promise<PedidoOffline | undefined> {
   const pedido = await actualizarPedido(idLocal, {
     ...cambios,
-    estado_sincronizacion: 'PENDIENTE_ENVIO',
+    estado_sincronizacion: 'COMPRA_PENDIENTE_SINCRONIZACION',
     mensaje_error: null,
     codigo_error: null,
     items_afectados: [],
@@ -124,7 +155,7 @@ export async function reintentarPedido(idLocal: string, cambios: Partial<PedidoO
   return pedido ? enviarPedido(pedido) : undefined
 }
 
-/** Cancela un pedido que no se pudo registrar (no se cobro nada) o descarta uno ya convertido en reserva. */
+/** Cancela una compra guardada (no se cobro nada) o descarta una ya confirmada. */
 export async function quitarPedido(idLocal: string): Promise<void> {
   await eliminarPedido(idLocal)
   avisarCambio()
@@ -159,7 +190,7 @@ export function iniciarSincronizacionOffline(): void {
     })
     void listarPedidos()
       .then((pedidos) => {
-        if (pedidos.some((pedido) => pedido.estado_sincronizacion === 'PENDIENTE_ENVIO')) void sincronizarPendientes()
+        if (pedidos.some((pedido) => pedido.estado_sincronizacion === 'COMPRA_PENDIENTE_SINCRONIZACION' || pedido.estado_sincronizacion === 'COMPRA_PENDIENTE_PAGO')) void sincronizarPendientes()
       })
       .catch(() => undefined)
   }, INTERVALO_REINTENTO_MS)

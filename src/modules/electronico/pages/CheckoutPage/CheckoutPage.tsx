@@ -4,7 +4,7 @@ import useSWR, { useSWRConfig } from 'swr'
 import { confirmarQrPago, fetchMetodosOnline, fetchMiReserva, generarQrPago, iniciarPagoStripe, pagarConTarjeta } from '../../api'
 import { isNetworkError } from '@/core/http/errors'
 import { PedidoOfflinePanel } from '../../components/PedidosOffline'
-import { useCarrito, useEnLinea } from '../../hooks'
+import { useCarrito, useEnLinea, usePedidosOffline } from '../../hooks'
 import type { CodigoMetodoOnline, CompraOnline, DatosTarjeta, IniciarQrRespuesta } from '../../types'
 import { bs, extraerMensajeError } from '../../utils/reservas'
 import { CheckoutPageView, type PedidoPago, type SinPedido } from './CheckoutPage.view'
@@ -61,6 +61,8 @@ function CheckoutContenido({ idReserva }: { idReserva?: number }) {
   )
 
   const [elegido, setElegido] = useState<CodigoMetodoOnline | null>(null)
+  // Si viene de una compra hecha sin conexion, arranca con el metodo que el cliente eligio entonces.
+  const metodoDeCompraOffline = usePedidosOffline().find((compra) => compra.estado_sincronizacion === 'COMPRA_PENDIENTE_PAGO')?.metodo_pago ?? null
   const [tarjeta, setTarjeta] = useState<DatosTarjeta>(TARJETA_VACIA)
   const [qr, setQr] = useState<IniciarQrRespuesta | null>(null)
   const [procesando, setProcesando] = useState(false)
@@ -77,7 +79,8 @@ function CheckoutContenido({ idReserva }: { idReserva?: number }) {
   }, [])
 
   // Mientras no elija, se muestra el primero disponible.
-  const seleccionado = elegido && metodos.some((metodo) => metodo.codigo === elegido) ? elegido : (metodos[0]?.codigo ?? null)
+  const preferido = elegido ?? metodoDeCompraOffline
+  const seleccionado = preferido && metodos.some((metodo) => metodo.codigo === preferido) ? preferido : (metodos[0]?.codigo ?? null)
 
   let pedido: PedidoPago | null = null
   let sinPedido: SinPedido | null = null

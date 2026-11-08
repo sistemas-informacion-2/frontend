@@ -67,25 +67,21 @@ API vive en otro origen (en `npm run dev`, `localhost:3000` frente a `localhost:
 Workbox solo intercepta `GET` salvo que se indique otro método: los `POST` de login y de pago
 nunca pasan por la caché. La regla 0 es la única que maneja un `POST`.
 
-## Pedidos sin conexión (RF-SYNC-01)
+## Compras sin conexión (RF-SYNC-01)
 
-Sin red no se puede cobrar, así que un pedido confirmado sin conexión se guarda en el
-dispositivo y, al sincronizarse, se convierte en una **reserva PENDIENTE para retiro** (el
-cliente paga el anticipo en línea o todo al retirar; si no, vence como cualquier reserva).
+Una compra hecha sin conexión sigue siendo una **compra**: nunca se convierte en reserva ni se cobran importes parciales. Sin
+red no se cobra nada ni se guardan datos de pago, porque Stripe exige que el cliente autorice en su página.
 
-1. Sin conexión, `/checkout` muestra "Guardar pedido sin conexión" en vez de los métodos de pago.
-2. La página guarda el pedido en IndexedDB (`fashionstore-offline` → `pedidos`, estado
-   `PENDIENTE_ENVIO`) y hace `POST /api/electronico/checkout/sync`.
-3. El SW no tiene red: encola la petición en `cola-compras-offline` (Workbox Background Sync)
-   y responde `202`, así que la página muestra "Pedido guardado localmente" y no un error.
-4. Al volver la red, el SW reenvía la cola solo (aunque la pestaña esté cerrada), con el
-   token más reciente que la página le compartió por IndexedDB (solo si es del mismo cliente).
-5. El backend bloquea las filas de `inventario` con `pessimistic_write`, mide todas las
-   variantes y:
-   - con stock → crea la reserva, aparta el stock, quita esas prendas del carrito → `201`;
-   - sin stock → rollback y `409` con `codigo_error: STOCK_AGOTADO_COLISION` e `items_afectados`.
-6. La página muestra el resultado: aviso de éxito con el código de reserva, o un modal para
-   **retirar en otra sucursal** o **cancelar el pedido** (no se cobró nada).
+1. Sin conexión, `/checkout` muestra "Confirmar compra sin conexión" y deja elegir el método de pago.
+2. La compra se guarda en IndexedDB (`fashionstore-offline` → `pedidos`, `COMPRA_PENDIENTE_SINCRONIZACION`) y se hace `POST /api/electronico/checkout/sync`.
+3. El SW no tiene red: la encola en `cola-compras-offline` (Workbox Background Sync) y responde `202`.
+4. Al volver la red el SW la reenvía sola, aunque la pestaña esté cerrada.
+5. El backend bloquea las filas de `inventario` con `pessimistic_write` y mide todas las variantes:
+   - con stock → el carrito pasa a ser esa compra → `201` y `COMPRA_PENDIENTE_PAGO`;
+   - sin stock → rollback y `409` con `codigo_error: COMPRA_RECHAZADA_STOCK_AGOTADO` e `items_afectados` → `COMPRA_FALLIDA`.
+6. El cliente paga el total en el checkout normal con el método elegido. Ese paso descuenta el stock y genera la **Nota de Venta E-Commerce**; la compra queda `COMPRA_COMPLETADA`, se confirma y se borra del dispositivo.
+
+El stock no queda apartado entre la validación y el pago: si otra persona compra esa prenda en ese intervalo, el checkout lo rechaza sin cobrar.
 
 **Elegir prendas sin conexión.** Con red, el catálogo precarga en segundo plano la ficha
 (tallas, colores, stock) y la imagen de los productos que muestra (`usePrecargaCatalogo`), así
@@ -95,10 +91,32 @@ carrito del servidor, entra en el pedido offline y, si no se hizo pedido, sube s
 servidor al volver la red (si el servidor la rechaza, p. ej. sin stock, se avisa). El stock y el
 precio son los de la última vez que hubo red; el servidor los valida al sincronizar.
 
-Es idempotente por `id_local` (columna única `reserva.id_local_offline`): si la página y el SW
-envían el mismo pedido, o se pierde la respuesta y la cola lo reenvía, no se duplica.
+Es idempotente por `id_local_offline` (columna única en `nota_venta`): una compra ya pagada que la cola reenvía no vuelve a llenar el carrito.
 En navegadores sin Background Sync (Firefox, Safari) la página reenvía al recibir el evento
 `online`. Si el token venció, el pedido queda en `REQUIERE_SESION` y se reenvía al iniciar sesión.
+
+## Panel admin sin conexión
+
+Con red, `usePrecargaAdmin` descarga lo que permite el rol, también por sucursal (hasta 10). Sin conexión se ve aunque no se haya
+abierto, siempre que la cabecera haya llegado a "Listo para usar sin conexión". Cerrar sesión borra esa caché y los reportes guardados.
+
+**Cambios en cola.** Si una escritura no obtiene respuesta, `httpClient` la guarda en IndexedDB (`fashionstore-admin-offline`) y la
+pantalla sigue como si se hubiera aceptado. Al volver la red se envían en orden mientras el panel esté abierto; el indicador
+"N sin enviar" de la cabecera los lista. Cada operación se declara en `core/offline/reglasOffline.ts`: una que no esté ahí necesita red.
+
+Todo el CRUD del panel funciona sin conexión. Solo necesitan red: iniciar sesión, cobros en línea, el carrito y las reservas del cliente (tienen su propio flujo offline), exportar reportes, el asistente con IA y los filtros nunca cargados.
+
+- **Lo creado sin conexión** recibe un id negativo y aparece en las listas, se puede editar, eliminar y elegir en otros formularios. Al crearse en el servidor, lo que dependía de ese id pasa al real; si se rechaza, lo que depende de él queda esperando, y descartarlo descarta también lo demás.
+- **Contraseñas y llaves de pago** se guardan cifradas (AES-GCM, clave no extraíble) y se borran al enviarse. Protege lo guardado en disco, no contra código malicioso ejecutándose en la página.
+- **Imágenes:** se guarda el archivo y se sube al volver la red; lo que usaba la vista previa pasa a la URL real.
+- **Duplicados:** cada envío lleva `Idempotency-Key` y el backend guarda la respuesta en `solicitud_idempotente`.
+- **Rechazos:** si el servidor rechaza un cambio (sin stock, sin caja abierta), queda con su motivo para reintentar o descartar. Un error 5xx o sin red se reintenta solo.
+- **Conflictos:** antes de enviar una edición se compara el registro actual con el que se editó. Si otra persona cambió esos campos, se pregunta qué hacer. Solo se detecta en campos simples y si el registro se había visto antes.
+- **Ventas:** conservan su fecha real (`fechaOffline`, hasta 7 días). El dinero entra a la caja abierta cuando llegan, y sin caja abierta se rechazan hasta abrirla. Lo vendido se descuenta del stock que ofrece ese dispositivo.
+- **Totales locales:** caja y stock solo reflejan sin conexión lo hecho directamente sobre ellos. Una venta pendiente no suma al total de la caja hasta enviarse.
+
+**Reportes.** El servidor los calcula, así que sin red se muestra el último resultado con su fecha. Los predefinidos se precargan
+(como máximo cada 6 horas) y cada ejecución del constructor se guarda por su configuración exacta. Exportar y el asistente generativo necesitan red.
 
 ### Lo que **sí** funciona offline
 
@@ -184,16 +202,16 @@ Luego, en Chrome DevTools:
 - **Network → Offline** (tildar el checkbox) + recargar: la app debe seguir
   cargando y navegando entre páginas ya visitadas; el login falla con el error
   de red normal (es lo esperado, ver sección anterior).
-- **Pedido sin conexión (RF-SYNC-01)**: con sesión de cliente y productos en el
-  carrito, abre `/checkout`, marca **Offline** y pulsa "Guardar pedido sin
+- **Compra sin conexión (RF-SYNC-01)**: con sesión de cliente y productos en el
+  carrito, abre `/checkout`, marca **Offline** y pulsa "Confirmar compra sin
   conexión". En **Application → IndexedDB** aparecen `fashionstore-offline/pedidos`
   (`PENDIENTE_ENVIO`) y `workbox-background-sync` (la cola). Desmarca **Offline**:
-  el pedido se envía solo y aparece el aviso con el código de la reserva. Para
+  la compra se envía sola y aparece el aviso para pagar el total. Para
   forzar el reenvío sin esperar: **Application → Service Workers → Sync** con el
   tag `workbox-background-sync:cola-compras-offline`.
 - **Colisión de stock (409)**: guarda un pedido offline, vende ese stock desde
-  otra pestaña o desde caja, y vuelve a conectarte: aparece el modal para cambiar
-  de sucursal o cancelar.
+  otra pestaña o desde caja, y vuelve a conectarte: aparece el aviso de que la
+  compra se canceló por falta de stock.
 - **Lighthouse → categoría "PWA"**: valida instalabilidad, manifest e íconos.
 
 En `npm run dev` el service worker también está activo (`devOptions.enabled: true`

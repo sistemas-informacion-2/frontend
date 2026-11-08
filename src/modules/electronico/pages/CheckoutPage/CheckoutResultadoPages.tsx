@@ -1,6 +1,8 @@
+import { useEffect } from 'react'
 import { Link, Navigate, useLocation, useSearchParams } from 'react-router-dom'
 import { EmptyState } from '@/shared/components/ui/EmptyState'
 import type { CompraOnline } from '../../types'
+import { sincronizarPendientes } from '../../offline/pedidosOffline'
 import { bs } from '../../utils/reservas'
 
 const BOTON_LINK =
@@ -11,6 +13,8 @@ const BOTON_SECUNDARIO =
 /** Confirmación tras una compra pagada. Los datos llegan por el estado de navegación; sin ellos no hay nada que mostrar. */
 export function CompraExitosaPage() {
   const compra = (useLocation().state as { compra?: CompraOnline } | null)?.compra
+  // Si esta compra se habia hecho sin conexion, deja de figurar como pendiente de pago.
+  useEffect(() => void sincronizarPendientes(), [])
   if (!compra) return <Navigate to="/mi-cuenta/compras" replace />
 
   const esReserva = compra.tipo === 'ANTICIPO_RESERVA'

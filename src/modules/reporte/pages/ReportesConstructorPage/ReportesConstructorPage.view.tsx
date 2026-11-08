@@ -168,6 +168,12 @@ export function ReportesConstructorPageView({
                 {resultado && <span className="text-sm text-neutral-500 dark:text-neutral-400">{resultado.total} registros</span>}
               </div>
 
+              {resultado?.guardadoEn && (
+                <p role="status" className="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+                  Sin conexión: datos guardados el {new Date(resultado.guardadoEn).toLocaleString()}.
+                </p>
+              )}
+
               <div className="flex flex-wrap gap-2">
                 <Button onClick={onAplicar} loading={ejecutando} disabled={request.selectedFields.length === 0}>
                   Ejecutar vista previa

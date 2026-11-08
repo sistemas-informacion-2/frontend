@@ -3,7 +3,7 @@ import useSWR from 'swr'
 import { getApiErrorMessage } from '@/core/http/errors'
 import { useAuthStore } from '@/core/store/authStore'
 import type { FormatoExportacion, ReportePredefinidoEjecutado } from '../../reportes.types'
-import { descargarReporte, ejecutarReportePredefinido, listarReportesPredefinidos } from '../../services/reportes.service'
+import { descargarReporte, ejecutarReportePredefinido, listarReportesPredefinidos, mensajeErrorReporte } from '../../services/reportes.service'
 import { ReportesPredefinidosPageView } from './ReportesPredefinidosPage.view'
 
 function descargarBlob(blob: Blob, nombreArchivo: string) {
@@ -47,7 +47,7 @@ export function ReportesPredefinidosPage() {
       const respuesta = await ejecutarReportePredefinido(seleccionado.codigo)
       setActivo(respuesta)
     } catch (err) {
-      setError(getApiErrorMessage(err, 'No se pudo ejecutar el reporte.'))
+      setError(mensajeErrorReporte(err, 'No se pudo ejecutar el reporte.'))
     } finally {
       setEjecutando(false)
     }

@@ -3,9 +3,14 @@ import { Link, Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@/core/store/authStore'
 import { useCerrarSesion } from '@/modules/acceso/hooks/useCerrarSesion'
 import { NotificationBell } from '@/modules/electronico/components/NotificationBell'
+import { useEnLinea } from '@/modules/electronico/hooks'
 import { Button } from '@/shared/components/ui/Button'
 import { ThemeToggle } from '@/shared/components/ui/ThemeToggle'
+import { CambiosSinEnviar } from './CambiosSinEnviar'
+import { PreparacionOffline } from './PreparacionOffline'
 import { Sidebar } from './Sidebar'
+import { useEscriturasPendientes, useSincronizarEscrituras } from './useEscriturasOffline'
+import { usePrecargaAdmin } from './usePrecargaAdmin'
 
 const ROL_LABEL: Record<string, string> = {
   A: 'Administrador',
@@ -35,12 +40,20 @@ export function ProtectedLayout() {
   const perfil = useAuthStore((state) => state.perfil)
   const cerrarSesion = useCerrarSesion()
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const enLinea = useEnLinea()
+  usePrecargaAdmin(enLinea)
+  useSincronizarEscrituras(enLinea)
+  const sinEnviar = useEscriturasPendientes().length
 
   if (!perfil) {
     return <Navigate to="/login" replace />
   }
 
-  const handleLogout = () => cerrarSesion('/login')
+  const handleLogout = () => {
+    const aviso = `Tienes ${sinEnviar} cambio(s) sin enviar. Quedan guardados en este dispositivo y se enviarán cuando esta cuenta vuelva a iniciar sesión, para lo cual necesitas conexión. ¿Cerrar sesión?`
+    if (sinEnviar > 0 && !window.confirm(aviso)) return
+    void cerrarSesion('/login')
+  }
 
   return (
     <div className="flex h-screen bg-neutral-50 dark:bg-neutral-900">
@@ -67,6 +80,8 @@ export function ProtectedLayout() {
             >
               Ir a la tienda
             </Link>
+            <PreparacionOffline />
+            <CambiosSinEnviar />
             <ThemeToggle />
             <NotificationBell />
             <div className="hidden text-right leading-tight sm:block">
@@ -84,6 +99,12 @@ export function ProtectedLayout() {
             </Button>
           </div>
         </header>
+
+        {!enLinea && (
+          <p role="status" className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-900 sm:px-6 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+            Sin conexión: ves los últimos datos guardados y lo que crees, edites o elimines se enviará solo al volver la red. Los filtros nuevos y exportar necesitan conexión.
+          </p>
+        )}
 
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
           <Outlet />

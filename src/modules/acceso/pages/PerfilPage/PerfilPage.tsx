@@ -1,3 +1,4 @@
+import { mensajeSinConexion } from '@/core/http/errors'
 import { isAxiosError } from 'axios'
 import { useState, type FormEvent } from 'react'
 import useSWR from 'swr'
@@ -171,5 +172,5 @@ function extraerMensajeError(error: unknown): string {
     if (Array.isArray(message)) return message[0] ?? 'La solicitud no es válida.'
     if (typeof message === 'string') return message
   }
-  return 'No se pudo completar la operación.'
+  return mensajeSinConexion(error) ?? 'No se pudo completar la operación.'
 }

@@ -162,6 +162,12 @@ export function ReportesPredefinidosPageView({
                     )}
                   </div>
 
+                  {resultadoDelSeleccionado?.guardadoEn && (
+                    <p role="status" className="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+                      Sin conexión: datos guardados el {new Date(resultadoDelSeleccionado.guardadoEn).toLocaleString()}.
+                    </p>
+                  )}
+
                   {resultadoDelSeleccionado && resultadoDelSeleccionado.result.rows.length > 0 ? (
                     <ReportPreviewTable
                       resultado={resultadoDelSeleccionado.result}

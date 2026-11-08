@@ -1,5 +1,7 @@
 import axios from 'axios'
 import { env } from '@/core/config/env'
+import { aplicarCambiosPendientes, encolarSiCorresponde, lecturaLocal } from '@/core/offline/colaEscrituras'
+import { useEstadoOffline } from '@/core/offline/estadoOffline'
 import { useAuthStore } from '@/core/store/authStore'
 import { isAuthError, isNetworkError } from './errors'
 import type { Envelope } from './envelope'
@@ -29,6 +31,13 @@ httpClient.interceptors.request.use((config) => {
   return config
 })
 
+/** La URL con sus `params`: las reglas sin conexion filtran por ellos (sucursal, estado...). */
+function urlCompleta(config: { url?: string; params?: Record<string, unknown> }): string | undefined {
+  const params = Object.entries(config.params ?? {}).filter(([, valor]) => valor !== undefined && valor !== null)
+  if (!config.url || params.length === 0) return config.url
+  return `${config.url}${config.url.includes('?') ? '&' : '?'}${new URLSearchParams(params.map(([clave, valor]) => [clave, String(valor)])).toString()}`
+}
+
 let refreshPromise: Promise<string | null> | null = null
 
 async function refreshAccessToken(): Promise<string | null> {
@@ -50,9 +59,26 @@ async function refreshAccessToken(): Promise<string | null> {
 }
 
 httpClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (response.config.method === 'get' && !response.config._sinCambiosPendientes) {
+      response.data = aplicarCambiosPendientes(urlCompleta(response.config), response.data, useAuthStore.getState().perfil?.id ?? null)
+    }
+    return response
+  },
   async (error) => {
     const originalRequest = error.config
+
+    const idUsuario = useAuthStore.getState().perfil?.id ?? null
+    if (originalRequest?.method === 'get' && (isNetworkError(error) || /\/-\d+(\/|$|\?)/.test(originalRequest.url ?? ''))) {
+      const local = lecturaLocal(urlCompleta(originalRequest), idUsuario)
+      if (local !== undefined) return { data: local, status: 200, statusText: 'Local', headers: {}, config: originalRequest }
+    }
+
+    if (isNetworkError(error) && originalRequest) {
+      const encolada = await encolarSiCorresponde(originalRequest, idUsuario)
+      if (encolada) return encolada
+      if (originalRequest.method === 'get' && (originalRequest._retryCount ?? 0) >= MAX_NETWORK_RETRIES) useEstadoOffline.getState().marcarSinCopia(window.location.pathname)
+    }
 
     // Backend reiniciando: no hubo respuesta. Reintentamos con backoff.
     if (isNetworkError(error) && originalRequest && esReintentable(originalRequest)) {

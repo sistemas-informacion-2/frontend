@@ -1,3 +1,4 @@
+import { mensajeSinConexion } from '@/core/http/errors'
 import type { EstadoReserva } from '../types'
 
 export const PORCENTAJE_ANTICIPO_MINIMO = 20
@@ -33,5 +34,5 @@ export function extraerMensajeError(error: unknown, porDefecto = 'No se pudo com
   const message = (error as { response?: { data?: { message?: unknown } } })?.response?.data?.message
   if (Array.isArray(message)) return String(message[0] ?? porDefecto)
   if (typeof message === 'string') return message
-  return porDefecto
+  return mensajeSinConexion(error) ?? porDefecto
 }

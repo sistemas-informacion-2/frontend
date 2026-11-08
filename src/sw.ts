@@ -1,7 +1,7 @@
 /// <reference lib="webworker" />
 /**
  * Service Worker de FashionStore (vite-plugin-pwa en modo injectManifest). Ademas del cacheo de la PWA, implementa
- * RF-SYNC-01: los pedidos confirmados sin conexion (POST /api/electronico/checkout/sync) se encolan con Workbox
+ * RF-SYNC-01: las compras confirmadas sin conexion (POST /api/electronico/checkout/sync) se encolan con Workbox
  * Background Sync y se reenvian solos al volver la red, sin que el cliente tenga que hacer nada.
  *
  * Las reglas comparan `url.pathname` y no la URL completa: asi tambien aplican cuando la API vive en otro origen
@@ -15,6 +15,7 @@ import { ExpirationPlugin } from 'workbox-expiration'
 import { cleanupOutdatedCaches, createHandlerBoundToURL, precacheAndRoute } from 'workbox-precaching'
 import { NavigationRoute, registerRoute } from 'workbox-routing'
 import { NetworkFirst, NetworkOnly, StaleWhileRevalidate } from 'workbox-strategies'
+import { CABECERA_DATO_FRESCO } from './core/offline/adminOfflineDb'
 import {
   MENSAJE_PEDIDO_ACTUALIZADO,
   MENSAJE_SINCRONIZAR,
@@ -90,7 +91,7 @@ async function vaciarCola(): Promise<void> {
     }
     if (idLocal) {
       await actualizarPedido(idLocal, cambios)
-      await avisar(idLocal, cambios.estado_sincronizacion ?? 'PENDIENTE_ENVIO')
+      await avisar(idLocal, cambios.estado_sincronizacion ?? 'COMPRA_PENDIENTE_SINCRONIZACION')
     }
     entrada = (await cola.shiftRequest()) as EntradaCola | undefined
   }
@@ -129,7 +130,7 @@ registerRoute(
     } catch {
       const sesion = await leerSesionCompartida().catch(() => undefined)
       await cola.pushRequest({ request: copia, metadata: { idLocal: cuerpo?.idLocal, idCliente: sesion?.idUsuario ?? undefined } })
-      return new Response(JSON.stringify({ data: { idLocal: cuerpo?.idLocal, estadoSincronizacion: 'PENDIENTE_ENVIO', encolado: true } }), {
+      return new Response(JSON.stringify({ data: { idLocal: cuerpo?.idLocal, estadoSincronizacion: 'COMPRA_PENDIENTE_SINCRONIZACION', encolado: true } }), {
         status: 202,
         headers: { 'Content-Type': 'application/json' },
       })
@@ -151,6 +152,9 @@ registerRoute(({ url }) => url.pathname.startsWith('/api/electronico/checkout/')
 // Sesion (login/refresh) y reportes con IA: siempre en vivo.
 registerRoute(({ url }) => url.pathname.startsWith('/api/acceso/auth/') || url.pathname.startsWith('/api/reports/generativo'), new NetworkOnly())
 
+// La comprobacion de conflictos necesita el dato real: una copia vieja haria creer que nadie mas lo cambio.
+registerRoute(({ request }) => request.headers.has(CABECERA_DATO_FRESCO), new NetworkOnly())
+
 // Catalogo, carrito, inventario...: red primero; sin conexion, la ultima respuesta buena (asi el checkout offline
 // todavia conoce el carrito y las sucursales).
 registerRoute(
@@ -158,8 +162,8 @@ registerRoute(
   new NetworkFirst({
     cacheName: 'api-cache',
     networkTimeoutSeconds: 6,
-    // 300 entradas: alcanza para las fichas que precarga el catalogo (usePrecargaCatalogo) mas el resto de la API.
-    plugins: [new CacheableResponsePlugin({ statuses: [0, 200] }), new ExpirationPlugin({ maxEntries: 300, maxAgeSeconds: 24 * 60 * 60 })],
+    // 800 entradas: alcanza para el catalogo precargado y para las pantallas del panel por cada sucursal (usePrecargaAdmin).
+    plugins: [new CacheableResponsePlugin({ statuses: [0, 200] }), new ExpirationPlugin({ maxEntries: 800, maxAgeSeconds: 24 * 60 * 60 })],
   }),
 )
 
