@@ -1,3 +1,4 @@
+import { lazy, Suspense, type ReactNode } from 'react'
 import { SWRConfig } from 'swr'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { isNetworkError } from '@/core/http/errors'
@@ -46,6 +47,19 @@ import { ComingSoonPage } from '@/shared/components/ComingSoonPage'
 import { ProtectedLayout } from '@/shared/components/layout/ProtectedLayout'
 import { PublicLayout } from '@/shared/components/layout/PublicLayout'
 import { PermissionRoute } from '@/shared/components/routing/PermissionRoute'
+
+// El BI trae la libreria de graficos: se descarga solo al entrar, y no pesa en la tienda.
+const AsistentePage = lazy(() => import('@/modules/bi/pages/AsistentePage/AsistentePage').then((m) => ({ default: m.AsistentePage })))
+const ModelosPage = lazy(() => import('@/modules/bi/pages/ModelosPage/ModelosPage').then((m) => ({ default: m.ModelosPage })))
+const EstadoDatosPage = lazy(() => import('@/modules/bi/pages/EstadoDatosPage/EstadoDatosPage').then((m) => ({ default: m.EstadoDatosPage })))
+
+function RutaBi({ children }: { children: ReactNode }) {
+  return (
+    <PermissionRoute permission="analitica:bi:usar">
+      <Suspense fallback={<p className="p-6 text-sm text-neutral-500 dark:text-neutral-400">Cargando…</p>}>{children}</Suspense>
+    </PermissionRoute>
+  )
+}
 
 function App() {
   return (
@@ -114,6 +128,9 @@ function App() {
                 <Route path="reportes/predefinidos" element={<PermissionRoute permission="analitica:reportes:gestionar"><ReportesPredefinidosPage /></PermissionRoute>} />
                 <Route path="reportes/constructor" element={<PermissionRoute permission="analitica:reportes:gestionar"><ReportesConstructorPage /></PermissionRoute>} />
                 <Route path="reportes/generativo" element={<PermissionRoute permission="analitica:reportes:gestionar"><ReportesGenerativoPage /></PermissionRoute>} />
+                <Route path="bi/asistente" element={<RutaBi><AsistentePage /></RutaBi>} />
+                <Route path="bi/modelos" element={<RutaBi><ModelosPage /></RutaBi>} />
+                <Route path="bi/estado" element={<RutaBi><EstadoDatosPage /></RutaBi>} />
                 <Route path="*" element={<ComingSoonPage />} />
               </Route>
 

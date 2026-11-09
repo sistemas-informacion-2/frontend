@@ -77,6 +77,15 @@ const GROUPS: SidebarGroup[] = [
       { label: 'Reportes por Voz / IA', path: '/admin/reportes/generativo', permission: 'analitica:reportes:gestionar' },
     ],
   },
+  {
+    label: 'Inteligencia de negocio',
+    icon: '🧠',
+    items: [
+      { label: 'Asistente', path: '/admin/bi/asistente', permission: 'analitica:bi:usar' },
+      { label: 'Modelos', path: '/admin/bi/modelos', permission: 'analitica:bi:usar' },
+      { label: 'Estado de los datos', path: '/admin/bi/estado', permission: 'analitica:bi:usar' },
+    ],
+  },
 ]
 
 interface SidebarProps {
