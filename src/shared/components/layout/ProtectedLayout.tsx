@@ -1,5 +1,5 @@
 import { ChevronRight, MapPin, Menu, Store, WifiOff } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, Navigate, Outlet, useLocation } from 'react-router-dom'
 import useSWR from 'swr'
 import { useAppStore } from '@/core/store/appStore'
@@ -63,6 +63,13 @@ function SelectorSucursal() {
   const sucursalActivaId = useAppStore((state) => state.sucursalActivaId)
   const setSucursalActiva = useAppStore((state) => state.setSucursalActiva)
   const { data: sucursales = [] } = useSWR(puedeElegir ? 'sucursales' : null, listarSucursales, { revalidateOnFocus: false })
+
+  // Una sucursal recordada que ya no esta en la lista (desactivada, borrada o de otra tienda) dejaria todo el panel
+  // en cero y el selector en blanco: se vuelve a la Vista General.
+  const sucursalDesconocida = sucursalActivaId !== null && sucursales.length > 0 && !sucursales.some((sucursal) => sucursal.id === sucursalActivaId)
+  useEffect(() => {
+    if (sucursalDesconocida) setSucursalActiva(null)
+  }, [sucursalDesconocida, setSucursalActiva])
 
   if (!puedeElegir) {
     if (!sucursalPropia) return null
