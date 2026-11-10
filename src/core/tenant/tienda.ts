@@ -11,9 +11,6 @@
 
 const PATRON_TIENDA = /^\/t\/([a-z0-9]+(?:-[a-z0-9]+)*)(?:\/|$)/
 
-/** Tienda a la que se redirige una URL sin /t/:slug (enlaces anteriores al SaaS). */
-export const SLUG_TIENDA_POR_DEFECTO = (import.meta.env.VITE_TIENDA_POR_DEFECTO ?? 'fashionstore').trim()
-
 export function slugDeRuta(pathname: string): string | null {
   return PATRON_TIENDA.exec(pathname)?.[1] ?? null
 }

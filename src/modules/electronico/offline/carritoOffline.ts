@@ -2,6 +2,7 @@ import { isAxiosError } from 'axios'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { useAuthStore } from '@/core/store/authStore'
+import { claveAlmacenamiento } from '@/core/tenant/tienda'
 import { agregarAlCarrito } from '../api'
 import type { ItemCarrito, ProductoDetalle } from '../types'
 
@@ -36,7 +37,8 @@ interface CarritoOfflineState {
 }
 
 export const useCarritoOfflineStore = create<CarritoOfflineState>()(
-  persist((): CarritoOfflineState => ({ lineas: [], avisos: [] }), { name: 'fashionstore-carrito-offline' }),
+  // Un carrito offline por tienda: con dos tiendas en el mismo navegador, cada una guarda el suyo.
+  persist((): CarritoOfflineState => ({ lineas: [], avisos: [] }), { name: claveAlmacenamiento('carrito-offline') }),
 )
 
 /** Id negativo y estable para que la interfaz distinga una linea local de una del servidor. */

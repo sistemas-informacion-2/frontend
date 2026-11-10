@@ -7,9 +7,9 @@ import { iniciarSincronizacionOffline } from './modules/electronico/offline/pedi
 import { iniciarVinculoWebPush } from './modules/electronico/services/webPush.service'
 import { PlataformaApp } from './modules/plataforma/PlataformaApp'
 import { PortalApp } from './modules/plataforma/portal/PortalApp'
-import { SLUG_TIENDA_POR_DEFECTO, esRutaPlataforma, esRutaPortal, slugTienda } from './core/tenant/tienda'
+import { esRutaPlataforma, esRutaPortal, slugTienda } from './core/tenant/tienda'
 
-const { pathname, search, hash } = window.location
+const { pathname } = window.location
 
 /**
  * Tres apps en el mismo bundle, segun la URL:
@@ -37,6 +37,7 @@ if (app) {
     iniciarVinculoWebPush()
   }
 } else {
-  // URL de tienda sin /t/:slug (enlaces anteriores al SaaS): se lleva a la tienda por defecto conservando la ruta.
-  window.location.replace(`/t/${SLUG_TIENDA_POR_DEFECTO}${pathname}${search}${hash}`)
+  // Una ruta sin tienda (/producto/5, enlaces de antes del SaaS): no hay forma de saber de que tienda es, asi que se
+  // lleva al portal de DOMINATR. Las tiendas siempre viven bajo /t/:slug.
+  window.location.replace('/')
 }
