@@ -4,6 +4,8 @@ import type {
   InventarioItem,
   InventarioPaginatedResponse,
   InventarioQuery,
+  MovimientoInventario,
+  MovimientosQuery,
   StockFormValues,
   Transferencia,
   TransferenciaStockFormValues,
@@ -30,6 +32,13 @@ export async function listarStock(query: InventarioQuery): Promise<InventarioPag
   const response = await httpClient.get<Envelope<InventarioPaginatedResponse>>(
     `/inventario/stock?${toQueryString(query)}`,
   )
+  return response.data.data
+}
+
+/** Kardex de una fila de stock, del movimiento mas reciente al mas antiguo. */
+export async function listarMovimientos(idStock: number, query: MovimientosQuery = {}): Promise<MovimientoInventario[]> {
+  const params = Object.fromEntries(Object.entries(query).filter(([, valor]) => Boolean(valor)))
+  const response = await httpClient.get<Envelope<MovimientoInventario[]>>(`/inventario/stock/${idStock}/movimientos`, { params })
   return response.data.data
 }
 

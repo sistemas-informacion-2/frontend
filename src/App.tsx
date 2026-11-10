@@ -121,7 +121,7 @@ function App() {
                 <Route path="proveedores" element={<PermissionRoute permission="inventario:proveedores:gestionar"><ProveedoresPage /></PermissionRoute>} />
                 <Route path="temporadas" element={<PermissionRoute permission="inventario:temporadas:gestionar"><TemporadasPage /></PermissionRoute>} />
                 <Route path="almacenes" element={<PermissionRoute permission="inventario:almacen:gestionar"><AlmacenesPage /></PermissionRoute>} />
-                <Route path="stock" element={<PermissionRoute permission="inventario:almacen:gestionar"><StockPage /></PermissionRoute>} />
+                <Route path="stock" element={<PermissionRoute permission={['inventario:almacen:gestionar', 'inventario:almacen:leer']}><StockPage /></PermissionRoute>} />
                 <Route path="pasarelas" element={<PermissionRoute permission="comercial:pasarelas:gestionar"><PasarelasPage /></PermissionRoute>} />
                 <Route path="caja" element={<PermissionRoute permission="comercial:caja:gestionar"><CajaPage /></PermissionRoute>} />
                 <Route path="compras" element={<PermissionRoute permission="comercial:compras:gestionar"><ComprasPage /></PermissionRoute>} />

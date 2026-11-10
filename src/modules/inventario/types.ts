@@ -200,6 +200,50 @@ export interface InventarioItem {
   bajoMinimo: boolean
 }
 
+/** Tipos de movimiento del kardex (backend: movimiento-inventario.entity.ts). */
+export type TipoMovimientoInventario =
+  | 'SALDO_INICIAL'
+  | 'ENTRADA_COMPRA'
+  | 'SALIDA_VENTA'
+  | 'RESERVA'
+  | 'LIBERACION_RESERVA'
+  | 'SALIDA_RESERVA'
+  | 'DEVOLUCION_REINGRESO'
+  | 'MERMA'
+  | 'AJUSTE_ENTRADA'
+  | 'AJUSTE_SALIDA'
+  | 'TRANSFERENCIA_SALIDA'
+  | 'TRANSFERENCIA_ENTRADA'
+
+/** Una linea del kardex de una fila de stock (GET /inventario/stock/:id/movimientos). */
+export interface MovimientoInventario {
+  id: number
+  tipo: TipoMovimientoInventario
+  /** Cambio del stock disponible: positivo entra, negativo sale. */
+  cantidad: number
+  /** Cambio del stock reservado (reservas). */
+  deltaReservado: number
+  stockResultante: number
+  reservadoResultante: number
+  /** Costo por unidad: precio de compra en entradas, costo promedio en salidas. */
+  costoUnitario: number | null
+  referenciaTipo: string | null
+  referenciaId: number | null
+  /** NV-000123, NC-45 · Fact. 8812, TR-7...; null en ajustes y saldo inicial. */
+  referenciaCodigo: string | null
+  idUsuario: number | null
+  /** null si lo hizo el sistema (p. ej. una reserva que vencio sola). */
+  usuarioNombre: string | null
+  motivo: string | null
+  fechaHora: string
+}
+
+/** Rango opcional del kardex (AAAA-MM-DD, hora de Bolivia). Sin rango: los ultimos movimientos. */
+export interface MovimientosQuery {
+  desde?: string
+  hasta?: string
+}
+
 export interface InventarioQuery {
   page: number
   limit: number

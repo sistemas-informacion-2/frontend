@@ -1,6 +1,6 @@
 import { extraerMensajeError } from '@/shared/utils/error'
 import { useDeferredValue, useState, type FormEvent } from 'react'
-import useSWR from 'swr'
+import useSWR, { useSWRConfig } from 'swr'
 import { useAppStore } from '@/core/store/appStore'
 import { useAuthStore } from '@/core/store/authStore'
 import { listarSucursales } from '@/modules/operaciones/services/sucursales.service'
@@ -8,6 +8,8 @@ import { listarProductos } from '@/modules/inventario/services/productos.service
 import { listarAlmacenes } from '@/modules/inventario/services/almacenes.service'
 import { ajustarStock, listarStock, registrarStock, transferirStock } from '@/modules/inventario/services/inventario.service'
 import { AjusteStockForm } from '@/modules/inventario/components/AjusteStockForm'
+import { KardexStock } from '@/modules/inventario/components/KardexStock'
+import { esClaveKardexDe } from '@/modules/inventario/utils/kardex'
 import { StockForm } from '@/modules/inventario/components/StockForm'
 import { TransferenciaStockForm } from '@/modules/inventario/components/TransferenciaStockForm'
 import type {
@@ -44,6 +46,10 @@ const EMPTY_TRANSFERENCIA_FORM: TransferenciaStockFormValues = {
 
 export function StockPage() {
   const canManage = useAuthStore((state) => state.hasPermission('inventario:almacen:gestionar'))
+  // El historial (kardex) lo ve tambien quien solo consulta el stock (encargado de sucursal, cajero).
+  const canRead = useAuthStore((state) => state.hasPermission('inventario:almacen:gestionar') || state.hasPermission('inventario:almacen:leer'))
+  const { mutate: mutateGlobal } = useSWRConfig()
+  const [kardexItem, setKardexItem] = useState<InventarioItem | null>(null)
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [idAlmacen, setIdAlmacen] = useState<number | ''>('')
@@ -140,6 +146,8 @@ export function StockPage() {
       await ajustarStock(ajusteItem.id, ajusteForm)
       setAjusteItem(null)
       await mutate()
+      // El ajuste deja un movimiento nuevo: su historial, si ya se abrio, se vuelve a pedir.
+      void mutateGlobal(esClaveKardexDe(ajusteItem.id))
     } catch (requestError) {
       setError(extraerMensajeError(requestError))
     } finally {
@@ -161,6 +169,8 @@ export function StockPage() {
       setTransferenciaItem(null)
       // El destino puede ser una fila nueva o estar en otra pagina: se recarga el listado.
       await mutate()
+      // La transferencia deja una salida en esta fila y una entrada en la de destino: se vuelven a pedir todos los historiales.
+      void mutateGlobal((clave: unknown) => Array.isArray(clave) && clave[0] === 'kardex')
     } catch (requestError) {
       setError(extraerMensajeError(requestError))
     } finally {
@@ -181,6 +191,10 @@ export function StockPage() {
       idSucursal={idSucursal}
       bajoMinimo={bajoMinimo}
       canManage={canManage}
+      canRead={canRead}
+      modalTitulo={kardexItem ? 'Historial de movimientos (kardex)' : 'Inventario'}
+      modalAncho={kardexItem ? 'sm:max-w-6xl' : undefined}
+      onHistorial={(item) => setKardexItem(item)}
       onSearch={(value) => {
         setSearch(value)
         setPage(1)
@@ -206,9 +220,12 @@ export function StockPage() {
         setCrearOpen(false)
         setAjusteItem(null)
         setTransferenciaItem(null)
+        setKardexItem(null)
       }}
       modal={
-        crearOpen ? (
+        kardexItem ? (
+          <KardexStock item={kardexItem} />
+        ) : crearOpen ? (
           <StockForm
             values={stockForm}
             almacenes={almacenes}

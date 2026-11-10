@@ -41,7 +41,8 @@ export interface SidebarItem {
   label: string
   path: string
   icon: LucideIcon
-  permission?: string
+  /** Un permiso, o varios: con tener cualquiera de ellos alcanza. */
+  permission?: string | string[]
   /** Si el plan no incluye esta funcion, la opcion se ve con candado y lleva a Mi plan. */
   funcion?: FuncionPlan
   bloqueado?: boolean
@@ -73,7 +74,7 @@ export const GRUPOS_MENU: SidebarGroup[] = [
       { label: 'Proveedores', path: '/admin/proveedores', icon: Truck, permission: 'inventario:proveedores:gestionar' },
       { label: 'Temporadas', path: '/admin/temporadas', icon: CalendarRange, permission: 'inventario:temporadas:gestionar' },
       { label: 'Inventario / Almacén', path: '/admin/almacenes', icon: Warehouse, permission: 'inventario:almacen:gestionar' },
-      { label: 'Stock / Existencias', path: '/admin/stock', icon: Layers, permission: 'inventario:almacen:gestionar' },
+      { label: 'Stock / Existencias', path: '/admin/stock', icon: Layers, permission: ['inventario:almacen:gestionar', 'inventario:almacen:leer'] },
     ],
   },
   {

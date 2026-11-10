@@ -24,7 +24,7 @@ export function Sidebar({ mobileOpen, onCloseMobile, usuario, onCerrarSesion }: 
   const groups = GRUPOS_MENU.map((group) => ({
     ...group,
     items: group.items
-      .filter((item) => !item.permission || hasPermission(item.permission))
+      .filter((item) => !item.permission || [item.permission].flat().some((permiso) => hasPermission(permiso)))
       .map((item) => {
         // Sin el plan cargado todavia no se bloquea nada: el backend igual responde 403 si no corresponde.
         const bloqueado = !!item.funcion && !!miPlan && !miPlan.plan[item.funcion]

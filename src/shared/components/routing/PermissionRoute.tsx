@@ -3,7 +3,8 @@ import type { ReactNode } from 'react'
 import { useAuthStore } from '@/core/store/authStore'
 
 interface PermissionRouteProps {
-  permission: string
+  /** Un permiso, o varios: con tener cualquiera de ellos alcanza (p. ej. gestionar o solo leer el stock). */
+  permission: string | string[]
   children: ReactNode
 }
 
@@ -12,6 +13,7 @@ export function PermissionRoute({ permission, children }: PermissionRouteProps) 
   const hasPermission = useAuthStore((state) => state.hasPermission)
 
   if (!perfil) return <Navigate to="/login" replace />
-  if (!hasPermission(permission)) return <Navigate to="/admin/dashboard" replace />
+  const permisos = Array.isArray(permission) ? permission : [permission]
+  if (!permisos.some((permiso) => hasPermission(permiso))) return <Navigate to="/admin/dashboard" replace />
   return children
 }

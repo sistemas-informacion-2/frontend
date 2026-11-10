@@ -22,7 +22,13 @@ interface StockPageViewProps {
   idSucursal: number | ''
   bajoMinimo: boolean
   canManage: boolean
+  /** Puede ver el historial (kardex): quien gestiona o quien solo consulta el stock. */
+  canRead: boolean
   modal: ReactNode
+  modalTitulo: string
+  /** Ancho de la ventana (el kardex necesita mas lugar que los formularios). */
+  modalAncho?: string
+  onHistorial: (item: InventarioItem) => void
   onSearch: (value: string) => void
   onAlmacen: (value: number | '') => void
   onSucursal: (value: number | '') => void
@@ -46,7 +52,11 @@ export function StockPageView({
   idSucursal,
   bajoMinimo,
   canManage,
+  canRead,
   modal,
+  modalTitulo,
+  modalAncho,
+  onHistorial,
   onSearch,
   onAlmacen,
   onSucursal,
@@ -141,14 +151,19 @@ export function StockPageView({
                       <Badge tone={item.bajoMinimo ? 'danger' : 'success'}>{item.bajoMinimo ? 'Bajo mínimo' : 'OK'}</Badge>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      {canManage && (
-                        <div className="flex justify-end gap-3">
-                          <button type="button" onClick={() => onAjustar(item)} className="text-sm font-medium text-neutral-700 underline hover:text-neutral-950 dark:text-neutral-300 dark:hover:text-white">Ajustar</button>
-                          {almacenes.length > 1 && (
-                            <button type="button" onClick={() => onTransferir(item)} className="text-sm font-medium text-neutral-700 underline hover:text-neutral-950 dark:text-neutral-300 dark:hover:text-white">Transferir</button>
-                          )}
-                        </div>
-                      )}
+                      <div className="flex justify-end gap-3">
+                        {canRead && (
+                          <button type="button" onClick={() => onHistorial(item)} className="text-sm font-medium text-neutral-700 underline hover:text-neutral-950 dark:text-neutral-300 dark:hover:text-white">Historial</button>
+                        )}
+                        {canManage && (
+                          <>
+                            <button type="button" onClick={() => onAjustar(item)} className="text-sm font-medium text-neutral-700 underline hover:text-neutral-950 dark:text-neutral-300 dark:hover:text-white">Ajustar</button>
+                            {almacenes.length > 1 && (
+                              <button type="button" onClick={() => onTransferir(item)} className="text-sm font-medium text-neutral-700 underline hover:text-neutral-950 dark:text-neutral-300 dark:hover:text-white">Transferir</button>
+                            )}
+                          </>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -160,7 +175,7 @@ export function StockPageView({
 
       {meta && <Pagination page={meta.page} totalPages={meta.totalPages} total={meta.total} limit={meta.limit} onPageChange={onPageChange} />}
 
-      <Modal open={!!modal} title={modal ? 'Inventario' : ''} onClose={onCloseModal}>
+      <Modal open={!!modal} title={modal ? modalTitulo : ''} onClose={onCloseModal} maxWidthClassName={modalAncho}>
         {modal}
       </Modal>
     </div>
