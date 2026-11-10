@@ -1,7 +1,7 @@
 import type { ComponentType, SVGProps } from 'react'
 import { Link } from 'react-router-dom'
 import useSWR from 'swr'
-import { env } from '@/core/config/env'
+import { NOMBRE_PLATAFORMA } from '@/modules/plataforma/marca'
 import { Skeleton } from '@/shared/components/ui/Skeleton'
 import { listarPlanes } from '../api/portal.api'
 import { IconoCaja, IconoCompras, IconoEscudo, IconoFlecha, IconoIA, IconoInventario, IconoReportes, IconoTienda } from '../components/Iconos'
@@ -60,7 +60,7 @@ export function LandingPage() {
               Vende en línea y en tu tienda, con un solo sistema.
             </h1>
             <p className="mt-5 max-w-xl text-lg text-neutral-600 dark:text-neutral-300">
-              {env.plataformaNombre} une tu tienda en línea, el mostrador, la caja y el inventario. Con reportes e inteligencia
+              {NOMBRE_PLATAFORMA} une tu tienda en línea, el mostrador, la caja y el inventario. Con reportes e inteligencia
               artificial para decidir qué comprar y cuándo.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">

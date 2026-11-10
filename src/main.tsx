@@ -6,7 +6,7 @@ import App from './App.tsx'
 import { iniciarSincronizacionOffline } from './modules/electronico/offline/pedidosOffline'
 import { iniciarVinculoWebPush } from './modules/electronico/services/webPush.service'
 import { PlataformaApp } from './modules/plataforma/PlataformaApp'
-import { PortalApp } from './modules/portal/PortalApp'
+import { PortalApp } from './modules/plataforma/portal/PortalApp'
 import { SLUG_TIENDA_POR_DEFECTO, esRutaPlataforma, esRutaPortal, slugTienda } from './core/tenant/tienda'
 
 const { pathname, search, hash } = window.location

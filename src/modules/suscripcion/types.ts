@@ -1,4 +1,4 @@
-import type { CodigoPlan, Plan } from '@/modules/portal/types'
+import type { CodigoPlan, Plan } from '@/modules/plataforma/portal/types'
 
 export type EstadoVigencia = 'SIN_VENCIMIENTO' | 'VIGENTE' | 'POR_VENCER' | 'EN_GRACIA' | 'VENCIDO'
 export type TipoPagoPlan = 'ALTA' | 'RENOVACION' | 'CAMBIO_PLAN'

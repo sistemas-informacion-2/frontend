@@ -1,5 +1,5 @@
 import type { EstadoEmpresa } from '@/core/tenant/empresaStore'
-import type { CodigoPlan } from '@/modules/portal/types'
+import type { CodigoPlan } from '@/modules/plataforma/portal/types'
 import type { EstadoVigencia } from '@/modules/suscripcion/types'
 
 export type { EstadoEmpresa }

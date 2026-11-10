@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { env } from '@/core/config/env'
+import { NOMBRE_PLATAFORMA } from '@/modules/plataforma/marca'
 import { ThemeToggle } from '@/shared/components/ui/ThemeToggle'
 import { MarcaDominatr } from './MarcaDominatr'
 
@@ -65,7 +65,7 @@ export function PortalLayout() {
           </div>
         </div>
         <p className="border-t border-neutral-200 py-5 text-center text-xs text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">
-          © {new Date().getFullYear()} {env.plataformaNombre}. Precios en bolivianos.
+          © {new Date().getFullYear()} {NOMBRE_PLATAFORMA}. Precios en bolivianos.
         </p>
       </footer>
     </div>

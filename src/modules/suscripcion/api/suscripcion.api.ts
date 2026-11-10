@@ -1,6 +1,6 @@
 import { httpClient } from '@/core/http/httpClient'
 import { unwrap, type Envelope } from '@/core/http/envelope'
-import type { CodigoPlan } from '@/modules/portal/types'
+import type { CodigoPlan } from '@/modules/plataforma/portal/types'
 import type { MiPlan, PagoConfirmado, PagoIniciado } from '../types'
 
 export async function obtenerMiPlan(): Promise<MiPlan> {

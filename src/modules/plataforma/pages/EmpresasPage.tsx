@@ -1,6 +1,6 @@
 import { type FormEvent, useState } from 'react'
 import useSWR from 'swr'
-import { env } from '@/core/config/env'
+import { NOMBRE_PLATAFORMA } from '@/modules/plataforma/marca'
 import { getApiErrorMessage } from '@/core/http/errors'
 import { useAuthStore } from '@/core/store/authStore'
 import { Badge } from '@/shared/components/ui/Badge'
@@ -8,9 +8,9 @@ import { Button } from '@/shared/components/ui/Button'
 import { Input } from '@/shared/components/ui/Input'
 import { Modal } from '@/shared/components/ui/Modal'
 import { Select } from '@/shared/components/ui/Select'
-import { listarPlanes } from '@/modules/portal/api/portal.api'
-import type { CodigoPlan, Plan } from '@/modules/portal/types'
-import { formatoFecha } from '@/modules/portal/utils/formato'
+import { listarPlanes } from '@/modules/plataforma/portal/api/portal.api'
+import type { CodigoPlan, Plan } from '@/modules/plataforma/portal/types'
+import { formatoFecha } from '@/modules/plataforma/portal/utils/formato'
 import { ETIQUETA_VIGENCIA } from '@/modules/suscripcion/utils/vigencia'
 import { actualizarEmpresa, cambiarEstadoEmpresa, cambiarPlanEmpresa, crearEmpresa, listarEmpresas } from '../api/plataforma.api'
 import type { Empresa } from '../types'
@@ -41,7 +41,7 @@ export function EmpresasPage() {
   return (
     <div className="min-h-svh bg-neutral-50 dark:bg-neutral-950">
       <header className="flex items-center justify-between border-b border-neutral-200 bg-white px-4 py-3 dark:border-neutral-800 dark:bg-neutral-900 sm:px-6">
-        <a href="/" className="font-semibold text-neutral-900 dark:text-neutral-100">{env.plataformaNombre} · Plataforma</a>
+        <a href="/" className="font-semibold text-neutral-900 dark:text-neutral-100">{NOMBRE_PLATAFORMA} · Plataforma</a>
         <div className="flex items-center gap-3 text-sm text-neutral-500">
           <span className="hidden sm:inline">{perfil?.email}</span>
           <Button variant="secondary" onClick={clear}>

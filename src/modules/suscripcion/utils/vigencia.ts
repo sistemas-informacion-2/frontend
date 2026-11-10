@@ -1,4 +1,4 @@
-import { formatoFecha } from '@/modules/portal/utils/formato'
+import { formatoFecha } from '@/modules/plataforma/portal/utils/formato'
 import type { EstadoVigencia, MiPlan, TipoPagoPlan } from '../types'
 
 export const ETIQUETA_VIGENCIA: Record<EstadoVigencia, { texto: string; tono: 'success' | 'warning' | 'danger' | 'neutral' }> = {

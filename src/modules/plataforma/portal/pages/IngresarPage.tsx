@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { env } from '@/core/config/env'
+import { NOMBRE_PLATAFORMA } from '@/modules/plataforma/marca'
 import { getApiErrorMessage } from '@/core/http/errors'
 import { useAuthStore } from '@/core/store/authStore'
 import { guardarSesionDeTienda } from '@/core/tenant/sesionDeTienda'
@@ -138,7 +138,7 @@ export function IngresarPage() {
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <p className="text-sm text-neutral-500 dark:text-neutral-400">
-              {modo === 'tienda' ? 'Para dueños y personal de una tienda.' : `Acceso del superadministrador de ${env.plataformaNombre}.`}
+              {modo === 'tienda' ? 'Para dueños y personal de una tienda.' : `Acceso del superadministrador de ${NOMBRE_PLATAFORMA}.`}
             </p>
             <Campo label="Correo electrónico" type="email" autoComplete="username" value={email} onValor={setEmail} obligatorio />
             <Campo label="Contraseña" type="password" autoComplete="current-password" value={password} onValor={setPassword} obligatorio />

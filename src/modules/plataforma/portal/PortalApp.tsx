@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
-import { env } from '@/core/config/env'
 import { ThemeProvider } from '@/core/providers/ThemeProvider'
 import { PortalLayout } from './components/PortalLayout'
 import { IngresarPage } from './pages/IngresarPage'
@@ -19,7 +18,7 @@ const TITULOS: Record<string, string> = {
 function AlNavegar() {
   const { pathname, hash } = useLocation()
   useEffect(() => {
-    document.title = `${TITULOS[pathname] ?? 'Inicio'} · ${env.plataformaNombre}`
+    document.title = `${TITULOS[pathname] ?? 'Inicio'}`
     if (!hash) window.scrollTo({ top: 0 })
   }, [pathname, hash])
   return null

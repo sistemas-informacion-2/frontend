@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useSWRConfig } from 'swr'
 import { getApiErrorMessage } from '@/core/http/errors'
-import { formatoFecha } from '@/modules/portal/utils/formato'
+import { formatoFecha } from '@/modules/plataforma/portal/utils/formato'
 import { confirmarPagoDePlan } from '../api/suscripcion.api'
 import { CLAVE_MI_PLAN } from '../hooks/useMiPlan'
 
