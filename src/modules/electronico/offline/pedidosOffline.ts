@@ -1,6 +1,7 @@
 import { isAxiosError } from 'axios'
 import { httpClient } from '@/core/http/httpClient'
 import { useAuthStore } from '@/core/store/authStore'
+import { claveAlmacenamiento } from '@/core/tenant/tienda'
 import {
   MENSAJE_PEDIDO_ACTUALIZADO,
   MENSAJE_SINCRONIZAR,
@@ -40,7 +41,8 @@ function nuevoIdLocal(): string {
   return `compra_off_${Date.now()}${Math.random().toString(36).slice(2, 8)}`
 }
 
-const CLAVE_METODOS = 'fashionstore-metodos-pago'
+// Cada tienda tiene sus propios metodos de pago: la lista recordada se guarda aparte por tienda.
+const CLAVE_METODOS = claveAlmacenamiento('metodos-pago')
 
 /** Sin red no se pueden pedir los metodos de pago: se recuerda la ultima lista para que el cliente elija. */
 export function recordarMetodosPago(metodos: MetodoPagoOnline[]): void {

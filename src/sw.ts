@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
 /**
- * Service Worker de FashionStore (vite-plugin-pwa en modo injectManifest). Ademas del cacheo de la PWA, implementa
+ * Service Worker de DOMINATR (vite-plugin-pwa en modo injectManifest), compartido por todas las tiendas. Ademas del cacheo de la PWA, implementa
  * RF-SYNC-01: las compras confirmadas sin conexion (POST /api/electronico/checkout/sync) se encolan con Workbox
  * Background Sync y se reenvian solos al volver la red, sin que el cliente tenga que hacer nada.
  *
@@ -99,13 +99,28 @@ async function vaciarCola(): Promise<void> {
 }
 
 /**
+ * Id del usuario que hizo el pedido, tomado del `sub` del token que lleva la peticion. Con el se busca su sesion
+ * vigente: cada usuario es de una sola tienda, asi que el reenvio nunca usa el token de otra.
+ */
+function idUsuarioDelPedido(request: Request): number | undefined {
+  const token = request.headers.get('Authorization')?.replace(/^Bearer /, '')
+  if (!token) return undefined
+  try {
+    const datos = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))) as { sub?: unknown }
+    return typeof datos.sub === 'number' ? datos.sub : undefined
+  } catch {
+    return undefined
+  }
+}
+
+/**
  * El access token dura 15 minutos y el pedido pudo esperar horas: se reenvia con el token mas reciente que la
  * pagina compartio, pero solo si es de la misma persona que hizo el pedido (nunca a nombre de otra cuenta).
  * Si no hay uno valido, el servidor responde 401 y el pedido queda en REQUIERE_SESION para que la pagina lo
  * reenvie al renovar la sesion.
  */
 async function conSesionVigente(entrada: EntradaCola): Promise<Request> {
-  const sesion = await leerSesionCompartida().catch(() => undefined)
+  const sesion = await leerSesionCompartida(entrada.metadata?.idCliente).catch(() => undefined)
   if (!sesion?.accessToken || sesion.idUsuario !== entrada.metadata?.idCliente) return entrada.request
   const headers = new Headers(entrada.request.headers)
   headers.set('Authorization', `Bearer ${sesion.accessToken}`)
@@ -129,8 +144,7 @@ registerRoute(
     try {
       return await fetch(request)
     } catch {
-      const sesion = await leerSesionCompartida().catch(() => undefined)
-      await cola.pushRequest({ request: copia, metadata: { idLocal: cuerpo?.idLocal, idCliente: sesion?.idUsuario ?? undefined } })
+      await cola.pushRequest({ request: copia, metadata: { idLocal: cuerpo?.idLocal, idCliente: idUsuarioDelPedido(request) } })
       return new Response(JSON.stringify({ data: { idLocal: cuerpo?.idLocal, estadoSincronizacion: 'COMPRA_PENDIENTE_SINCRONIZACION', encolado: true } }), {
         status: 202,
         headers: { 'Content-Type': 'application/json' },
@@ -167,7 +181,7 @@ self.addEventListener('push', (evento) => {
   const aviso = leerAviso(evento)
   evento.waitUntil(
     (async () => {
-      await self.registration.showNotification(aviso.titulo ?? 'FashionStore', {
+      await self.registration.showNotification(aviso.titulo ?? 'DOMINATR', {
         body: aviso.mensaje ?? '',
         icon: '/pwa-192x192.png',
         badge: '/pwa-64x64.png',
@@ -204,6 +218,9 @@ registerRoute(({ url }) => url.pathname.startsWith('/api/electronico/checkout/')
 
 // Sesion (login/refresh) y reportes con IA: siempre en vivo.
 registerRoute(({ url }) => url.pathname.startsWith('/api/acceso/auth/') || url.pathname.startsWith('/api/reports/generativo'), new NetworkOnly())
+
+// Portal, superadmin y Mi plan: siempre en vivo. Ni la lista de empresas ni el estado del plan se guardan en el navegador.
+registerRoute(({ url }) => url.pathname.startsWith('/api/plataforma/') || url.pathname.startsWith('/api/suscripcion'), new NetworkOnly())
 
 // La comprobacion de conflictos necesita el dato real: una copia vieja haria creer que nadie mas lo cambio.
 registerRoute(({ request }) => request.headers.has(CABECERA_DATO_FRESCO), new NetworkOnly())

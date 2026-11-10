@@ -21,9 +21,10 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'favicon.svg', 'pwa-icon.svg', 'apple-touch-icon-180x180.png'],
       manifest: {
-        name: 'FashionStore',
-        short_name: 'FashionStore',
-        description: 'Tienda de ropa online con gestion integral (ventas, inventario, reportes).',
+        // Un solo manifest para todo el sitio (portal y tiendas). Un manifest propio por tienda queda pendiente.
+        name: 'DOMINATR',
+        short_name: 'DOMINATR',
+        description: 'Tienda en línea, mostrador, inventario y reportes para comercios de ropa.',
         start_url: '/',
         scope: '/',
         display: 'standalone',

@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom'
 import { useSWRConfig } from 'swr'
-import { ALMACEN_REPORTES, vaciar } from '@/core/offline/adminOfflineDb'
+import { ALMACEN_REPORTES, borrar, leerTodo } from '@/core/offline/adminOfflineDb'
 import { useAuthStore } from '@/core/store/authStore'
+import { slugTienda } from '@/core/tenant/tienda'
 import { limpiarSelecciones } from '@/shared/utils/seleccionProducto'
 import { desvincularWebPush } from '@/modules/electronico/services/webPush.service'
 import { logout as logoutRequest } from '../api'
@@ -25,6 +26,8 @@ export function useCerrarSesion() {
   const { mutate } = useSWRConfig()
 
   return async (destino: string) => {
+    // Antes de clear(): despues ya no hay perfil para saber de quien son los reportes guardados.
+    const idUsuario = useAuthStore.getState().perfil?.id ?? 0
     await desvincularWebPush().catch(() => undefined)
     if (refreshToken) await logoutRequest(refreshToken).catch(() => undefined)
     clear()
@@ -32,9 +35,26 @@ export function useCerrarSesion() {
     await mutate(esClavePrivada, undefined, { revalidate: false })
     // La cache de la API del Service Worker guarda por URL, no por usuario: sin borrarla, quien entre despues en
     // este navegador podria ver sin conexion el carrito o las reservas de la persona anterior.
-    if ('caches' in window) await caches.delete('api-cache').catch(() => false)
+    await borrarCacheDeLaTienda().catch(() => undefined)
     // Igual con los reportes guardados. Los cambios sin enviar se conservan: son de esta cuenta y no se muestran a otra.
-    await vaciar(ALMACEN_REPORTES).catch(() => undefined)
+    await borrarReportesDe(idUsuario).catch(() => undefined)
     navigate(destino, { replace: true })
   }
+}
+
+/**
+ * Solo la copia offline de esta tienda (el Service Worker marca cada entrada con `__tienda=<slug>`): las demas
+ * tiendas abiertas en este navegador conservan la suya.
+ */
+async function borrarCacheDeLaTienda(): Promise<void> {
+  if (!('caches' in window) || !slugTienda) return
+  const cache = await caches.open('api-cache')
+  const entradas = await cache.keys()
+  await Promise.all(entradas.filter((entrada) => new URL(entrada.url).searchParams.get('__tienda') === slugTienda).map((entrada) => cache.delete(entrada)))
+}
+
+/** Solo los reportes de esta cuenta: su clave empieza con el id del usuario (ver reportes.service). */
+async function borrarReportesDe(idUsuario: number): Promise<void> {
+  const reportes = await leerTodo<{ clave: string }>(ALMACEN_REPORTES)
+  await Promise.all(reportes.filter((reporte) => reporte.clave.startsWith(`${idUsuario}:`)).map((reporte) => borrar(ALMACEN_REPORTES, reporte.clave)))
 }

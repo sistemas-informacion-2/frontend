@@ -164,11 +164,13 @@ export interface SesionCompartida {
 }
 
 export function guardarSesionCompartida(sesion: SesionCompartida): Promise<IDBValidKey> {
-  return operar(STORE_META, 'readwrite', (store) => store.put(sesion, 'sesion'))
+  // Una por usuario: con dos tiendas abiertas en el mismo navegador, cada una deja la suya y no se pisan.
+  return operar(STORE_META, 'readwrite', (store) => store.put(sesion, `sesion:${sesion.idUsuario ?? 0}`))
 }
 
-export async function leerSesionCompartida(): Promise<SesionCompartida | undefined> {
-  return operar<SesionCompartida | undefined>(STORE_META, 'readonly', (store) => store.get('sesion'))
+export async function leerSesionCompartida(idUsuario: number | undefined): Promise<SesionCompartida | undefined> {
+  if (!idUsuario) return undefined
+  return operar<SesionCompartida | undefined>(STORE_META, 'readonly', (store) => store.get(`sesion:${idUsuario}`))
 }
 
 /**
