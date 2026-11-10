@@ -49,6 +49,7 @@ import { ComingSoonPage } from '@/shared/components/ComingSoonPage'
 import { ProtectedLayout } from '@/shared/components/layout/ProtectedLayout'
 import { PublicLayout } from '@/shared/components/layout/PublicLayout'
 import { PermissionRoute } from '@/shared/components/routing/PermissionRoute'
+import { ScrollAlInicio } from '@/shared/components/routing/ScrollAlInicio'
 
 // El BI trae la libreria de graficos: se descarga solo al entrar, y no pesa en la tienda.
 const AsistentePage = lazy(() => import('@/modules/bi/pages/AsistentePage/AsistentePage').then((m) => ({ default: m.AsistentePage })))
@@ -81,6 +82,7 @@ function App() {
         <TiendaGate>
         <AuthProvider>
           <BrowserRouter basename={basenameTienda}>
+            <ScrollAlInicio />
             <Routes>
               <Route element={<PublicLayout />}>
                 <Route path="/" element={<CatalogoPage />} />

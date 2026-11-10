@@ -22,6 +22,11 @@ export function isNetworkError(err: unknown): boolean {
   return isAxiosError(err) && !err.response
 }
 
+/** Mensaje para un error sin respuesta del servidor; undefined si el error es otro. */
+export function mensajeSinConexion(err: unknown): string | undefined {
+  return isNetworkError(err) ? 'Sin conexión: esta información no está guardada en este dispositivo.' : undefined
+}
+
 /** Error de autenticacion/autorizacion: la sesion no sirve. */
 export function isAuthError(err: unknown): boolean {
   const status = getApiStatus(err)

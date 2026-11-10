@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import useSWR from 'swr'
+import { MENSAJE_NOTIFICACION_NUEVA } from '@/core/offline/pedidosOfflineDb'
 import { useAuthStore } from '@/core/store/authStore'
 import {
   contarNoLeidas,
@@ -10,7 +11,8 @@ import {
 
 export function NotificationBell() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
-  const [open, setOpen] = useState(false)
+  // Al tocar un aviso del sistema se llega con ?notificaciones=abiertas.
+  const [open, setOpen] = useState(() => new URLSearchParams(window.location.search).has('notificaciones'))
 
   const { data: noLeidas = 0, mutate: mutateContador } = useSWR(
     isAuthenticated ? 'notificaciones/no-leidas' : null,
@@ -23,6 +25,16 @@ export function NotificationBell() {
     () => listarMias({ leido: false, limit: 8 }),
     { shouldRetryOnError: false, revalidateOnFocus: false },
   )
+
+  useEffect(() => {
+    const alRecibir = (evento: MessageEvent) => {
+      if ((evento.data as { tipo?: string } | null)?.tipo !== MENSAJE_NOTIFICACION_NUEVA) return
+      void mutateContador()
+      void mutateLista()
+    }
+    navigator.serviceWorker?.addEventListener('message', alRecibir)
+    return () => navigator.serviceWorker?.removeEventListener('message', alRecibir)
+  }, [mutateContador, mutateLista])
 
   if (!isAuthenticated) return null
 

@@ -1,3 +1,4 @@
+import { ArrowDown, ArrowUp, X } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { Input } from '@/shared/components/ui/Input'
 import { Select } from '@/shared/components/ui/Select'
@@ -196,7 +197,7 @@ export function ReportFiltersBuilder({
                           aria-label="Subir columna"
                           className="rounded border border-neutral-200 px-1.5 py-0.5 text-xs text-neutral-500 disabled:opacity-30 dark:border-neutral-700"
                         >
-                          ↑
+                          <ArrowUp className="h-4 w-4" aria-hidden="true" />
                         </button>
                         <button
                           type="button"
@@ -205,7 +206,7 @@ export function ReportFiltersBuilder({
                           aria-label="Bajar columna"
                           className="rounded border border-neutral-200 px-1.5 py-0.5 text-xs text-neutral-500 disabled:opacity-30 dark:border-neutral-700"
                         >
-                          ↓
+                          <ArrowDown className="h-4 w-4" aria-hidden="true" />
                         </button>
                         <button
                           type="button"
@@ -213,7 +214,7 @@ export function ReportFiltersBuilder({
                           aria-label="Quitar columna"
                           className="rounded border border-neutral-200 px-1.5 py-0.5 text-xs text-neutral-500 hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-800"
                         >
-                          ✕
+                          <X className="h-4 w-4" aria-hidden="true" />
                         </button>
                       </div>
                     )
@@ -293,7 +294,7 @@ export function ReportFiltersBuilder({
                     aria-label="Quitar filtro"
                     className="mt-0.5 rounded-md border border-neutral-300 px-2 py-1.5 text-neutral-500 hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-800"
                   >
-                    ✕
+                    <X className="h-4 w-4" aria-hidden="true" />
                   </button>
                 </div>
               )

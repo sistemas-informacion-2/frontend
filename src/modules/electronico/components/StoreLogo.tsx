@@ -8,13 +8,13 @@ export function StoreLogoMarca({ className = '' }: { className?: string }) {
   const color = useEmpresaStore((state) => state.empresa?.colorPrimario)
 
   if (logoUrl) {
-    return <img src={logoUrl} alt="" aria-hidden="true" className={`h-8 w-8 shrink-0 rounded-full object-cover ${className}`} />
+    return <img src={logoUrl} alt="" aria-hidden="true" className={`h-8 w-8 shrink-0 rounded-lg object-cover ${className}`} />
   }
   return (
     <span
       aria-hidden="true"
       style={color ? { backgroundColor: color, color: '#fff' } : undefined}
-      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-neutral-900 text-sm font-semibold text-white dark:bg-white dark:text-neutral-900 ${className}`}
+      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-solid text-sm font-bold text-brand-on ${className}`}
     >
       {nombre.charAt(0)}
     </span>

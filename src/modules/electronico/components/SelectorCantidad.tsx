@@ -1,3 +1,4 @@
+import { Trash2 } from 'lucide-react'
 interface SelectorCantidadProps {
   cantidad: number
   /** Máximo que se puede tener; 0 deja todo en gris (agotado). */
@@ -19,7 +20,7 @@ export function SelectorCantidad({ cantidad, maximo, minimo = 0, onMas, onMenos,
   return (
     <div className="flex items-center gap-1.5">
       <button type="button" onClick={onQuitar} disabled={cantidad === 0} aria-label={`Quitar ${etiqueta}`} className={BOTON}>
-        🗑
+        <Trash2 className="h-4 w-4" aria-hidden="true" />
       </button>
       <button type="button" onClick={onMenos} disabled={cantidad <= minimo} aria-label={`Menos ${etiqueta}`} className={BOTON}>
         −

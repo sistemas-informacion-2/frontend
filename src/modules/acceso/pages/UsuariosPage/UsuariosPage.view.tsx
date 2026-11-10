@@ -64,7 +64,7 @@ export function UsuariosPageView({
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">Usuarios</h1>
+          <h1 className="text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl dark:text-neutral-50">Usuarios</h1>
           <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">Administra cuentas, estados de acceso y roles.</p>
         </div>
         {canManage && <Button onClick={onCreate}>Nuevo usuario</Button>}
@@ -114,18 +114,18 @@ export function UsuariosPageView({
           <>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[760px] text-left text-sm">
-                <thead className="border-b border-neutral-200 bg-neutral-50 text-xs uppercase tracking-wide text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
+                <thead className="border-b border-neutral-200 bg-neutral-50 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900/50 dark:text-neutral-400">
                   <tr>
-                    <th className="px-4 py-3 font-medium">Usuario</th>
-                    <th className="px-4 py-3 font-medium">Tipo</th>
-                    <th className="px-4 py-3 font-medium">Roles</th>
-                    <th className="px-4 py-3 font-medium">Estado</th>
-                    <th className="px-4 py-3 text-right font-medium">Acciones</th>
+                    <th className="px-4 py-3 font-semibold">Usuario</th>
+                    <th className="px-4 py-3 font-semibold">Tipo</th>
+                    <th className="px-4 py-3 font-semibold">Roles</th>
+                    <th className="px-4 py-3 font-semibold">Estado</th>
+                    <th className="px-4 py-3 text-right font-semibold">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
                   {usuarios.map((usuario) => (
-                    <tr key={usuario.id} className="text-neutral-700 dark:text-neutral-300">
+                    <tr key={usuario.id} className="text-neutral-700 dark:text-neutral-300 transition-colors hover:bg-neutral-50/80 dark:hover:bg-neutral-900/40">
                       <td className="px-4 py-3">
                         <p className="font-medium text-neutral-900 dark:text-white">{usuario.nombre} {usuario.apellido}</p>
                         <p className="text-xs text-neutral-500 dark:text-neutral-400">{usuario.email}</p>
@@ -145,7 +145,7 @@ export function UsuariosPageView({
               </table>
             </div>
             <div className="p-4">
-              {meta && <Pagination page={meta.page} totalPages={meta.totalPages} onPageChange={onPageChange} />}
+              {meta && <Pagination page={meta.page} totalPages={meta.totalPages} total={meta.total} limit={meta.limit} onPageChange={onPageChange} />}
             </div>
           </>
         )}

@@ -1,4 +1,4 @@
-import { isAxiosError } from 'axios'
+import { extraerMensajeError } from '@/shared/utils/error'
 import { useState } from 'react'
 import { useCarrito } from '../../hooks'
 import { CarritoPageView } from './CarritoPage.view'
@@ -15,7 +15,7 @@ export function CarritoPage() {
     try {
       await accion()
     } catch (requestError) {
-      setError(extraerMensajeError(requestError))
+      setError(extraerMensajeError(requestError, 'No se pudo actualizar el carrito. Inténtalo de nuevo.'))
     } finally {
       setOcupado(null)
     }
@@ -36,11 +36,3 @@ export function CarritoPage() {
   )
 }
 
-function extraerMensajeError(error: unknown): string {
-  if (isAxiosError(error)) {
-    const message = error.response?.data?.message
-    if (Array.isArray(message)) return message.join(', ')
-    if (typeof message === 'string') return message
-  }
-  return 'No se pudo actualizar el carrito. Inténtalo de nuevo.'
-}

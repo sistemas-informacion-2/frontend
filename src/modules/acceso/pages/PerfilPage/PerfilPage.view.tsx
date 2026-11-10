@@ -1,3 +1,4 @@
+import { PanelWebPush } from '@/modules/electronico/components/PanelWebPush'
 import type { FormEvent } from 'react'
 import { CambiarPasswordForm } from '@/modules/acceso/components/CambiarPasswordForm'
 import { PerfilForm } from '@/modules/acceso/components/PerfilForm'
@@ -74,7 +75,7 @@ export function PerfilPageView({
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">Mi perfil</h1>
+          <h1 className="text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl dark:text-neutral-50">Mi perfil</h1>
           {perfil && (
             <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
               {perfil.email} · {TIPO_USUARIO_LABEL[perfil.tipoUsuario]}
@@ -146,6 +147,8 @@ export function PerfilPageView({
           </div>
         )}
       </section>
+
+      <PanelWebPush />
     </div>
   )
 }

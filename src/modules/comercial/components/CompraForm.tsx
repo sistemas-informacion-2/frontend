@@ -106,7 +106,7 @@ export function CompraForm({
       <label className="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300">
         <input
           type="checkbox"
-          className="h-4 w-4 rounded border-neutral-300 text-neutral-900 focus:ring-neutral-900 dark:border-neutral-700"
+          className="h-4 w-4 rounded border-neutral-300 text-neutral-900 focus:ring-brand-ring dark:border-neutral-700"
           checked={values.pagarEnCaja}
           onChange={(event) => onChange('pagarEnCaja', event.target.checked)}
         />
@@ -207,7 +207,7 @@ export function CompraForm({
                         <label className="flex items-center gap-2 text-sm text-neutral-800 dark:text-neutral-200">
                           <input
                             type="checkbox"
-                            className="h-4 w-4 rounded border-neutral-300 text-neutral-900 focus:ring-neutral-900 dark:border-neutral-700"
+                            className="h-4 w-4 rounded border-neutral-300 text-neutral-900 focus:ring-brand-ring dark:border-neutral-700"
                             checked={!!marcada}
                             onChange={(event) => onToggleVariantes(indice, [variante.id], event.target.checked)}
                           />

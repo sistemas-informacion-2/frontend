@@ -36,7 +36,7 @@ export function NotificacionForm({ values, destinatarios, loading, error, onChan
           rows={4}
           value={values.mensaje}
           onChange={(event) => onChange('mensaje', event.target.value)}
-          className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2.5 text-sm outline-none transition-colors focus:border-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-white"
+          className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2.5 text-sm outline-none transition-colors focus:border-brand dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-brand"
         />
         <span className="text-xs text-neutral-500 dark:text-neutral-400">
           Puedes personalizar con variables: <code>{'{{nombre}}'}</code>, <code>{'{{apellido}}'}</code>, <code>{'{{email}}'}</code>.

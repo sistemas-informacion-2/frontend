@@ -23,21 +23,21 @@ export function VentaDetalle({ venta }: VentaDetalleProps) {
 
       <div className="overflow-x-auto">
         <table className="w-full min-w-[560px] text-left">
-          <thead className="border-b border-neutral-200 text-xs uppercase tracking-wide text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">
+          <thead className="border-b border-neutral-200 bg-neutral-50 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900/50 dark:text-neutral-400">
             <tr>
-              <th className="px-3 py-2 font-medium">Producto</th>
-              <th className="px-3 py-2 font-medium">P. unitario</th>
-              <th className="px-3 py-2 font-medium">Cantidad</th>
-              <th className="px-3 py-2 font-medium">Subtotal</th>
+              <th className="px-3 py-2 font-semibold">Producto</th>
+              <th className="px-3 py-2 font-semibold">P. unitario</th>
+              <th className="px-3 py-2 font-semibold">Cantidad</th>
+              <th className="px-3 py-2 font-semibold">Subtotal</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
             {venta.detalles.map((detalle) => (
               <tr key={detalle.id}>
                 <td className="px-3 py-2">{detalle.descripcion}</td>
-                <td className="px-3 py-2">Bs {detalle.precioUnitario.toFixed(2)}</td>
+                <td className="px-3 py-2 text-right font-semibold tabular-nums">Bs {detalle.precioUnitario.toFixed(2)}</td>
                 <td className="px-3 py-2">{detalle.cantidad}</td>
-                <td className="px-3 py-2">Bs {detalle.subtotal.toFixed(2)}</td>
+                <td className="px-3 py-2 text-right font-semibold tabular-nums">Bs {detalle.subtotal.toFixed(2)}</td>
               </tr>
             ))}
           </tbody>

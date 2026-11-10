@@ -40,7 +40,7 @@ export function VentasEnLineaPageView({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">Ventas en línea</h1>
+        <h1 className="text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl dark:text-neutral-50">Ventas en línea</h1>
         <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
           Notas de venta de las compras que los clientes pagaron en la tienda en línea.
           {sucursalNombre ? ` Sucursal: ${sucursalNombre}.` : ' Mostrando todas las sucursales.'}
@@ -67,27 +67,27 @@ export function VentasEnLineaPageView({
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[860px] text-left text-sm">
-              <thead className="border-b border-neutral-200 bg-neutral-50 text-xs uppercase tracking-wide text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
+              <thead className="border-b border-neutral-200 bg-neutral-50 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900/50 dark:text-neutral-400">
                 <tr>
-                  <th className="px-4 py-3 font-medium">Código</th>
-                  <th className="px-4 py-3 font-medium">Fecha</th>
-                  <th className="px-4 py-3 font-medium">Cliente</th>
-                  <th className="px-4 py-3 font-medium">Sucursal</th>
-                  <th className="px-4 py-3 font-medium">Método de pago</th>
-                  <th className="px-4 py-3 font-medium">Total</th>
-                  <th className="px-4 py-3 font-medium">Estado</th>
-                  <th className="px-4 py-3 text-right font-medium">Acciones</th>
+                  <th className="px-4 py-3 font-semibold">Código</th>
+                  <th className="px-4 py-3 font-semibold">Fecha</th>
+                  <th className="px-4 py-3 font-semibold">Cliente</th>
+                  <th className="px-4 py-3 font-semibold">Sucursal</th>
+                  <th className="px-4 py-3 font-semibold">Método de pago</th>
+                  <th className="px-4 py-3 font-semibold">Total</th>
+                  <th className="px-4 py-3 font-semibold">Estado</th>
+                  <th className="px-4 py-3 text-right font-semibold">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
                 {ventas.map((venta) => (
-                  <tr key={venta.id} className="text-neutral-700 dark:text-neutral-300">
+                  <tr key={venta.id} className="text-neutral-700 dark:text-neutral-300 transition-colors hover:bg-neutral-50/80 dark:hover:bg-neutral-900/40">
                     <td className="px-4 py-3 font-mono text-xs text-neutral-500 dark:text-neutral-400">{venta.codigoNota}</td>
                     <td className="px-4 py-3">{`${venta.fechaEmision} · ${venta.horaEmision.slice(0, 5)}`}</td>
                     <td className="px-4 py-3">{venta.clienteNombre}</td>
                     <td className="px-4 py-3">{venta.sucursalNombre}</td>
                     <td className="px-4 py-3">{venta.pasarelaMetodo ?? '—'}</td>
-                    <td className="px-4 py-3">{bs(venta.montoTotal)}</td>
+                    <td className="px-4 py-3 text-right font-semibold tabular-nums">{bs(venta.montoTotal)}</td>
                     <td className="px-4 py-3">
                       <Badge tone={venta.estadoPago === 'Pagado' ? 'success' : 'warning'}>{venta.estadoPago}</Badge>
                     </td>
@@ -109,7 +109,7 @@ export function VentasEnLineaPageView({
 
         {meta && meta.totalPages > 1 && (
           <div className="p-4">
-            <Pagination page={meta.page} totalPages={meta.totalPages} onPageChange={onPageChange} />
+            <Pagination page={meta.page} totalPages={meta.totalPages} total={meta.total} limit={meta.limit} onPageChange={onPageChange} />
           </div>
         )}
       </section>

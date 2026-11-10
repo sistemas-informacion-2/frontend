@@ -1,27 +1,71 @@
+import {
+  BarChart3,
+  Bookmark,
+  CloudOff,
+  Construction,
+  FolderOpen,
+  Inbox,
+  Lock,
+  Receipt,
+  RotateCcw,
+  Search,
+  ShoppingBag,
+  ShoppingCart,
+  TriangleAlert,
+  type LucideIcon,
+} from 'lucide-react'
 import type { ReactNode } from 'react'
-import { Ilustracion, type NombreIlustracion } from './Ilustracion'
+import { useEstadoOffline } from '@/core/offline/estadoOffline'
+import type { NombreIlustracion } from './Ilustracion'
 
 interface EmptyStateProps {
   title: string
   description?: string
   icon?: ReactNode
-  /** Ilustracion de linea; tiene prioridad sobre `icon`. */
+  /** Atajo para los iconos de siempre (lo usan el BI y la plataforma); tiene prioridad sobre `icon`. */
   ilustracion?: NombreIlustracion
   action?: ReactNode
 }
 
+/** Cada ilustracion con el icono de linea que usa el resto de la app, para que todos los estados vacios se vean iguales. */
+const ICONO_DE: Record<NombreIlustracion, LucideIcon> = {
+  carrito: ShoppingCart,
+  bolsa: ShoppingBag,
+  busqueda: Search,
+  recibo: Receipt,
+  grafico: BarChart3,
+  candado: Lock,
+  devolucion: RotateCcw,
+  reserva: Bookmark,
+  alerta: TriangleAlert,
+  obras: Construction,
+  carpeta: FolderOpen,
+}
+
+const CONTENEDOR = 'flex animate-fade-in flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-neutral-300 px-4 py-12 text-center sm:px-6 sm:py-16 dark:border-neutral-700'
+const ICONO = 'flex h-14 w-14 items-center justify-center rounded-full bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400'
+
 export function EmptyState({ title, description, icon, ilustracion, action }: EmptyStateProps) {
-  return (
-    <div className="flex animate-aparecer flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-neutral-300 px-4 py-12 text-center sm:px-6 sm:py-16 dark:border-neutral-700">
-      {ilustracion ? (
-        <div className="mb-1 flex h-28 w-28 items-center justify-center rounded-full bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
-          <Ilustracion nombre={ilustracion} />
+  // Sin red y sin copia guardada no se sabe si hay datos: decir "No hay..." y ofrecer crear seria falso.
+  const sinCopia = useEstadoOffline((estado) => estado.rutasSinCopia.includes(window.location.pathname))
+  if (sinCopia) {
+    return (
+      <div className={CONTENEDOR}>
+        <div className={ICONO}>
+          <CloudOff className="h-7 w-7" strokeWidth={1.5} aria-hidden="true" />
         </div>
-      ) : (
-        icon && <div className="text-neutral-400 dark:text-neutral-500">{icon}</div>
-      )}
-      <h3 className="text-lg font-semibold text-neutral-800 dark:text-neutral-100">{title}</h3>
-      {description && <p className="max-w-sm text-sm text-neutral-500 dark:text-neutral-400">{description}</p>}
+        <h3 className="text-base font-semibold text-neutral-800 dark:text-neutral-200">Estos datos no están disponibles sin conexión</h3>
+        <p className="max-w-sm text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">Abre esta pantalla una vez con red para guardarlos en este dispositivo.</p>
+      </div>
+    )
+  }
+
+  const Icono = ilustracion ? ICONO_DE[ilustracion] : null
+  return (
+    <div className={CONTENEDOR}>
+      <div className={ICONO}>{Icono ? <Icono className="h-7 w-7" strokeWidth={1.5} aria-hidden="true" /> : (icon ?? <Inbox className="h-7 w-7" strokeWidth={1.5} aria-hidden="true" />)}</div>
+      <h3 className="text-base font-semibold text-neutral-800 dark:text-neutral-200">{title}</h3>
+      {description && <p className="max-w-sm text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">{description}</p>}
       {action}
     </div>
   )

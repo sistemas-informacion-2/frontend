@@ -1,3 +1,4 @@
+import { ShoppingBag, X } from 'lucide-react'
 import { ProductoCard } from '../../components/ProductoCard'
 import { OfertasCarrusel } from '../../components/OfertasCarrusel'
 import type { Categoria, Producto } from '@/modules/inventario/types'
@@ -40,7 +41,7 @@ export function CatalogoPageView({ categorias, productos, cargando, mostrarOfert
                   aria-label={`Quitar filtro ${filtro.etiqueta}`}
                   className="flex h-5 w-5 items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-200 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-white"
                 >
-                  ✕
+                  <X className="h-4 w-4" aria-hidden="true" />
                 </button>
               </span>
             ))}
@@ -63,7 +64,7 @@ export function CatalogoPageView({ categorias, productos, cargando, mostrarOfert
           </div>
         ) : (
           <EmptyState
-            ilustracion="bolsa"
+            icon={<ShoppingBag className="h-7 w-7" strokeWidth={1.5} aria-hidden="true" />}
             title={
               filtros.length > 0
                 ? 'No encontramos productos con esos filtros'

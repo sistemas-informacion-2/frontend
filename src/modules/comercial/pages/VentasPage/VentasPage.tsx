@@ -1,6 +1,8 @@
-import { isAxiosError } from 'axios'
+import { extraerMensajeError } from '@/shared/utils/error'
 import { useDeferredValue, useMemo, useState, type FormEvent } from 'react'
 import useSWR from 'swr'
+import { descontarVentasPendientes } from '@/core/offline/colaEscrituras'
+import { useEscriturasPendientes } from '@/shared/components/layout/useEscriturasOffline'
 import { useAppStore } from '@/core/store/appStore'
 import { useAuthStore } from '@/core/store/authStore'
 import { listarSucursales } from '@/modules/operaciones/services/sucursales.service'
@@ -68,7 +70,11 @@ export function VentasPage() {
   const { data: stockData } = useSWR(crearOpen && sucursalEfectiva ? ['stock-venta', sucursalEfectiva] : null, () =>
     listarStock({ page: 1, limit: OPCIONES_LIMIT, idSucursal: sucursalEfectiva ?? undefined }),
   )
-  const stock = useMemo(() => agruparStockPorVariante(stockData?.items ?? []), [stockData])
+  const pendientes = useEscriturasPendientes()
+  const stock = useMemo(
+    () => descontarVentasPendientes(agruparStockPorVariante(stockData?.items ?? []), pendientes, sucursalEfectiva),
+    [pendientes, stockData, sucursalEfectiva],
+  )
 
   const { data: ventaDetalle, isLoading: loadingDetalle } = useSWR(
     ventaId ? ['venta', ventaId] : null,
@@ -176,11 +182,3 @@ export function VentasPage() {
   )
 }
 
-function extraerMensajeError(error: unknown): string {
-  if (isAxiosError(error)) {
-    const message = error.response?.data?.message
-    if (Array.isArray(message)) return message[0] ?? 'La solicitud no es válida.'
-    if (typeof message === 'string') return message
-  }
-  return 'No se pudo completar la operación.'
-}

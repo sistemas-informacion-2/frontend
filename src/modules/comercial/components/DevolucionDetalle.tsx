@@ -33,12 +33,12 @@ export function DevolucionDetalle({ devolucion }: { devolucion: Devolucion }) {
 
       <div className="overflow-x-auto">
         <table className="w-full min-w-[560px] text-left">
-          <thead className="border-b border-neutral-200 text-xs uppercase tracking-wide text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">
+          <thead className="border-b border-neutral-200 bg-neutral-50 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900/50 dark:text-neutral-400">
             <tr>
-              <th className="px-3 py-2 font-medium">Detalle</th>
-              <th className="px-3 py-2 font-medium">Destino</th>
-              <th className="px-3 py-2 font-medium">Cant.</th>
-              <th className="px-3 py-2 font-medium">Subtotal</th>
+              <th className="px-3 py-2 font-semibold">Detalle</th>
+              <th className="px-3 py-2 font-semibold">Destino</th>
+              <th className="px-3 py-2 font-semibold">Cant.</th>
+              <th className="px-3 py-2 font-semibold">Subtotal</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
@@ -53,7 +53,7 @@ export function DevolucionDetalle({ devolucion }: { devolucion: Devolucion }) {
                   {detalle.almacenNombre && <span className="block text-xs text-neutral-500 dark:text-neutral-400">{detalle.almacenNombre}</span>}
                 </td>
                 <td className="px-3 py-2">{detalle.cantidad}</td>
-                <td className="px-3 py-2">{bs(detalle.montoSubtotal)}</td>
+                <td className="px-3 py-2 text-right font-semibold tabular-nums">{bs(detalle.montoSubtotal)}</td>
               </tr>
             ))}
           </tbody>

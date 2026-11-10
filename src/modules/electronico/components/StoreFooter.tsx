@@ -38,7 +38,7 @@ export function StoreFooter() {
                     {sucursal.ubicacion}, {sucursal.ciudadNombre}
                   </p>
                   {sucursal.horarioApertura && sucursal.horarioCierre && (
-                    <p className="text-xs text-neutral-500 dark:text-neutral-500">
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400">
                       {sucursal.horarioApertura} - {sucursal.horarioCierre}
                     </p>
                   )}
@@ -79,7 +79,7 @@ export function StoreFooter() {
         </div>
       </div>
 
-      <div className="border-t border-neutral-200 py-4 text-center text-xs text-neutral-500 dark:border-neutral-800 dark:text-neutral-500">
+      <div className="border-t border-neutral-200 py-4 text-center text-xs text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">
         © {new Date().getFullYear()} {nombreTienda}. Todos los derechos reservados.
       </div>
     </footer>

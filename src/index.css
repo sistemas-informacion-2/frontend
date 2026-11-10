@@ -2,11 +2,60 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/*
+ * Escala neutra de la marca. Reemplaza la de Tailwind para que toda la app comparta las mismas superficies y bordes,
+ * en claro y en oscuro, sin repetir colores en cada pantalla.
+ */
 @theme {
-  /* Inter para el texto de toda la app; Playfair Display para los titulos de la tienda (clase font-display). */
-  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --font-display: 'Playfair Display', Georgia, serif;
+  --color-neutral-50: #fafafa;
+  --color-neutral-100: #f4f4f5;
+  --color-neutral-200: #e4e4e7;
+  --color-neutral-300: #d4d4d8;
+  --color-neutral-400: #a1a1aa;
+  --color-neutral-500: #71717a;
+  --color-neutral-600: #52525b;
+  --color-neutral-700: #3f3f46;
+  --color-neutral-800: #27272a;
+  --color-neutral-900: #18181b;
+  --color-neutral-950: #121215;
 
+  --animate-fade-in: fade-in 150ms ease-out;
+  --animate-sheet-up: sheet-up 220ms cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-slide-in-right: slide-in-right 240ms cubic-bezier(0.32, 0.72, 0, 1);
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes sheet-up {
+    from {
+      transform: translateY(100%);
+    }
+  }
+
+  @keyframes slide-in-right {
+    from {
+      transform: translateX(100%);
+    }
+  }
+}
+
+@theme inline {
+  --color-app: var(--bg-app);
+  --color-surface: var(--bg-surface);
+  --color-subtle: var(--bg-subtle);
+  --color-brand: var(--brand-primary);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-solid: var(--brand-solid);
+  --color-brand-solid-hover: var(--brand-solid-hover);
+  --color-brand-on: var(--brand-on);
+  --color-brand-light: var(--brand-light);
+  --color-brand-ring: var(--brand-ring);
+}
+
+@theme {
   /* Aparicion suave de tarjetas y bloques (clase animate-aparecer). */
   --animate-aparecer: aparecer 0.45s ease-out both;
 
@@ -34,10 +83,6 @@
   }
 }
 
-:root {
-  color-scheme: light;
-}
-
 /* Graficos del BI. Las series de varias identidades usan la paleta validada contra cada fondo; una sola serie va en tinta. */
 :root {
   --viz-superficie: #ffffff;
@@ -54,7 +99,7 @@
 }
 
 :root.dark {
-  --viz-superficie: #0a0a0a;
+  --viz-superficie: #121215;
   --viz-tinta: #f5f5f5;
   --viz-banda: rgb(245 245 245 / 0.16);
   --viz-eje: #a3a3a3;
@@ -67,19 +112,75 @@
   --viz-6: #008300;
 }
 
-:root.dark {
-  color-scheme: dark;
-}
+@layer base {
+  :root {
+    color-scheme: light;
 
-body {
-  margin: 0;
-  min-height: 100svh;
-}
+    --bg-app: #fafafa;
+    --bg-surface: #ffffff;
+    --bg-subtle: #f4f4f5;
+    --border-main: #e4e4e7;
+    --border-subtle: #f4f4f5;
 
-/* Titulos de las paginas de la tienda con la tipografia de moda; el panel admin queda en Inter. */
-[data-zona='tienda'] :is(h1, h2) {
-  font-family: var(--font-display);
-  letter-spacing: -0.01em;
+    --text-primary: #09090b;
+    --text-secondary: #71717a;
+    --text-tertiary: #a1a1aa;
+
+    /* Marca monocromática: negro en tema claro y blanco en oscuro, para que los acentos siempre destaquen del fondo. */
+    --brand-primary: #09090b;
+    --brand-hover: #3f3f46;
+    --brand-solid: #09090b;
+    --brand-solid-hover: #3f3f46;
+    --brand-on: #ffffff;
+    --brand-light: #f4f4f5;
+    --brand-ring: rgba(9, 9, 11, 0.2);
+
+    --success: #10b981;
+    --success-bg: #ecfdf5;
+    --warning: #f59e0b;
+    --warning-bg: #fffbeb;
+    --danger: #ef4444;
+    --danger-bg: #fef2f2;
+  }
+
+  :root.dark {
+    color-scheme: dark;
+
+    --bg-app: #09090b;
+    --bg-surface: #121215;
+    --bg-subtle: #18181b;
+    --border-main: #27272a;
+    --border-subtle: #1f1f23;
+
+    --text-primary: #f4f4f5;
+    --text-secondary: #a1a1aa;
+    --text-tertiary: #52525b;
+
+    --brand-primary: #fafafa;
+    --brand-hover: #d4d4d8;
+    --brand-solid: #fafafa;
+    --brand-solid-hover: #d4d4d8;
+    --brand-on: #09090b;
+    --brand-light: #27272a;
+    --brand-ring: rgba(250, 250, 250, 0.25);
+
+    --success-bg: #064e3b;
+    --warning-bg: #451a03;
+    --danger-bg: #450a0a;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100svh;
+    background-color: var(--bg-app);
+    color: var(--text-primary);
+  }
+
+  h1,
+  h2,
+  h3 {
+    letter-spacing: -0.011em;
+  }
 }
 
 /* Quien pide reducir el movimiento no ve animaciones ni transiciones. */

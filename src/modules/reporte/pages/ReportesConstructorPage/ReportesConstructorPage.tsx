@@ -13,6 +13,7 @@ import {
   eliminarPlantilla,
   actualizarPlantilla,
   listarPlantillas,
+  mensajeErrorReporte,
   obtenerCatalogoReportes,
 } from '../../services/reportes.service'
 import { ReportesConstructorPageView } from './ReportesConstructorPage.view'
@@ -75,7 +76,7 @@ export function ReportesConstructorPage() {
       setRequest(config)
     } catch (err) {
       setResultado(null)
-      setError(getApiErrorMessage(err, 'No se pudo generar el reporte.'))
+      setError(mensajeErrorReporte(err, 'No se pudo generar el reporte.'))
     } finally {
       setEjecutando(false)
     }
@@ -166,7 +167,8 @@ export function ReportesConstructorPage() {
           setPlantillaActivaId(plantilla.id)
         } else {
           const plantilla = await crearPlantilla(nombre, config)
-          setPlantillaActivaId(plantilla.id)
+          // Creada sin conexion: aun no tiene id real al que apuntar.
+          setPlantillaActivaId(plantilla.id > 0 ? plantilla.id : null)
         }
         await mutarPlantillas()
       } catch (err) {

@@ -1,7 +1,9 @@
 import { useNavigate } from 'react-router-dom'
 import { useSWRConfig } from 'swr'
+import { ALMACEN_REPORTES, vaciar } from '@/core/offline/adminOfflineDb'
 import { useAuthStore } from '@/core/store/authStore'
 import { limpiarSelecciones } from '@/shared/utils/seleccionProducto'
+import { desvincularWebPush } from '@/modules/electronico/services/webPush.service'
 import { logout as logoutRequest } from '../api'
 
 /**
@@ -23,10 +25,16 @@ export function useCerrarSesion() {
   const { mutate } = useSWRConfig()
 
   return async (destino: string) => {
+    await desvincularWebPush().catch(() => undefined)
     if (refreshToken) await logoutRequest(refreshToken).catch(() => undefined)
     clear()
     limpiarSelecciones()
     await mutate(esClavePrivada, undefined, { revalidate: false })
+    // La cache de la API del Service Worker guarda por URL, no por usuario: sin borrarla, quien entre despues en
+    // este navegador podria ver sin conexion el carrito o las reservas de la persona anterior.
+    if ('caches' in window) await caches.delete('api-cache').catch(() => false)
+    // Igual con los reportes guardados. Los cambios sin enviar se conservan: son de esta cuenta y no se muestran a otra.
+    await vaciar(ALMACEN_REPORTES).catch(() => undefined)
     navigate(destino, { replace: true })
   }
 }

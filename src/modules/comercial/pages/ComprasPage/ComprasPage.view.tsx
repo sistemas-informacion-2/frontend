@@ -70,7 +70,7 @@ export function ComprasPageView({
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">Compras</h1>
+          <h1 className="text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl dark:text-neutral-50">Compras</h1>
           <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
             Notas de compra a proveedores. Al registrarlas, el stock de los almacenes de la sucursal aumenta automáticamente.
           </p>
@@ -118,21 +118,21 @@ export function ComprasPageView({
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[820px] text-left text-sm">
-              <thead className="border-b border-neutral-200 bg-neutral-50 text-xs uppercase tracking-wide text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
+              <thead className="border-b border-neutral-200 bg-neutral-50 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900/50 dark:text-neutral-400">
                 <tr>
-                  <th className="px-4 py-3 font-medium">Fecha</th>
-                  <th className="px-4 py-3 font-medium">Factura</th>
-                  <th className="px-4 py-3 font-medium">Proveedor</th>
-                  <th className="px-4 py-3 font-medium">Sucursal</th>
-                  <th className="px-4 py-3 font-medium">Líneas</th>
-                  <th className="px-4 py-3 font-medium">Total</th>
-                  <th className="px-4 py-3 font-medium">Pago</th>
-                  <th className="px-4 py-3 text-right font-medium">Acciones</th>
+                  <th className="px-4 py-3 font-semibold">Fecha</th>
+                  <th className="px-4 py-3 font-semibold">Factura</th>
+                  <th className="px-4 py-3 font-semibold">Proveedor</th>
+                  <th className="px-4 py-3 font-semibold">Sucursal</th>
+                  <th className="px-4 py-3 font-semibold">Líneas</th>
+                  <th className="px-4 py-3 font-semibold">Total</th>
+                  <th className="px-4 py-3 font-semibold">Pago</th>
+                  <th className="px-4 py-3 text-right font-semibold">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
                 {items.map((compra) => (
-                  <tr key={compra.id} className="text-neutral-700 dark:text-neutral-300">
+                  <tr key={compra.id} className="text-neutral-700 dark:text-neutral-300 transition-colors hover:bg-neutral-50/80 dark:hover:bg-neutral-900/40">
                     <td className="px-4 py-3">{FORMATO_FECHA.format(new Date(compra.fechaEmision))}</td>
                     <td className="px-4 py-3 font-medium text-neutral-900 dark:text-white">{compra.nroFactura ?? `#${compra.id}`}</td>
                     <td className="px-4 py-3">{compra.proveedorNombre}</td>
@@ -155,7 +155,7 @@ export function ComprasPageView({
         )}
       </section>
 
-      {meta && <Pagination page={meta.page} totalPages={meta.totalPages} onPageChange={onPageChange} />}
+      {meta && <Pagination page={meta.page} totalPages={meta.totalPages} total={meta.total} limit={meta.limit} onPageChange={onPageChange} />}
 
       <Modal open={!!modal || !!detalle} title={detalle ? `Compra ${detalle.nroFactura ?? `#${detalle.id}`}` : 'Registrar compra'} onClose={onCloseModal}>
         {detalle ? <DetalleCompra compra={detalle} /> : modal}
@@ -196,13 +196,13 @@ function DetalleCompra({ compra }: { compra: Compra }) {
 
       <div className="overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
         <table className="w-full min-w-[520px] text-left">
-          <thead className="bg-neutral-50 text-xs uppercase text-neutral-500 dark:bg-neutral-900 dark:text-neutral-400">
+          <thead className="border-b border-neutral-200 bg-neutral-50 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900/50 dark:text-neutral-400">
             <tr>
-              <th className="px-3 py-2 font-medium">Producto</th>
-              <th className="px-3 py-2 font-medium">Almacén</th>
-              <th className="px-3 py-2 text-right font-medium">Cant.</th>
-              <th className="px-3 py-2 text-right font-medium">P. unit.</th>
-              <th className="px-3 py-2 text-right font-medium">Subtotal</th>
+              <th className="px-3 py-2 font-semibold">Producto</th>
+              <th className="px-3 py-2 font-semibold">Almacén</th>
+              <th className="px-3 py-2 text-right font-semibold">Cant.</th>
+              <th className="px-3 py-2 text-right font-semibold">P. unit.</th>
+              <th className="px-3 py-2 text-right font-semibold">Subtotal</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
@@ -217,7 +217,7 @@ function DetalleCompra({ compra }: { compra: Compra }) {
                 </td>
                 <td className="px-3 py-2">{linea.almacenNombre}</td>
                 <td className="px-3 py-2 text-right">{linea.cantidad}</td>
-                <td className="px-3 py-2 text-right">{bs(linea.precioUnitario)}</td>
+                <td className="px-3 py-2 text-right font-semibold tabular-nums">{bs(linea.precioUnitario)}</td>
                 <td className="px-3 py-2 text-right font-medium">{bs(linea.subtotal)}</td>
               </tr>
             ))}

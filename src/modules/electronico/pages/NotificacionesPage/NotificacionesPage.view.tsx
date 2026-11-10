@@ -52,7 +52,7 @@ export function NotificacionesPageView({
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">Notificaciones Push</h1>
+          <h1 className="text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl dark:text-neutral-50">Notificaciones Push</h1>
           <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
             Envía avisos a un usuario o difúndelos a todos los clientes.
           </p>
@@ -85,18 +85,18 @@ export function NotificacionesPageView({
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[760px] text-left text-sm">
-              <thead className="border-b border-neutral-200 bg-neutral-50 text-xs uppercase tracking-wide text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
+              <thead className="border-b border-neutral-200 bg-neutral-50 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900/50 dark:text-neutral-400">
                 <tr>
-                  <th className="px-4 py-3 font-medium">Destinatario</th>
-                  <th className="px-4 py-3 font-medium">Mensaje</th>
-                  <th className="px-4 py-3 font-medium">Estado</th>
-                  <th className="px-4 py-3 font-medium">Fecha</th>
-                  <th className="px-4 py-3 text-right font-medium">Acciones</th>
+                  <th className="px-4 py-3 font-semibold">Destinatario</th>
+                  <th className="px-4 py-3 font-semibold">Mensaje</th>
+                  <th className="px-4 py-3 font-semibold">Estado</th>
+                  <th className="px-4 py-3 font-semibold">Fecha</th>
+                  <th className="px-4 py-3 text-right font-semibold">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
                 {notificaciones.map((notificacion) => (
-                  <tr key={notificacion.id} className="text-neutral-700 dark:text-neutral-300">
+                  <tr key={notificacion.id} className="text-neutral-700 dark:text-neutral-300 transition-colors hover:bg-neutral-50/80 dark:hover:bg-neutral-900/40">
                     <td className="px-4 py-3 font-medium text-neutral-900 dark:text-white">{notificacion.destinatario || `Usuario #${notificacion.idUsuario}`}</td>
                     <td className="px-4 py-3">
                       <p className="font-medium">{notificacion.titulo}</p>
@@ -120,7 +120,7 @@ export function NotificacionesPageView({
       </section>
 
       {meta && (
-        <Pagination page={meta.page} totalPages={meta.totalPages} onPageChange={onPageChange} />
+        <Pagination page={meta.page} totalPages={meta.totalPages} total={meta.total} limit={meta.limit} onPageChange={onPageChange} />
       )}
 
       <Modal open={!!modal} title={modal ? 'Enviar notificación' : ''} onClose={onCloseModal}>

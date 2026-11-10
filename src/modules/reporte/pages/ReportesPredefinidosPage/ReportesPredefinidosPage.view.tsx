@@ -1,3 +1,4 @@
+import { BarChart3, FolderOpen, Search, X } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { EmptyState } from '@/shared/components/ui/EmptyState'
 import { Skeleton } from '@/shared/components/ui/Skeleton'
@@ -56,7 +57,7 @@ export function ReportesPredefinidosPageView({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">Reportes predefinidos</h1>
+        <h1 className="text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl dark:text-neutral-50">Reportes predefinidos</h1>
         <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
           Elige un reporte de la lista y generálo. Son consultas ya armadas por el negocio, sin necesidad de configurar nada.
         </p>
@@ -64,7 +65,7 @@ export function ReportesPredefinidosPageView({
 
       {!puedeGestionar ? (
         <EmptyState
-          ilustracion="grafico"
+          icon={<BarChart3 className="h-7 w-7" strokeWidth={1.5} aria-hidden="true" />}
           title="No tienes acceso a los reportes"
           description="Contacta a un administrador si crees que deberías poder consultarlos."
         />
@@ -74,7 +75,7 @@ export function ReportesPredefinidosPageView({
             <div className="flex items-start justify-between gap-3 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
               <span>{error}</span>
               <button type="button" onClick={onLimpiarError} aria-label="Cerrar aviso" className="text-red-500 hover:text-red-700">
-                ✕
+                <X className="h-4 w-4" aria-hidden="true" />
               </button>
             </div>
           )}
@@ -86,7 +87,7 @@ export function ReportesPredefinidosPageView({
             </div>
           ) : predefinidos.length === 0 ? (
             <EmptyState
-              ilustracion="carpeta"
+              icon={<FolderOpen className="h-7 w-7" strokeWidth={1.5} aria-hidden="true" />}
               title="Todavía no hay reportes predefinidos"
               description="Esta funcionalidad está pendiente de configuración."
             />
@@ -110,7 +111,7 @@ export function ReportesPredefinidosPageView({
                               aria-current={activoEnLista}
                               className={`w-full rounded-md px-2 py-2 text-left text-sm transition-colors ${
                                 activoEnLista
-                                  ? 'bg-neutral-900 font-medium text-white dark:bg-white dark:text-neutral-900'
+                                  ? 'bg-brand-solid font-medium text-brand-on'
                                   : 'text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-900'
                               }`}
                             >
@@ -162,6 +163,12 @@ export function ReportesPredefinidosPageView({
                     )}
                   </div>
 
+                  {resultadoDelSeleccionado?.guardadoEn && (
+                    <p role="status" className="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+                      Sin conexión: datos guardados el {new Date(resultadoDelSeleccionado.guardadoEn).toLocaleString()}.
+                    </p>
+                  )}
+
                   {resultadoDelSeleccionado && resultadoDelSeleccionado.result.rows.length > 0 ? (
                     <ReportPreviewTable
                       resultado={resultadoDelSeleccionado.result}
@@ -171,13 +178,13 @@ export function ReportesPredefinidosPageView({
                     />
                   ) : resultadoDelSeleccionado ? (
                     <EmptyState
-                      ilustracion="busqueda"
+                      icon={<Search className="h-7 w-7" strokeWidth={1.5} aria-hidden="true" />}
                       title="Sin registros"
                       description="Este reporte no encontró datos para el período configurado."
                     />
                   ) : (
                     <EmptyState
-                      ilustracion="grafico"
+                      icon={<BarChart3 className="h-7 w-7" strokeWidth={1.5} aria-hidden="true" />}
                       title="Todavía no generaste este reporte"
                       description="Pulsá «Generar» arriba para ejecutarlo."
                     />

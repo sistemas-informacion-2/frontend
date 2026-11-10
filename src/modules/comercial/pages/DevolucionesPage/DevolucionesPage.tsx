@@ -1,4 +1,4 @@
-import { isAxiosError } from 'axios'
+import { extraerMensajeError } from '@/shared/utils/error'
 import { useDeferredValue, useState, type FormEvent } from 'react'
 import useSWR from 'swr'
 import { useAppStore } from '@/core/store/appStore'
@@ -247,11 +247,3 @@ export function DevolucionesPage() {
   )
 }
 
-function extraerMensajeError(error: unknown): string {
-  if (isAxiosError(error)) {
-    const message = error.response?.data?.message
-    if (Array.isArray(message)) return message[0] ?? 'La solicitud no es válida.'
-    if (typeof message === 'string') return message
-  }
-  return 'No se pudo completar la operación.'
-}

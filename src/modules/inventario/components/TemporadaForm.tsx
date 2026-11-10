@@ -50,7 +50,7 @@ export function TemporadaForm({ values, editing, loading, error, onChange, onSub
           rows={3}
           value={values.descripcion}
           onChange={(event) => onChange('descripcion', event.target.value)}
-          className="resize-y rounded-md border border-neutral-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-white"
+          className="resize-y rounded-md border border-neutral-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-brand dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-brand"
         />
       </div>
 

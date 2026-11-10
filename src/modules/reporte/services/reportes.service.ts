@@ -1,5 +1,8 @@
 import { httpClient } from '@/core/http/httpClient'
 import { unwrap, type Envelope } from '@/core/http/envelope'
+import { getApiErrorMessage, isNetworkError } from '@/core/http/errors'
+import { ALMACEN_REPORTES, guardar, leerUno } from '@/core/offline/adminOfflineDb'
+import { useAuthStore } from '@/core/store/authStore'
 import type {
   FormatoExportacion,
   PlantillaReporte,
@@ -13,6 +16,40 @@ import type {
 
 const BASE = '/reports'
 
+interface ReporteGuardado<T> {
+  clave: string
+  respuesta: T
+  guardadoEn: string
+}
+
+const claveDe = (reporte: string) => `${useAuthStore.getState().perfil?.id ?? 0}:${reporte}`
+
+/** Guarda cada resultado y, sin conexion, devuelve el ultimo con su fecha: el servidor es quien calcula los reportes. */
+async function conResultadoGuardado<T extends object>(reporte: string, pedir: () => Promise<T>): Promise<T & { guardadoEn?: string }> {
+  const clave = claveDe(reporte)
+  try {
+    const respuesta = await pedir()
+    await guardar(ALMACEN_REPORTES, { clave, respuesta, guardadoEn: new Date().toISOString() } satisfies ReporteGuardado<T>).catch(() => undefined)
+    return respuesta
+  } catch (error) {
+    if (!isNetworkError(error)) throw error
+    const guardado = await leerUno<ReporteGuardado<T>>(ALMACEN_REPORTES, clave).catch(() => undefined)
+    if (!guardado) throw error
+    return { ...guardado.respuesta, guardadoEn: guardado.guardadoEn }
+  }
+}
+
+/** Cuando se guardo por ultima vez un reporte predefinido, para no volver a calcularlo sin necesidad. */
+export async function fechaPredefinidoGuardado(codigo: string): Promise<string | null> {
+  const guardado = await leerUno<ReporteGuardado<unknown>>(ALMACEN_REPORTES, claveDe(`predefinido:${codigo}`)).catch(() => undefined)
+  return guardado?.guardadoEn ?? null
+}
+
+/** Mensaje para un reporte que no se pudo mostrar. */
+export function mensajeErrorReporte(error: unknown, porDefecto: string): string {
+  return isNetworkError(error) ? 'Sin conexión: este reporte aún no está guardado en este dispositivo. Ejecútalo una vez con red.' : getApiErrorMessage(error, porDefecto)
+}
+
 export async function obtenerCatalogoReportes(): Promise<ReporteDefinicion[]> {
   const response = await httpClient.get<Envelope<ReporteDefinicion[]>>(`${BASE}/catalog`)
   return unwrap(response)
@@ -24,13 +61,17 @@ export async function listarReportesPredefinidos(): Promise<ReportePredefinido[]
 }
 
 export async function ejecutarReportePredefinido(codigo: string): Promise<ReportePredefinidoEjecutado> {
-  const response = await httpClient.post<Envelope<ReportePredefinidoEjecutado>>(`${BASE}/predefinidos/${codigo}/ejecutar`)
-  return unwrap(response)
+  return conResultadoGuardado(`predefinido:${codigo}`, async () => {
+    const response = await httpClient.post<Envelope<ReportePredefinidoEjecutado>>(`${BASE}/predefinidos/${codigo}/ejecutar`)
+    return unwrap(response)
+  })
 }
 
 export async function ejecutarReporte(request: ReportRunRequest): Promise<ResultadoReporte> {
-  const response = await httpClient.post<Envelope<ResultadoReporte>>(`${BASE}/run`, request)
-  return unwrap(response)
+  return conResultadoGuardado(`constructor:${JSON.stringify(request)}`, async () => {
+    const response = await httpClient.post<Envelope<ResultadoReporte>>(`${BASE}/run`, request)
+    return unwrap(response)
+  })
 }
 
 export async function generarReporte(prompt: string): Promise<RespuestaGenerativo> {

@@ -1,3 +1,4 @@
+import { Lock, TriangleAlert } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useSWRConfig } from 'swr'
@@ -7,7 +8,7 @@ import { useCarrito } from '../../hooks'
 import { extraerMensajeError } from '../../utils/reservas'
 
 const BOTON_LINK =
-  'rounded-full bg-neutral-900 px-5 py-2 text-sm font-medium text-white hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200'
+  'rounded-full bg-brand-solid px-5 py-2 text-sm font-medium text-brand-on transition-colors hover:bg-brand-solid-hover'
 
 /** Stripe vuelve aquí con `?session_id=<sesión>`: se cobra lo que el cliente autorizó y se registra la compra. */
 export function StripeRetornoPage() {
@@ -39,7 +40,7 @@ export function StripeRetornoPage() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
         <EmptyState
-          ilustracion="candado"
+          icon={<Lock className="h-7 w-7" strokeWidth={1.5} aria-hidden="true" />}
           title="Inicia sesión para confirmar tu pago"
           description="Tu sesión se cerró mientras pagabas. Inicia sesión de nuevo y vuelve a intentarlo."
           action={
@@ -56,7 +57,7 @@ export function StripeRetornoPage() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
         <EmptyState
-          ilustracion="alerta"
+          icon={<TriangleAlert className="h-7 w-7" strokeWidth={1.5} aria-hidden="true" />}
           title="No recibimos el pago de Stripe"
           description="Falta el identificador del pago. Vuelve al pago e inténtalo de nuevo."
           action={
@@ -73,7 +74,7 @@ export function StripeRetornoPage() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
         <EmptyState
-          ilustracion="alerta"
+          icon={<TriangleAlert className="h-7 w-7" strokeWidth={1.5} aria-hidden="true" />}
           title="No pudimos completar tu compra"
           description={error}
           action={

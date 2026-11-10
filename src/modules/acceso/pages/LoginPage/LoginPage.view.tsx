@@ -31,7 +31,7 @@ export function LoginPageView({
         onSubmit={onSubmit}
         className="w-full max-w-sm rounded-lg border border-neutral-200 p-8 dark:border-neutral-800"
       >
-        <h1 className="mb-1 text-2xl font-semibold dark:text-white">Iniciar sesión</h1>
+        <h1 className="mb-1 text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl dark:text-neutral-50">Iniciar sesión</h1>
         <p className="mb-6 text-sm text-neutral-500 dark:text-neutral-400">Accede con tu correo y contraseña.</p>
 
         <div className="flex flex-col gap-4">

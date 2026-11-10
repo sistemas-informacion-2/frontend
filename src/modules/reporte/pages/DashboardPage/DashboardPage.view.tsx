@@ -1,3 +1,4 @@
+import { TrendingDown } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Button } from '@/shared/components/ui/Button'
 import { EmptyState } from '@/shared/components/ui/EmptyState'
@@ -58,7 +59,7 @@ export function DashboardPageView({
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">Bienvenido, {nombre}</h1>
+          <h1 className="text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl dark:text-neutral-50">Bienvenido, {nombre}</h1>
           <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">{subtitulo}</p>
         </div>
         {puedeVerIndicadores && (
@@ -93,7 +94,7 @@ function Indicadores({
   if (hayError) {
     return (
       <EmptyState
-        ilustracion="grafico"
+        icon={<TrendingDown className="h-7 w-7" strokeWidth={1.5} aria-hidden="true" />}
         title="No se pudo cargar el dashboard"
         description="Revisa tu conexión o inténtalo de nuevo en unos segundos."
         action={<Button onClick={onReintentar}>Reintentar</Button>}
@@ -166,16 +167,16 @@ function Indicadores({
         <Tarjeta titulo="Variantes más vendidas" descripcion={`Top 5 por unidades, últimos ${dias} días`}>
           {resumen.topVariantes.length > 0 ? (
             <table className="w-full text-left text-sm">
-              <thead className="text-xs text-neutral-500 dark:text-neutral-400">
+              <thead className="border-b border-neutral-200 bg-neutral-50 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900/50 dark:text-neutral-400">
                 <tr>
-                  <th className="pb-2 font-medium">Producto</th>
-                  <th className="pb-2 font-medium">Variante</th>
-                  <th className="pb-2 text-right font-medium">Unidades</th>
+                  <th className="pb-2 font-semibold">Producto</th>
+                  <th className="pb-2 font-semibold">Variante</th>
+                  <th className="pb-2 text-right font-semibold">Unidades</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
                 {resumen.topVariantes.map((variante) => (
-                  <tr key={variante.idVariante} className="text-neutral-800 dark:text-neutral-200">
+                  <tr key={variante.idVariante} className="text-neutral-800 dark:text-neutral-200 transition-colors hover:bg-neutral-50/80 dark:hover:bg-neutral-900/40">
                     <td className="py-2 pr-2">
                       <p className="font-medium">{variante.producto}</p>
                       <p className="text-xs text-neutral-500 dark:text-neutral-400">{variante.sku}</p>
@@ -204,16 +205,16 @@ function Indicadores({
           {stockCritico.items.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
-                <thead className="text-xs text-neutral-500 dark:text-neutral-400">
+                <thead className="border-b border-neutral-200 bg-neutral-50 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900/50 dark:text-neutral-400">
                   <tr>
-                    <th className="pb-2 font-medium">Producto</th>
-                    <th className="pb-2 font-medium">Almacén</th>
-                    <th className="pb-2 text-right font-medium">Stock / Mín.</th>
+                    <th className="pb-2 font-semibold">Producto</th>
+                    <th className="pb-2 font-semibold">Almacén</th>
+                    <th className="pb-2 text-right font-semibold">Stock / Mín.</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
                   {stockCritico.items.map((item) => (
-                    <tr key={item.idInventario} className="text-neutral-800 dark:text-neutral-200">
+                    <tr key={item.idInventario} className="text-neutral-800 dark:text-neutral-200 transition-colors hover:bg-neutral-50/80 dark:hover:bg-neutral-900/40">
                       <td className="py-2 pr-2">
                         <p className="font-medium">{item.producto}</p>
                         <p className="text-xs text-neutral-500 dark:text-neutral-400">

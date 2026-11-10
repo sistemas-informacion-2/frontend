@@ -1,4 +1,4 @@
-import { isAxiosError } from 'axios'
+import { extraerMensajeError } from '@/shared/utils/error'
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useCarrito, useMisReservas, useProductoDetalle, useProductosRelacionados, useSucursalActiva } from '../../hooks'
@@ -93,11 +93,11 @@ function ProductoPageContenido() {
 
     setEnviando(true)
     try {
-      await agregar(lineas)
+      await agregar(lineas, producto)
       setSeleccion({})
       return true
     } catch (requestError) {
-      setMensaje({ tipo: 'error', texto: extraerMensajeError(requestError) })
+      setMensaje({ tipo: 'error', texto: extraerMensajeError(requestError, 'No se pudo agregar al carrito. Inténtalo de nuevo.') })
       return false
     } finally {
       setEnviando(false)
@@ -105,7 +105,12 @@ function ProductoPageContenido() {
   }
 
   const onAgregar = async () => {
-    if (await agregarSeleccion()) setMensaje({ tipo: 'ok', texto: 'Agregado a tu carrito.' })
+    if (await agregarSeleccion()) {
+      setMensaje({
+        tipo: 'ok',
+        texto: navigator.onLine ? 'Agregado a tu carrito.' : 'Agregado a tu carrito sin conexión: se guardará en tu cuenta cuando vuelva la red.',
+      })
+    }
   }
 
   const onComprarAhora = async () => {
@@ -183,11 +188,11 @@ function ProductoPageContenido() {
     }
     setEnviando(true)
     try {
-      await agregar([{ idVarianteProducto: probadorVarianteId, cantidad: 1 }])
+      await agregar([{ idVarianteProducto: probadorVarianteId, cantidad: 1 }], producto)
       setProbadorVarianteId(null)
       setMensaje({ tipo: 'ok', texto: 'Agregado a tu carrito desde el probador.' })
     } catch (requestError) {
-      setMensaje({ tipo: 'error', texto: extraerMensajeError(requestError) })
+      setMensaje({ tipo: 'error', texto: extraerMensajeError(requestError, 'No se pudo agregar al carrito. Inténtalo de nuevo.') })
     } finally {
       setEnviando(false)
     }
@@ -198,7 +203,8 @@ function ProductoPageContenido() {
       producto={producto}
       relacionados={relacionados}
       cargando={isLoading}
-      noEncontrado={!!error}
+      // Sin red, SWR puede tener la ficha precargada y a la vez el error de revalidarla: se muestra la ficha.
+      noEncontrado={!!error && !producto}
       seleccion={seleccion}
       enCarrito={Object.fromEntries(carrito.items.map((item) => [item.idVarianteProducto, item.cantidad]))}
       unidades={unidades}
@@ -242,11 +248,3 @@ function seleccionValida(
   return valida
 }
 
-function extraerMensajeError(error: unknown): string {
-  if (isAxiosError(error)) {
-    const message = error.response?.data?.message
-    if (Array.isArray(message)) return message.join(', ')
-    if (typeof message === 'string') return message
-  }
-  return 'No se pudo agregar al carrito. Inténtalo de nuevo.'
-}

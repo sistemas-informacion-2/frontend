@@ -70,7 +70,7 @@ export function PasarelaForm({ values, editing, tieneApiKey, loading, error, onC
           <label className="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300">
             <input
               type="checkbox"
-              className="h-4 w-4 rounded border-neutral-300 text-neutral-900 focus:ring-neutral-900 dark:border-neutral-700"
+              className="h-4 w-4 rounded border-neutral-300 text-neutral-900 focus:ring-brand-ring dark:border-neutral-700"
               checked={values.disponiblePresencial}
               onChange={(event) => onChange('disponiblePresencial', event.target.checked)}
             />
@@ -79,7 +79,7 @@ export function PasarelaForm({ values, editing, tieneApiKey, loading, error, onC
           <label className="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300">
             <input
               type="checkbox"
-              className="h-4 w-4 rounded border-neutral-300 text-neutral-900 focus:ring-neutral-900 dark:border-neutral-700"
+              className="h-4 w-4 rounded border-neutral-300 text-neutral-900 focus:ring-brand-ring dark:border-neutral-700"
               checked={values.disponibleLinea}
               onChange={(event) => onChange('disponibleLinea', event.target.checked)}
             />

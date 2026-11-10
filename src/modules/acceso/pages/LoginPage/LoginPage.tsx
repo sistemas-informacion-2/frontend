@@ -1,6 +1,7 @@
+import { extraerMensajeError } from '@/shared/utils/error'
 import { type FormEvent, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { getApiErrorMessage, getApiStatus } from '@/core/http/errors'
+import { getApiStatus } from '@/core/http/errors'
 import { useAuthStore } from '@/core/store/authStore'
 import { login } from '@/modules/acceso/api'
 import { LoginPageView } from './LoginPage.view'
@@ -26,7 +27,7 @@ export function LoginPage() {
       // Un cliente que llego desde un producto o el carrito vuelve ahi; el personal va al panel.
       navigate(auth.perfil.tipoUsuario === 'C' ? (desde ?? '/') : '/admin/dashboard', { replace: true })
     } catch (err) {
-      setError(extraerMensajeError(err))
+      setError(mensajeDeAcceso(err))
     } finally {
       setLoading(false)
     }
@@ -46,7 +47,7 @@ export function LoginPage() {
   )
 }
 
-function extraerMensajeError(err: unknown): string {
+function mensajeDeAcceso(err: unknown): string {
   if (getApiStatus(err) === 423) return 'Cuenta bloqueada por intentos fallidos. Contacta a un administrador.'
-  return getApiErrorMessage(err, 'No se pudo iniciar sesión. Intenta nuevamente.')
+  return extraerMensajeError(err, 'No se pudo iniciar sesión. Intenta nuevamente.')
 }

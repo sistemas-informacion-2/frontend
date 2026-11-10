@@ -60,7 +60,7 @@ export function ProductosPageView({
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">Productos</h1>
+          <h1 className="text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl dark:text-neutral-50">Productos</h1>
           <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">Catálogo maestro: cabecera, galería de imágenes y variantes (talla, color, corte).</p>
         </div>
         {canManage && <Button onClick={onCreate}>Nuevo producto</Button>}
@@ -106,15 +106,15 @@ export function ProductosPageView({
           <>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[820px] text-left text-sm">
-                <thead className="border-b border-neutral-200 bg-neutral-50 text-xs uppercase tracking-wide text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
+                <thead className="border-b border-neutral-200 bg-neutral-50 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900/50 dark:text-neutral-400">
                   <tr>
-                    <th className="px-4 py-3 font-medium">Producto</th>
-                    <th className="px-4 py-3 font-medium">Categoría</th>
-                    <th className="px-4 py-3 font-medium">Precio</th>
-                    <th className="px-4 py-3 font-medium">Variantes</th>
-                    <th className="px-4 py-3 font-medium">Sucursales</th>
-                    <th className="px-4 py-3 font-medium">Estado</th>
-                    <th className="px-4 py-3 text-right font-medium">Acciones</th>
+                    <th className="px-4 py-3 font-semibold">Producto</th>
+                    <th className="px-4 py-3 font-semibold">Categoría</th>
+                    <th className="px-4 py-3 font-semibold">Precio</th>
+                    <th className="px-4 py-3 font-semibold">Variantes</th>
+                    <th className="px-4 py-3 font-semibold">Sucursales</th>
+                    <th className="px-4 py-3 font-semibold">Estado</th>
+                    <th className="px-4 py-3 text-right font-semibold">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
@@ -123,7 +123,7 @@ export function ProductosPageView({
                     const variantesActivas = producto.variantes.filter((variante) => variante.activo).length
                     const sucursalesActivas = producto.sucursales.filter((sucursal) => sucursal.activo).length
                     return (
-                      <tr key={producto.id} className="text-neutral-700 dark:text-neutral-300">
+                      <tr key={producto.id} className="text-neutral-700 dark:text-neutral-300 transition-colors hover:bg-neutral-50/80 dark:hover:bg-neutral-900/40">
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
                             <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-md bg-neutral-100 dark:bg-neutral-800">
@@ -136,7 +136,7 @@ export function ProductosPageView({
                         <td className="px-4 py-3">
                           Bs {producto.precio.toFixed(2)}
                           {producto.descuentoPorcentaje > 0 && (
-                            <span className="ml-2 rounded bg-neutral-900 px-1.5 py-0.5 text-xs font-medium text-white dark:bg-white dark:text-neutral-900">
+                            <span className="ml-2 rounded bg-brand-solid px-1.5 py-0.5 text-xs font-medium text-brand-on">
                               −{producto.descuentoPorcentaje}%
                             </span>
                           )}
@@ -144,7 +144,7 @@ export function ProductosPageView({
                         <td className="px-4 py-3">{variantesActivas} / {producto.variantes.length}</td>
                         <td className="px-4 py-3">
                           {sucursalesActivas === 0 ? (
-                            <span className="text-xs text-neutral-400 dark:text-neutral-500">Sin activar</span>
+                            <span className="text-xs text-neutral-400 dark:text-neutral-400">Sin activar</span>
                           ) : (
                             `${sucursalesActivas} sucursal${sucursalesActivas === 1 ? '' : 'es'}`
                           )}
@@ -169,7 +169,7 @@ export function ProductosPageView({
               </table>
             </div>
             <div className="p-4">
-              {meta && <Pagination page={meta.page} totalPages={meta.totalPages} onPageChange={onPageChange} />}
+              {meta && <Pagination page={meta.page} totalPages={meta.totalPages} total={meta.total} limit={meta.limit} onPageChange={onPageChange} />}
             </div>
           </>
         )}

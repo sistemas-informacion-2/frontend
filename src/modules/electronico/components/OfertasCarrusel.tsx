@@ -3,21 +3,27 @@ import type { Producto } from '@/modules/inventario/types'
 import { useProductos } from '@/modules/inventario/hooks'
 import { ProductoCard } from './ProductoCard'
 
-const VISIBLES_ESCRITORIO = 3
+const VISIBLES_ESCRITORIO = 4
+const VISIBLES_TABLET = 3
 const INTERVALO_MS = 3500
 
-/** Cuántas tarjetas se ven a la vez: 3 en escritorio, 1 en móvil. */
+/** Mismos cortes que la cuadrícula del catálogo (sm y md), para que las columnas coincidan. */
+function contarVisibles(): number {
+  if (typeof window === 'undefined') return VISIBLES_ESCRITORIO
+  if (window.matchMedia('(min-width: 768px)').matches) return VISIBLES_ESCRITORIO
+  return window.matchMedia('(min-width: 640px)').matches ? VISIBLES_TABLET : 1
+}
+
+/** Cuántas tarjetas se ven a la vez: 4 en escritorio, 3 en tablet y 1 en móvil. */
 function useVisibles() {
-  const [visibles, setVisibles] = useState(() =>
-    typeof window !== 'undefined' && window.matchMedia('(min-width: 640px)').matches ? VISIBLES_ESCRITORIO : 1,
-  )
+  const [visibles, setVisibles] = useState(contarVisibles)
 
   useEffect(() => {
-    const media = window.matchMedia('(min-width: 640px)')
-    const actualizar = () => setVisibles(media.matches ? VISIBLES_ESCRITORIO : 1)
+    const medios = [window.matchMedia('(min-width: 640px)'), window.matchMedia('(min-width: 768px)')]
+    const actualizar = () => setVisibles(contarVisibles())
     actualizar()
-    media.addEventListener('change', actualizar)
-    return () => media.removeEventListener('change', actualizar)
+    medios.forEach((media) => media.addEventListener('change', actualizar))
+    return () => medios.forEach((media) => media.removeEventListener('change', actualizar))
   }, [])
 
   return visibles
@@ -92,7 +98,8 @@ function CarruselPista({ ofertas, visibles, pausado }: CarruselPistaProps) {
 
   return (
     <div className="relative">
-      <div ref={contenedorRef} className="overflow-hidden">
+      {/* El margen negativo compensa la separación de los extremos: la primera y la última prenda alinean con la cuadrícula. */}
+      <div ref={contenedorRef} className="overflow-hidden sm:-mx-3">
         <div
           ref={pistaRef}
           onTransitionEnd={alTerminarTransicion}
@@ -105,7 +112,7 @@ function CarruselPista({ ofertas, visibles, pausado }: CarruselPistaProps) {
           {slides.map((producto, posicion) => (
             <div
               key={`${producto.id}-${posicion}`}
-              className="shrink-0 px-2"
+              className="shrink-0 px-2 sm:px-3"
               style={{ width: anchoSlide ? `${anchoSlide}px` : `${100 / visibles}%` }}
             >
               <ProductoCard producto={producto} />
@@ -145,7 +152,7 @@ function CarruselPista({ ofertas, visibles, pausado }: CarruselPistaProps) {
  * según `mostrarOfertas`, así que este componente en sí no decide cuándo
  * aparece, solo qué trae cuando lo montan.
  *
- * Muestra `visibles` tarjetas centradas (3 en escritorio, 1 en móvil). Si hay
+ * Muestra `visibles` tarjetas centradas (4 en escritorio, 3 en tablet, 1 en móvil). Si hay
  * más ofertas que tarjetas visibles, la pista se mueve en un loop infinito:
  * auto-avance cada pocos segundos (se pausa al pasar el mouse) y flechas
  * manuales. El bucle sin cortes se logra clonando `visibles` productos al
@@ -163,13 +170,14 @@ export function OfertasCarrusel() {
 
   return (
     <section
-      className="mx-auto max-w-[51.84rem] px-4 pt-6 sm:px-6 sm:pt-8"
+      className="mx-auto max-w-6xl px-4 pt-6 sm:px-6 sm:pt-8"
       onMouseEnter={() => setPausado(true)}
       onMouseLeave={() => setPausado(false)}
       onFocusCapture={() => setPausado(true)}
       onBlurCapture={() => setPausado(false)}
     >
-      <div className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
+      {/* En pantallas medianas el recuadro sobresale lo que mide su relleno: las prendas quedan del ancho de la cuadrícula. */}
+      <div className="rounded-xl border border-neutral-200 bg-white p-4 sm:-mx-4 dark:border-neutral-800 dark:bg-neutral-950">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-base font-semibold text-neutral-900 dark:text-white">Ofertas</h2>
           {ofertas.length > VISIBLES_ESCRITORIO && (
@@ -184,7 +192,7 @@ export function OfertasCarrusel() {
         </div>
 
         {expandido ? (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 md:grid-cols-4">
             {ofertas.map((producto) => (
               <ProductoCard key={producto.id} producto={producto} />
             ))}

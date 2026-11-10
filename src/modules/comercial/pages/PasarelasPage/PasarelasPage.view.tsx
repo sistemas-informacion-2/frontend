@@ -48,7 +48,7 @@ export function PasarelasPageView({
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">Métodos de pago</h1>
+          <h1 className="text-xl font-bold tracking-tight text-neutral-900 sm:text-2xl dark:text-neutral-50">Métodos de pago</h1>
           <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
             Habilita cada método para cobrar en caja (presencial) o en la tienda en línea.
           </p>
@@ -86,21 +86,21 @@ export function PasarelasPageView({
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[860px] text-left text-sm">
-              <thead className="border-b border-neutral-200 bg-neutral-50 text-xs uppercase tracking-wide text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
+              <thead className="border-b border-neutral-200 bg-neutral-50 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900/50 dark:text-neutral-400">
                 <tr>
-                  <th className="px-4 py-3 font-medium">Código</th>
-                  <th className="px-4 py-3 font-medium">Método</th>
-                  <th className="px-4 py-3 font-medium">Integración</th>
-                  <th className="px-4 py-3 font-medium">Comisión</th>
-                  <th className="px-4 py-3 font-medium">Credenciales</th>
-                  <th className="px-4 py-3 font-medium">Presencial</th>
-                  <th className="px-4 py-3 font-medium">En línea</th>
-                  <th className="px-4 py-3 text-right font-medium">Acciones</th>
+                  <th className="px-4 py-3 font-semibold">Código</th>
+                  <th className="px-4 py-3 font-semibold">Método</th>
+                  <th className="px-4 py-3 font-semibold">Integración</th>
+                  <th className="px-4 py-3 font-semibold">Comisión</th>
+                  <th className="px-4 py-3 font-semibold">Credenciales</th>
+                  <th className="px-4 py-3 font-semibold">Presencial</th>
+                  <th className="px-4 py-3 font-semibold">En línea</th>
+                  <th className="px-4 py-3 text-right font-semibold">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
                 {pasarelas.map((pasarela) => (
-                  <tr key={pasarela.id} className="text-neutral-700 dark:text-neutral-300">
+                  <tr key={pasarela.id} className="text-neutral-700 dark:text-neutral-300 transition-colors hover:bg-neutral-50/80 dark:hover:bg-neutral-900/40">
                     <td className="px-4 py-3 font-mono text-xs text-neutral-500 dark:text-neutral-400">{pasarela.codigo}</td>
                     <td className="px-4 py-3 font-medium text-neutral-900 dark:text-white">{pasarela.metodo}</td>
                     <td className="px-4 py-3">{pasarela.integracion === 'API' ? 'API' : 'Ninguna'}</td>
@@ -112,7 +112,7 @@ export function PasarelasPageView({
                       <input
                         type="checkbox"
                         aria-label={`Habilitar ${pasarela.metodo} en presencial`}
-                        className="h-4 w-4 rounded border-neutral-300 text-neutral-900 focus:ring-neutral-900 disabled:opacity-50 dark:border-neutral-700"
+                        className="h-4 w-4 rounded border-neutral-300 text-neutral-900 focus:ring-brand-ring disabled:opacity-50 dark:border-neutral-700"
                         checked={pasarela.disponiblePresencial}
                         disabled={!canManage}
                         onChange={() => onToggleCanal(pasarela, 'presencial')}
@@ -122,7 +122,7 @@ export function PasarelasPageView({
                       <input
                         type="checkbox"
                         aria-label={`Habilitar ${pasarela.metodo} en línea`}
-                        className="h-4 w-4 rounded border-neutral-300 text-neutral-900 focus:ring-neutral-900 disabled:opacity-50 dark:border-neutral-700"
+                        className="h-4 w-4 rounded border-neutral-300 text-neutral-900 focus:ring-brand-ring disabled:opacity-50 dark:border-neutral-700"
                         checked={pasarela.disponibleLinea}
                         disabled={!canManage}
                         onChange={() => onToggleCanal(pasarela, 'linea')}
