@@ -3,6 +3,7 @@ import { env } from '@/core/config/env'
 import { aplicarCambiosPendientes, encolarSiCorresponde, lecturaLocal } from '@/core/offline/colaEscrituras'
 import { useEstadoOffline } from '@/core/offline/estadoOffline'
 import { useAuthStore } from '@/core/store/authStore'
+import { slugTienda } from '@/core/tenant/tienda'
 import { isAuthError, isNetworkError } from './errors'
 import type { Envelope } from './envelope'
 import type { AuthResponse } from '@/modules/acceso/types'
@@ -23,11 +24,15 @@ function esReintentable(config: { method?: string; url?: string }): boolean {
   return typeof config.url === 'string' && config.url.includes('/acceso/auth/login')
 }
 
+/** La tienda de la pestana viaja en cada request: el backend la usa en las rutas publicas y la valida contra el token. */
+const HEADERS_TIENDA: Record<string, string> = slugTienda ? { 'X-Empresa': slugTienda } : {}
+
 httpClient.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
+  if (slugTienda) config.headers['X-Empresa'] = slugTienda
   return config
 })
 
@@ -48,6 +53,7 @@ async function refreshAccessToken(): Promise<string | null> {
     const response = await axios.post<Envelope<AuthResponse>>(
       `${env.apiUrl}/acceso/auth/refresh`,
       { refreshToken },
+      { headers: HEADERS_TIENDA },
     )
     useAuthStore.getState().setSession(response.data.data)
     return response.data.data.accessToken

@@ -58,8 +58,8 @@ export function CatalogoPageView({ categorias, productos, cargando, mostrarOfert
           </div>
         ) : productos.length > 0 ? (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 md:grid-cols-4">
-            {productos.map((producto) => (
-              <ProductoCard key={producto.id} producto={producto} />
+            {productos.map((producto, posicion) => (
+              <ProductoCard key={producto.id} producto={producto} retrasoAparicion={Math.min(posicion, 8) * 40} />
             ))}
           </div>
         ) : (

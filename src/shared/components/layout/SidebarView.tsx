@@ -1,6 +1,6 @@
 import { ChevronDown, LogOut, PanelLeftClose, PanelLeftOpen, X } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
-import { env } from '@/core/config/env'
+import { useNombreTienda } from '@/core/tenant/useNombreTienda'
 import { StoreLogoMarca } from '@/modules/electronico/components/StoreLogo'
 import type { SidebarGroup } from './sidebarMenu'
 
@@ -23,6 +23,7 @@ interface SidebarViewProps {
 const BOTON_ICONO = 'flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-neutral-500 outline-none transition-colors hover:bg-neutral-100 focus-visible:ring-2 focus-visible:ring-brand dark:text-neutral-400 dark:hover:bg-neutral-800'
 
 export function SidebarView({ collapsed, onToggleCollapsed, mobileOpen, onCloseMobile, groups, grupoActivo, estaAbierto, onToggleGrupo, onExpandirGrupo, usuario, onCerrarSesion }: SidebarViewProps) {
+  const nombreTienda = useNombreTienda()
   return (
     <>
       <div onClick={onCloseMobile} aria-hidden="true" className={`fixed inset-0 z-40 animate-fade-in bg-black/40 md:hidden ${mobileOpen ? 'block' : 'hidden'}`} />
@@ -35,7 +36,7 @@ export function SidebarView({ collapsed, onToggleCollapsed, mobileOpen, onCloseM
         <div className="flex h-16 items-center justify-between gap-2 border-b border-neutral-200 px-3 dark:border-neutral-800">
           <span className={`flex min-w-0 items-center gap-2 ${collapsed ? 'md:hidden' : ''}`}>
             <StoreLogoMarca />
-            <span className="truncate text-sm font-semibold text-neutral-900 dark:text-neutral-50">{env.appName} Admin</span>
+            <span className="truncate text-sm font-semibold text-neutral-900 dark:text-neutral-50">{nombreTienda} Admin</span>
           </span>
           <button type="button" onClick={onToggleCollapsed} aria-label={collapsed ? 'Expandir menú' : 'Colapsar menú'} className={`${BOTON_ICONO} hidden md:flex ${collapsed ? 'mx-auto' : ''}`}>
             {collapsed ? <PanelLeftOpen className="h-[18px] w-[18px]" aria-hidden="true" /> : <PanelLeftClose className="h-[18px] w-[18px]" aria-hidden="true" />}

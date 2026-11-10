@@ -9,6 +9,8 @@ import { StoreLogoMarca } from './StoreLogo'
 
 interface ProductoCardProps {
   producto: Producto
+  /** Retraso (ms) de la animacion de aparicion: en una grilla hace que las tarjetas entren en cascada. */
+  retrasoAparicion?: number
 }
 
 /** La imagen principal va primero; el resto conserva el orden definido en el panel. */
@@ -18,7 +20,7 @@ function ordenarImagenes(imagenes: ImagenProducto[]): ImagenProducto[] {
 
 const FLECHA = 'absolute top-1/2 z-20 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-neutral-800 opacity-0 shadow-sm transition-opacity group-hover:opacity-100 focus-visible:opacity-100 dark:bg-neutral-900/90 dark:text-neutral-100'
 
-export function ProductoCard({ producto }: ProductoCardProps) {
+export function ProductoCard({ producto, retrasoAparicion }: ProductoCardProps) {
   const imagenes = ordenarImagenes(producto.imagenes)
   const [indice, setIndice] = useState(0)
   const [cargada, setCargada] = useState(false)
@@ -33,7 +35,11 @@ export function ProductoCard({ producto }: ProductoCardProps) {
   const mover = (paso: number) => setIndice((current) => (current + paso + imagenes.length) % imagenes.length)
 
   return (
-    <div className="group" onMouseEnter={() => setConBarra(true)}>
+    <div
+      className={`group ${retrasoAparicion === undefined ? '' : 'animate-aparecer'}`}
+      style={retrasoAparicion ? { animationDelay: `${retrasoAparicion}ms` } : undefined}
+      onMouseEnter={() => setConBarra(true)}
+    >
       <div className="relative aspect-3/4 w-full overflow-hidden rounded-lg bg-neutral-100 dark:bg-neutral-800">
         {producto.descuentoPorcentaje > 0 && (
           <span title={`${producto.descuentoPorcentaje}% de descuento`} className="pointer-events-none absolute left-2 top-2 z-20 rounded-full bg-amber-500 px-2 py-0.5 text-xs font-bold text-white shadow-sm">

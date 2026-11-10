@@ -60,6 +60,8 @@ export async function registrarMovimientoCaja(
 ): Promise<MovimientoCaja> {
   const response = await httpClient.post<Envelope<MovimientoCaja>>(`/comercial/cajas/${idCaja}/movimientos`, {
     tipo: values.tipo,
+    categoria: values.categoria,
+    subcategoriaGasto: values.categoria === 'GASTO_OPERATIVO' && values.subcategoriaGasto ? values.subcategoriaGasto : undefined,
     concepto: values.concepto,
     monto: Number(values.monto || 0),
     observaciones: values.observaciones || undefined,

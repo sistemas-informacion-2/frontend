@@ -29,5 +29,5 @@ dev-dist
 
 # Sobrescrituras locales. Los .env versionados solo llevan valores
 # publicos, porque Vite los incrusta en el bundle de todas formas.
-.env.local
-.env.*.local
+.env
+.env.*

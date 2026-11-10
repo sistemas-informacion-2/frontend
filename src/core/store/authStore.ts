@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { AuthResponse, Perfil } from '@/modules/acceso/types'
+import { claveAlmacenamiento } from '@/core/tenant/tienda'
 
 interface AuthState {
   accessToken: string | null
@@ -37,6 +38,7 @@ export const useAuthStore = create<AuthState>()(
         return perfil.permisos.includes(accion)
       },
     }),
-    { name: 'fashionstore-auth' },
+    // Una sesion por tienda (y otra para el panel de plataforma): el mismo correo puede ser cuentas distintas.
+    { name: claveAlmacenamiento('auth') },
   ),
 )

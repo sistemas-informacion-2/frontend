@@ -36,10 +36,27 @@ export interface PasarelaFormValues {
 export type EstadoCaja = 'Abierta' | 'Cerrada'
 export type TipoMovimientoCaja = 'INGRESO' | 'EGRESO'
 
+/** Para que se uso la plata (ver categoriasCaja.ts). */
+export type CategoriaMovimientoCaja =
+  | 'VENTA'
+  | 'ANTICIPO_RESERVA'
+  | 'SALDO_RESERVA'
+  | 'COMPRA'
+  | 'REEMBOLSO'
+  | 'GASTO_OPERATIVO'
+  | 'RETIRO'
+  | 'APORTE'
+  | 'OTRO_INGRESO'
+  | 'OTRO_EGRESO'
+
+export type SubcategoriaGasto = 'ALQUILER' | 'SUELDOS' | 'SERVICIOS' | 'MARKETING' | 'TRANSPORTE' | 'MANTENIMIENTO' | 'OTROS'
+
 export interface MovimientoCaja {
   id: number
   idCaja: number
   tipo: TipoMovimientoCaja
+  categoria: CategoriaMovimientoCaja
+  subcategoriaGasto: SubcategoriaGasto | null
   concepto: string
   monto: number
   observaciones: string | null
@@ -90,6 +107,9 @@ export interface AbrirCajaFormValues {
 
 export interface MovimientoCajaFormValues {
   tipo: TipoMovimientoCaja
+  categoria: CategoriaMovimientoCaja
+  /** Solo para GASTO_OPERATIVO; '' mientras no se elige. */
+  subcategoriaGasto: SubcategoriaGasto | ''
   concepto: string
   monto: string
   observaciones: string

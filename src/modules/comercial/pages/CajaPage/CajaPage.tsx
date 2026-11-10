@@ -21,6 +21,8 @@ type ModalKind = 'abrir' | 'movimiento' | 'cerrar' | null
 
 const EMPTY_MOVIMIENTO: MovimientoCajaFormValues = {
   tipo: 'INGRESO',
+  categoria: 'OTRO_INGRESO',
+  subcategoriaGasto: '',
   concepto: '',
   monto: '',
   observaciones: '',

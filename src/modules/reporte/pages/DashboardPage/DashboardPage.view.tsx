@@ -6,6 +6,7 @@ import { Select } from '@/shared/components/ui/Select'
 import { Skeleton } from '@/shared/components/ui/Skeleton'
 import { BarrasSucursales } from '../../components/BarrasSucursales'
 import { KpiCard } from '../../components/KpiCard'
+import { IconosKpi } from '../../components/iconosKpi'
 import { LineaTendencia } from '../../components/LineaTendencia'
 import type { DashboardResumen } from '../../dashboard.types'
 import { formatearMonto } from '../../utils/format'
@@ -125,10 +126,22 @@ function Indicadores({
       )}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard titulo="Ventas de hoy" valor={formatearMonto(ventasDia.total)} detalle={`${ventasDia.cantidadNotas} notas de venta`} />
-        <KpiCard titulo="Ticket promedio" valor={formatearMonto(ventasDia.ticketPromedio)} detalle="Ventas de hoy" />
-        <KpiCard titulo="Cajas abiertas" valor={resumen.cajasAbiertas} detalle={idSucursal === null ? 'En todas las sucursales' : 'En esta sucursal'} />
         <KpiCard
+          titulo="Ventas de hoy"
+          valor={formatearMonto(ventasDia.total)}
+          detalle={`${ventasDia.cantidadNotas} notas de venta`}
+          icono={IconosKpi.ventas}
+          tendencia={resumen.tendenciaVentas.map((punto) => punto.total)}
+        />
+        <KpiCard titulo="Ticket promedio" valor={formatearMonto(ventasDia.ticketPromedio)} detalle="Ventas de hoy" icono={IconosKpi.ticket} />
+        <KpiCard
+          titulo="Cajas abiertas"
+          valor={resumen.cajasAbiertas}
+          detalle={idSucursal === null ? 'En todas las sucursales' : 'En esta sucursal'}
+          icono={IconosKpi.caja}
+        />
+        <KpiCard
+          icono={IconosKpi.stock}
           titulo="Stock crítico"
           valor={stockCritico.total}
           detalle="Variantes en o bajo su stock mínimo"

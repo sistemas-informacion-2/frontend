@@ -55,6 +55,63 @@
   --color-brand-ring: var(--brand-ring);
 }
 
+@theme {
+  /* Aparicion suave de tarjetas y bloques (clase animate-aparecer). */
+  --animate-aparecer: aparecer 0.45s ease-out both;
+
+  @keyframes aparecer {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Brillo que recorre los esqueletos de carga (clase animate-brillo). */
+  --animate-brillo: brillo 1.4s ease-in-out infinite;
+
+  @keyframes brillo {
+    from {
+      background-position: 200% 0;
+    }
+    to {
+      background-position: -200% 0;
+    }
+  }
+}
+
+/* Graficos del BI. Las series de varias identidades usan la paleta validada contra cada fondo; una sola serie va en tinta. */
+:root {
+  --viz-superficie: #ffffff;
+  --viz-tinta: #171717;
+  --viz-banda: rgb(23 23 23 / 0.12);
+  --viz-eje: #525252;
+  --viz-grilla: #e5e5e5;
+  --viz-1: #2a78d6;
+  --viz-2: #eb6834;
+  --viz-3: #1baf7a;
+  --viz-4: #eda100;
+  --viz-5: #e87ba4;
+  --viz-6: #008300;
+}
+
+:root.dark {
+  --viz-superficie: #121215;
+  --viz-tinta: #f5f5f5;
+  --viz-banda: rgb(245 245 245 / 0.16);
+  --viz-eje: #a3a3a3;
+  --viz-grilla: #262626;
+  --viz-1: #3987e5;
+  --viz-2: #d95926;
+  --viz-3: #199e70;
+  --viz-4: #c98500;
+  --viz-5: #d55181;
+  --viz-6: #008300;
+}
+
 @layer base {
   :root {
     color-scheme: light;
@@ -126,11 +183,13 @@
   }
 }
 
+/* Quien pide reducir el movimiento no ve animaciones ni transiciones. */
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,
   ::after {
-    animation-duration: 1ms !important;
-    transition-duration: 1ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

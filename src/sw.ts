@@ -208,6 +208,20 @@ registerRoute(({ url }) => url.pathname.startsWith('/api/acceso/auth/') || url.p
 // La comprobacion de conflictos necesita el dato real: una copia vieja haria creer que nadie mas lo cambio.
 registerRoute(({ request }) => request.headers.has(CABECERA_DATO_FRESCO), new NetworkOnly())
 
+/**
+ * Multiempresa: la misma URL de la API responde distinto segun la tienda (cabecera X-Empresa), asi que la copia
+ * offline se guarda por tienda. Sin esto, abrir dos tiendas en el mismo navegador mezclaria catalogos sin conexion.
+ */
+const clavePorTienda = {
+  cacheKeyWillBeUsed: async ({ request }: { request: Request }) => {
+    const tienda = request.headers.get('X-Empresa')
+    if (!tienda) return request
+    const url = new URL(request.url)
+    url.searchParams.set('__tienda', tienda)
+    return url.href
+  },
+}
+
 // Catalogo, carrito, inventario...: red primero; sin conexion, la ultima respuesta buena (asi el checkout offline
 // todavia conoce el carrito y las sucursales).
 registerRoute(
@@ -216,7 +230,7 @@ registerRoute(
     cacheName: 'api-cache',
     networkTimeoutSeconds: 6,
     // 800 entradas: alcanza para el catalogo precargado y para las pantallas del panel por cada sucursal (usePrecargaAdmin).
-    plugins: [new CacheableResponsePlugin({ statuses: [0, 200] }), new ExpirationPlugin({ maxEntries: 800, maxAgeSeconds: 24 * 60 * 60 })],
+    plugins: [clavePorTienda, new CacheableResponsePlugin({ statuses: [0, 200] }), new ExpirationPlugin({ maxEntries: 800, maxAgeSeconds: 24 * 60 * 60 })],
   }),
 )
 
