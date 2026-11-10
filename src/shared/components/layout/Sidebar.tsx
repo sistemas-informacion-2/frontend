@@ -1,12 +1,19 @@
 import { useLocation } from 'react-router-dom'
 import { useAppStore } from '@/core/store/appStore'
 import { useAuthStore } from '@/core/store/authStore'
+import { useMiPlan } from '@/modules/suscripcion/hooks/useMiPlan'
 import { SidebarView } from './SidebarView'
+
+/** Funciones que dependen del plan de DOMINATR. */
+type FuncionPlan = 'bi' | 'reportesAvanzados'
 
 export interface SidebarItem {
   label: string
   path: string
   permission?: string
+  /** Si el plan no incluye esta funcion, la opcion se ve con candado y lleva a Mi plan. */
+  funcion?: FuncionPlan
+  bloqueado?: boolean
 }
 
 export interface SidebarGroup {
@@ -73,18 +80,23 @@ const GROUPS: SidebarGroup[] = [
     items: [
       { label: 'Dashboard', path: '/admin/dashboard' },
       { label: 'Reportes Predefinidos', path: '/admin/reportes/predefinidos', permission: 'analitica:reportes:gestionar' },
-      { label: 'Constructor de Reportes', path: '/admin/reportes/constructor', permission: 'analitica:reportes:gestionar' },
-      { label: 'Reportes por Voz / IA', path: '/admin/reportes/generativo', permission: 'analitica:reportes:gestionar' },
+      { label: 'Constructor de Reportes', path: '/admin/reportes/constructor', permission: 'analitica:reportes:gestionar', funcion: 'reportesAvanzados' },
+      { label: 'Reportes por Voz / IA', path: '/admin/reportes/generativo', permission: 'analitica:reportes:gestionar', funcion: 'reportesAvanzados' },
     ],
   },
   {
     label: 'Inteligencia de negocio',
     icon: '🧠',
     items: [
-      { label: 'Asistente', path: '/admin/bi/asistente', permission: 'analitica:bi:usar' },
-      { label: 'Modelos', path: '/admin/bi/modelos', permission: 'analitica:bi:usar' },
-      { label: 'Estado de los datos', path: '/admin/bi/estado', permission: 'analitica:bi:usar' },
+      { label: 'Asistente', path: '/admin/bi/asistente', permission: 'analitica:bi:usar', funcion: 'bi' },
+      { label: 'Modelos', path: '/admin/bi/modelos', permission: 'analitica:bi:usar', funcion: 'bi' },
+      { label: 'Estado de los datos', path: '/admin/bi/estado', permission: 'analitica:bi:usar', funcion: 'bi' },
     ],
+  },
+  {
+    label: 'Suscripción',
+    icon: '💳',
+    items: [{ label: 'Mi plan', path: '/admin/plan' }],
   },
 ]
 
@@ -100,10 +112,17 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
   const setGrupoAbierto = useAppStore((state) => state.setGrupoAbierto)
   const { pathname } = useLocation()
   const hasPermission = useAuthStore((state) => state.hasPermission)
+  const { data: miPlan } = useMiPlan()
 
   const groups = GROUPS.map((group) => ({
     ...group,
-    items: group.items.filter((item) => !item.permission || hasPermission(item.permission)),
+    items: group.items
+      .filter((item) => !item.permission || hasPermission(item.permission))
+      .map((item) => {
+        // Sin el plan cargado todavia no se bloquea nada: el backend igual responde 403 si no corresponde.
+        const bloqueado = !!item.funcion && !!miPlan && !miPlan.plan[item.funcion]
+        return bloqueado ? { ...item, bloqueado, path: `/admin/plan?funcion=${item.funcion}` } : item
+      }),
   })).filter((group) => group.items.length > 0)
 
   // El grupo de la página actual es el que se ve abierto mientras la persona no haya decidido otra cosa.

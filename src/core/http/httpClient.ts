@@ -1,8 +1,8 @@
 import axios from 'axios'
 import { env } from '@/core/config/env'
 import { useAuthStore } from '@/core/store/authStore'
-import { slugTienda } from '@/core/tenant/tienda'
-import { isAuthError, isNetworkError } from './errors'
+import { basenameTienda, slugTienda } from '@/core/tenant/tienda'
+import { getApiErrorCode, isAuthError, isNetworkError } from './errors'
 import type { Envelope } from './envelope'
 import type { AuthResponse } from '@/modules/acceso/types'
 
@@ -33,6 +33,17 @@ httpClient.interceptors.request.use((config) => {
   if (slugTienda) config.headers['X-Empresa'] = slugTienda
   return config
 })
+
+/**
+ * Con el plan de DOMINATR vencido el backend solo deja abierto Mi plan: el personal de la tienda va directo ahi
+ * (un cliente o un visitante no; a ellos TiendaGate les dice que la tienda no esta disponible).
+ */
+function llevarAMiPlan(): void {
+  const tipo = useAuthStore.getState().perfil?.tipoUsuario
+  const destino = `${basenameTienda}/admin/plan`
+  if (!slugTienda || (tipo !== 'A' && tipo !== 'E')) return
+  if (!window.location.pathname.startsWith(destino)) window.location.replace(destino)
+}
 
 let refreshPromise: Promise<string | null> | null = null
 
@@ -69,6 +80,8 @@ httpClient.interceptors.response.use(
         return httpClient(originalRequest)
       }
     }
+
+    if (error.response?.status === 402 && getApiErrorCode(error) === 'PLAN_VENCIDO') llevarAMiPlan()
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true

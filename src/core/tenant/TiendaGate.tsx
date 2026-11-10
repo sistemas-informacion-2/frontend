@@ -4,7 +4,13 @@ import { httpClient } from '@/core/http/httpClient'
 import { getApiStatus } from '@/core/http/errors'
 import { unwrap, type Envelope } from '@/core/http/envelope'
 import { useEmpresaStore, type EmpresaPublica } from './empresaStore'
-import { SLUG_TIENDA_POR_DEFECTO, slugTienda } from './tienda'
+import { basenameTienda, slugTienda } from './tienda'
+
+/** Con el plan vencido siguen abiertos el login y el panel: por ahi el dueno entra a renovar. */
+function esRutaDelPersonal(): boolean {
+  const ruta = window.location.pathname.slice(basenameTienda.length) || '/'
+  return /^\/(login|admin)(\/|$)/.test(ruta)
+}
 
 async function obtenerEmpresaPublica(slug: string): Promise<EmpresaPublica> {
   return unwrap(await httpClient.get<Envelope<EmpresaPublica>>(`/plataforma/empresas/${slug}/publico`))
@@ -30,8 +36,8 @@ export function TiendaGate({ children }: { children: ReactNode }) {
   if (error && getApiStatus(error) === 404) {
     return (
       <Aviso titulo="Tienda no encontrada" detalle={`No existe ninguna tienda en /t/${slugTienda}.`}>
-        <a href={`/t/${SLUG_TIENDA_POR_DEFECTO}`} className="text-sm font-medium underline">
-          Ir a la tienda principal
+        <a href="/" className="text-sm font-medium underline">
+          Ir al inicio
         </a>
       </Aviso>
     )
@@ -47,6 +53,15 @@ export function TiendaGate({ children }: { children: ReactNode }) {
   }
   if (empresa.estado === 'SUSPENDIDA') {
     return <Aviso titulo={empresa.nombre} detalle="Esta tienda está temporalmente fuera de servicio." />
+  }
+  if (empresa.planVigente === false && !esRutaDelPersonal()) {
+    return (
+      <Aviso titulo={empresa.nombre} detalle="Esta tienda no está disponible por el momento.">
+        <a href={`${basenameTienda}/login`} className="text-sm font-medium underline">
+          ¿Trabajas aquí? Inicia sesión
+        </a>
+      </Aviso>
+    )
   }
 
   return children

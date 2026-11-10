@@ -34,7 +34,7 @@ export function PlataformaLoginPage() {
     <main className="flex min-h-svh items-center justify-center bg-neutral-50 px-4 dark:bg-neutral-950">
       <form onSubmit={handleSubmit} className="flex w-full max-w-sm flex-col gap-4 rounded-lg border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
         <div>
-          <h1 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{env.appName} · Plataforma</h1>
+          <h1 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{env.plataformaNombre} · Plataforma</h1>
           <p className="text-sm text-neutral-500">Acceso del superadministrador</p>
         </div>
         <Input label="Correo" type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} required />
@@ -43,6 +43,9 @@ export function PlataformaLoginPage() {
         <Button type="submit" loading={loading}>
           Iniciar sesión
         </Button>
+        <a href="/" className="text-center text-xs text-neutral-500 underline hover:text-neutral-900 dark:hover:text-white">
+          Volver a {env.plataformaNombre}
+        </a>
       </form>
     </main>
   )

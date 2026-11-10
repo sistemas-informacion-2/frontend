@@ -1,17 +1,30 @@
-import { StrictMode } from 'react'
+import { StrictMode, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 import { PlataformaApp } from './modules/plataforma/PlataformaApp'
-import { SLUG_TIENDA_POR_DEFECTO, esRutaPlataforma, slugTienda } from './core/tenant/tienda'
+import { PortalApp } from './modules/portal/PortalApp'
+import { SLUG_TIENDA_POR_DEFECTO, esRutaPlataforma, esRutaPortal, slugTienda } from './core/tenant/tienda'
 
 const { pathname, search, hash } = window.location
 
-if (!esRutaPlataforma(pathname) && !slugTienda) {
-  // URL sin tienda (enlaces anteriores al SaaS, la raiz): se lleva a la tienda por defecto conservando la ruta.
-  window.location.replace(`/t/${SLUG_TIENDA_POR_DEFECTO}${pathname === '/' ? '' : pathname}${search}${hash}`)
+/**
+ * Tres apps en el mismo bundle, segun la URL:
+ * - '/', '/ingresar', '/registro': el portal de DOMINATR (planes, registro de empresas e ingreso).
+ * - '/plataforma/...': el panel del superadmin.
+ * - '/t/:slug/...': una tienda.
+ */
+function appDeLaRuta(): ReactNode | null {
+  if (esRutaPortal(pathname)) return <PortalApp />
+  if (esRutaPlataforma(pathname)) return <PlataformaApp />
+  if (slugTienda) return <App />
+  return null
+}
+
+const app = appDeLaRuta()
+if (app) {
+  createRoot(document.getElementById('root')!).render(<StrictMode>{app}</StrictMode>)
 } else {
-  createRoot(document.getElementById('root')!).render(
-    <StrictMode>{esRutaPlataforma(pathname) ? <PlataformaApp /> : <App />}</StrictMode>,
-  )
+  // URL de tienda sin /t/:slug (enlaces anteriores al SaaS): se lleva a la tienda por defecto conservando la ruta.
+  window.location.replace(`/t/${SLUG_TIENDA_POR_DEFECTO}${pathname}${search}${hash}`)
 }

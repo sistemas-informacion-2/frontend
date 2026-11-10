@@ -9,6 +9,8 @@ export interface EmpresaPublica {
   logoUrl: string | null
   colorPrimario: string | null
   estado: EstadoEmpresa
+  /** false si el plan de DOMINATR vencio (pasada la gracia): la tienda publica no se muestra; el panel si, para renovar. */
+  planVigente: boolean
 }
 
 interface EmpresaState {

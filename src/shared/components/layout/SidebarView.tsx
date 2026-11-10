@@ -97,22 +97,36 @@ export function SidebarView({
 
                   {abierto && (
                     <div id={listaId} className="mt-0.5 flex flex-col gap-0.5 border-l border-neutral-200 pl-2 ml-4 dark:border-neutral-800">
-                      {group.items.map((item) => (
-                        <NavLink
-                          key={item.path}
-                          to={item.path}
-                          onClick={onCloseMobile}
-                          className={({ isActive }) =>
-                            `truncate rounded-md px-2.5 py-2 text-sm font-medium ${
-                              isActive
-                                ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900'
-                                : 'text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800'
-                            }`
-                          }
-                        >
-                          {item.label}
-                        </NavLink>
-                      ))}
+                      {group.items.map((item) =>
+                        item.bloqueado ? (
+                          // Funcion fuera del plan: se ve con candado y lleva a Mi plan.
+                          <NavLink
+                            key={item.label}
+                            to={item.path}
+                            onClick={onCloseMobile}
+                            title="No incluido en tu plan"
+                            className="flex items-center justify-between gap-2 truncate rounded-md px-2.5 py-2 text-sm font-medium text-neutral-400 hover:bg-neutral-100 dark:text-neutral-500 dark:hover:bg-neutral-800"
+                          >
+                            <span className="truncate">{item.label}</span>
+                            <span aria-label="No incluido en tu plan">🔒</span>
+                          </NavLink>
+                        ) : (
+                          <NavLink
+                            key={item.path}
+                            to={item.path}
+                            onClick={onCloseMobile}
+                            className={({ isActive }) =>
+                              `truncate rounded-md px-2.5 py-2 text-sm font-medium ${
+                                isActive
+                                  ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900'
+                                  : 'text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800'
+                              }`
+                            }
+                          >
+                            {item.label}
+                          </NavLink>
+                        ),
+                      )}
                     </div>
                   )}
                 </div>

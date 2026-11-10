@@ -29,6 +29,20 @@ export function isAuthError(err: unknown): boolean {
 }
 
 /**
+ * Codigo del campo `error` de la respuesta (p. ej. PLAN_VENCIDO, PLAN_SIN_FUNCION, LIMITE_PLAN): los errores del
+ * plan de DOMINATR lo usan para que el frontend ofrezca ir a Mi plan.
+ */
+export function getApiErrorCode(err: unknown): string | undefined {
+  return isAxiosError<ApiErrorBody>(err) ? err.response?.data?.error : undefined
+}
+
+/** Error causado por el plan de DOMINATR (vencido, sin la funcion o en su limite). */
+export function esErrorDePlan(err: unknown): boolean {
+  const codigo = getApiErrorCode(err)
+  return codigo === 'PLAN_VENCIDO' || codigo === 'PLAN_SIN_FUNCION' || codigo === 'LIMITE_PLAN'
+}
+
+/**
  * Extrae un mensaje legible de un error de axios contra la API.
  * Si no es un error de axios o no trae `message`, devuelve `fallback`.
  */

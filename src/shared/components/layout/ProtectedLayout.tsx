@@ -3,6 +3,7 @@ import { Link, Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@/core/store/authStore'
 import { useCerrarSesion } from '@/modules/acceso/hooks/useCerrarSesion'
 import { NotificationBell } from '@/modules/electronico/components/NotificationBell'
+import { AvisoPlan } from '@/modules/suscripcion/components/AvisoPlan'
 import { Button } from '@/shared/components/ui/Button'
 import { ThemeToggle } from '@/shared/components/ui/ThemeToggle'
 import { Sidebar } from './Sidebar'
@@ -84,6 +85,7 @@ export function ProtectedLayout() {
             </Button>
           </div>
         </header>
+        <AvisoPlan />
 
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
           <Outlet />

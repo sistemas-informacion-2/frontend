@@ -43,6 +43,8 @@ import { CajaPage } from '@/modules/comercial/pages/CajaPage/CajaPage'
 import { ComprasPage } from '@/modules/comercial/pages/ComprasPage/ComprasPage'
 import { VentasPage } from '@/modules/comercial/pages/VentasPage/VentasPage'
 import { NotificacionesPage } from '@/modules/electronico/pages/NotificacionesPage/NotificacionesPage'
+import { MiPlanPage } from '@/modules/suscripcion/pages/MiPlanPage'
+import { PlanRetornoPage } from '@/modules/suscripcion/pages/PlanRetornoPage'
 import { ComingSoonPage } from '@/shared/components/ComingSoonPage'
 import { ProtectedLayout } from '@/shared/components/layout/ProtectedLayout'
 import { PublicLayout } from '@/shared/components/layout/PublicLayout'
@@ -104,6 +106,8 @@ function App() {
               <Route path="/admin" element={<ProtectedLayout />}>
                 <Route path="dashboard" element={<DashboardPage />} />
                 <Route path="perfil" element={<PerfilPage />} />
+                <Route path="plan" element={<MiPlanPage />} />
+                <Route path="plan/retorno" element={<PlanRetornoPage />} />
                 <Route path="bitacora" element={<PermissionRoute permission="acceso:bitacora:leer"><BitacoraPage /></PermissionRoute>} />
                 <Route path="roles" element={<PermissionRoute permission="acceso:roles:gestionar"><RolesPage /></PermissionRoute>} />
                 <Route path="usuarios" element={<PermissionRoute permission="acceso:usuarios:gestionar"><UsuariosPage /></PermissionRoute>} />
