@@ -18,6 +18,8 @@ interface StockFormProps {
 export function StockForm({ values, almacenes, productos, loading, error, onChange, onSubmit, onCancel }: StockFormProps) {
   const productoSeleccionado = productos.find((producto) => producto.id === values.idProducto)
   const variantes = productoSeleccionado?.variantes ?? []
+  // El costo solo tiene sentido si entran unidades: con stock inicial 0 la fila se crea vacia.
+  const conStockInicial = Number(values.stockDisponible) > 0
 
   return (
     <form onSubmit={onSubmit} className="space-y-5">
@@ -75,6 +77,19 @@ export function StockForm({ values, almacenes, productos, loading, error, onChan
           value={values.stockDisponible}
           onChange={(event) => onChange('stockDisponible', event.target.value)}
         />
+        {conStockInicial && (
+          <Input
+            label="Costo unitario (Bs)"
+            type="number"
+            min={0}
+            step="0.01"
+            inputMode="decimal"
+            placeholder="Ej. 45.00"
+            hint="Lo que te costó cada unidad. Con el costo, el margen de estas prendas sale correcto en reportes y BI."
+            value={values.costoUnitario}
+            onChange={(event) => onChange('costoUnitario', event.target.value)}
+          />
+        )}
         <Input
           label="Stock mínimo"
           type="number"

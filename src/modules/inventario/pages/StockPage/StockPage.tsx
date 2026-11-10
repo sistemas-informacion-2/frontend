@@ -30,6 +30,7 @@ const EMPTY_STOCK_FORM: StockFormValues = {
   stockDisponible: '0',
   stockMinimo: '5',
   stockMaximo: '500',
+  costoUnitario: '',
 }
 
 const EMPTY_AJUSTE_FORM: AjusteStockFormValues = {

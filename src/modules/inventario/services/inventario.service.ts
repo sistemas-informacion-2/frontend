@@ -43,12 +43,16 @@ export async function listarMovimientos(idStock: number, query: MovimientosQuery
 }
 
 export async function registrarStock(values: StockFormValues): Promise<InventarioItem> {
+  const stockDisponible = Number(values.stockDisponible || 0)
+  // El backend suma este costo al costo promedio de la variante y lo deja en el SALDO_INICIAL del kardex.
+  const conCosto = stockDisponible > 0 && values.costoUnitario.trim() !== ''
   const response = await httpClient.post<Envelope<InventarioItem>>('/inventario/stock', {
     idAlmacen: Number(values.idAlmacen),
     idVarianteProducto: Number(values.idVarianteProducto),
-    stockDisponible: Number(values.stockDisponible || 0),
+    stockDisponible,
     stockMinimo: Number(values.stockMinimo || 0),
     stockMaximo: Number(values.stockMaximo || 0),
+    ...(conCosto && { costoUnitario: Number(values.costoUnitario) }),
   })
   return response.data.data
 }

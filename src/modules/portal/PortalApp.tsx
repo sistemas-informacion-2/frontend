@@ -9,7 +9,7 @@ import { RegistroPage } from './pages/RegistroPage'
 import { RegistroRetornoPage } from './pages/RegistroRetornoPage'
 
 const TITULOS: Record<string, string> = {
-  '/': 'Sistema para tiendas de ropa',
+  '/': 'DOMINATR',
   '/ingresar': 'Ingresar',
   '/registro': 'Crea tu tienda',
   '/registro/retorno': 'Confirmando tu pago',

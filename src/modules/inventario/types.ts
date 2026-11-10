@@ -270,6 +270,8 @@ export interface StockFormValues {
   stockDisponible: string
   stockMinimo: string
   stockMaximo: string
+  /** Costo por unidad del stock inicial (Bs). Alimenta el costo promedio y el margen; solo aplica si el stock inicial es mayor a 0. */
+  costoUnitario: string
 }
 
 export type TipoAjusteStock = 'ENTRADA' | 'SALIDA' | 'AJUSTE'
