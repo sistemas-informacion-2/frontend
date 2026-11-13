@@ -1,5 +1,9 @@
 export type ReporteTipo = 'VENTAS' | 'INVENTARIO' | 'COMPRAS'
 
+/** Los mismos topes que valida el backend (reporte-builder.dto.ts). */
+export const LARGO_MAXIMO_PEDIDO = 1000
+export const LARGO_MAXIMO_NOMBRE_PLANTILLA = 100
+
 export type CategoriaCampo = 'DIMENSION' | 'MEASURE' | 'PLAIN'
 
 export type TipoCampo = 'STRING' | 'NUMBER' | 'DATE' | 'BOOLEAN'

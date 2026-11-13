@@ -6,6 +6,7 @@ import { Input } from '@/shared/components/ui/Input'
 import { Select } from '@/shared/components/ui/Select'
 import { ReportFiltersBuilder } from '../../components/reportes/ReportFiltersBuilder'
 import { ReportPreviewTable } from '../../components/reportes/ReportPreviewTable'
+import { LARGO_MAXIMO_NOMBRE_PLANTILLA } from '../../reportes.types'
 import type {
   FiltroReporte,
   FormatoExportacion,
@@ -191,6 +192,7 @@ export function ReportesConstructorPageView({
                   label="Nombre de la plantilla"
                   value={nombrePlantilla}
                   onChange={(event) => setNombrePlantilla(event.target.value)}
+                  maxLength={LARGO_MAXIMO_NOMBRE_PLANTILLA}
                   placeholder="Ej.: Ventas por sucursal del mes"
                   className="min-w-64 flex-1"
                 />

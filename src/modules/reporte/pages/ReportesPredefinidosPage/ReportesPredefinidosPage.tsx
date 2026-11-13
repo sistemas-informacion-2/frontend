@@ -3,7 +3,7 @@ import useSWR from 'swr'
 import { getApiErrorMessage } from '@/core/http/errors'
 import { useAuthStore } from '@/core/store/authStore'
 import type { FormatoExportacion, ReportePredefinidoEjecutado } from '../../reportes.types'
-import { descargarReporte, ejecutarReportePredefinido, listarReportesPredefinidos, mensajeErrorReporte } from '../../services/reportes.service'
+import { descargarPredefinido, ejecutarReportePredefinido, listarReportesPredefinidos, mensajeErrorReporte } from '../../services/reportes.service'
 import { ReportesPredefinidosPageView } from './ReportesPredefinidosPage.view'
 
 function descargarBlob(blob: Blob, nombreArchivo: string) {
@@ -59,7 +59,8 @@ export function ReportesPredefinidosPage() {
       setExportando(formato)
       setError(null)
       try {
-        const { blob, nombreArchivo } = await descargarReporte(formato, activo.request)
+        // Por codigo, no con activo.request: el servidor arma la configuracion y asi funciona en todos los planes.
+        const { blob, nombreArchivo } = await descargarPredefinido(formato, activo.codigo)
         descargarBlob(blob, nombreArchivo)
       } catch (err) {
         setError(getApiErrorMessage(err, 'No se pudo generar la descarga.'))

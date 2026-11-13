@@ -114,7 +114,22 @@ export async function descargarReporte(
     params: { format: formato },
     responseType: 'blob',
   })
-  const disposicion = response.headers['content-disposition'] as string | undefined
+  return archivoDescargado(response.data, response.headers['content-disposition'] as string | undefined, formato)
+}
+
+/**
+ * Descarga un predefinido. El servidor arma su configuracion, por eso funciona en todos los planes; /export (cualquier
+ * configuracion) exige reportes avanzados.
+ */
+export async function descargarPredefinido(formato: FormatoExportacion, codigo: string): Promise<{ blob: Blob; nombreArchivo: string }> {
+  const response = await httpClient.post<Blob>(`${BASE}/predefinidos/${codigo}/exportar`, undefined, {
+    params: { format: formato },
+    responseType: 'blob',
+  })
+  return archivoDescargado(response.data, response.headers['content-disposition'] as string | undefined, formato)
+}
+
+function archivoDescargado(blob: Blob, disposicion: string | undefined, formato: FormatoExportacion): { blob: Blob; nombreArchivo: string } {
   const coincidencia = disposicion?.match(/filename="([^"]+)"/)
-  return { blob: response.data, nombreArchivo: coincidencia?.[1] ?? `reporte.${formato === 'excel' ? 'xls' : formato}` }
+  return { blob, nombreArchivo: coincidencia?.[1] ?? `reporte.${formato === 'excel' ? 'xls' : formato}` }
 }

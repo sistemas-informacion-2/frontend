@@ -12,6 +12,7 @@ import type {
   ReportRunRequest,
   ResultadoReporte,
 } from '../../reportes.types'
+import { LARGO_MAXIMO_PEDIDO } from '../../reportes.types'
 import type { MensajeConversacion } from './ReportesGenerativoPage'
 
 interface ReportesGenerativoPageViewProps {
@@ -242,6 +243,7 @@ export function ReportesGenerativoPageView({
                   value={prompt}
                   onChange={(event) => onPrompt(event.target.value)}
                   rows={3}
+                  maxLength={LARGO_MAXIMO_PEDIDO}
                   placeholder={hayConversacion ? 'Ej.: ¿y en La Paz?' : `Ej.: ${EJEMPLOS[0]}`}
                   className="w-full resize-none rounded-md border border-neutral-300 bg-white px-3 py-2.5 text-sm outline-none transition-colors focus:border-brand dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-brand"
                 />
