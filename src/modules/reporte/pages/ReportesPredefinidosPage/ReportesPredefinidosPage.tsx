@@ -39,19 +39,33 @@ export function ReportesPredefinidosPage() {
   const [error, setError] = useState<string | null>(null)
   const [exportando, setExportando] = useState<FormatoExportacion | null>(null)
 
-  const generar = useCallback(async () => {
-    if (!seleccionado || ejecutando) return
-    setEjecutando(true)
-    setError(null)
-    try {
-      const respuesta = await ejecutarReportePredefinido(seleccionado.codigo)
-      setActivo(respuesta)
-    } catch (err) {
-      setError(mensajeErrorReporte(err, 'No se pudo ejecutar el reporte.'))
-    } finally {
-      setEjecutando(false)
-    }
-  }, [ejecutando, seleccionado])
+  /** Ejecuta el predefinido elegido desde la fila `offset` (0 = primera página). */
+  const ejecutar = useCallback(
+    async (offset: number) => {
+      if (!seleccionado || ejecutando) return
+      setEjecutando(true)
+      setError(null)
+      try {
+        const respuesta = await ejecutarReportePredefinido(seleccionado.codigo, offset)
+        setActivo(respuesta)
+      } catch (err) {
+        setError(mensajeErrorReporte(err, 'No se pudo ejecutar el reporte.'))
+      } finally {
+        setEjecutando(false)
+      }
+    },
+    [ejecutando, seleccionado],
+  )
+
+  const generar = useCallback(() => ejecutar(0), [ejecutar])
+
+  const cambiarPagina = useCallback(
+    (pagina: number) => {
+      const porPagina = activo?.request.limit ?? 50
+      void ejecutar((pagina - 1) * porPagina)
+    },
+    [activo, ejecutar],
+  )
 
   const exportar = useCallback(
     async (formato: FormatoExportacion) => {
@@ -83,6 +97,7 @@ export function ReportesPredefinidosPage() {
       exportando={exportando}
       onSeleccionar={setSeleccionadoCodigo}
       onGenerar={() => void generar()}
+      onCambiarPagina={cambiarPagina}
       onExportar={(formato) => void exportar(formato)}
       onLimpiarError={() => setError(null)}
     />

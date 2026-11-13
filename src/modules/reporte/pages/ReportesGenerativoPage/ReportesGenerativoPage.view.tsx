@@ -13,6 +13,7 @@ import type {
   ResultadoReporte,
 } from '../../reportes.types'
 import { LARGO_MAXIMO_PEDIDO } from '../../reportes.types'
+import { formatearCeldaReporte } from '../../utils/format'
 import type { MensajeConversacion } from './ReportesGenerativoPage'
 
 interface ReportesGenerativoPageViewProps {
@@ -341,7 +342,11 @@ export function ReportesGenerativoPageView({
               {resultado.rows.length === 1 ? (
                 <div className="grid gap-4 sm:grid-cols-3">
                   {resultado.columnLabels.map((etiqueta, indice) => (
-                    <KpiCard key={etiqueta} titulo={etiqueta.toUpperCase()} valor={formatearValorKpi(resultado.rows[0][indice])} />
+                    <KpiCard
+                      key={etiqueta}
+                      titulo={etiqueta.toUpperCase()}
+                      valor={formatearCeldaReporte(resultado.rows[0][indice], resultado.columnFormats?.[indice])}
+                    />
                   ))}
                 </div>
               ) : resultado.rows.length > 0 ? (
@@ -359,11 +364,4 @@ export function ReportesGenerativoPageView({
       )}
     </div>
   )
-}
-
-function formatearValorKpi(valor: string | number | boolean | null): string {
-  if (valor === null || valor === undefined) return '—'
-  if (typeof valor === 'boolean') return valor ? 'Sí' : 'No'
-  if (typeof valor === 'number') return valor.toLocaleString('es-BO', { maximumFractionDigits: 2 })
-  return String(valor)
 }

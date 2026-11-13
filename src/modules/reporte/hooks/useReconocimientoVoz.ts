@@ -77,7 +77,8 @@ export function useReconocimientoVoz({ onResultado }: UseReconocimientoVozOption
     if (!ClaseReconocedor) return
 
     const reconocedor = new ClaseReconocedor()
-    reconocedor.lang = 'es-ES'
+    // Español de Latinoamérica: reconoce mejor el acento boliviano que es-ES (España).
+    reconocedor.lang = 'es-419'
     reconocedor.interimResults = false
     reconocedor.continuous = false
     reconocedor.onresult = (event) => {

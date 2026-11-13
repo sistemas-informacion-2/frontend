@@ -18,6 +18,8 @@ export interface CampoReporte {
   permiteFiltro: boolean
   permiteOrden: boolean
   operadores: OperadorFiltro[]
+  /** Importe en bolivianos (se muestra como "Bs"). */
+  moneda?: boolean
 }
 
 export interface ReporteDefinicion {
@@ -54,9 +56,14 @@ export interface ReportRunRequest {
   offset?: number
 }
 
+/** Cómo se muestra una columna: ver FormatoColumna en reporte-builder.dto.ts del backend. */
+export type FormatoColumna = 'TEXTO' | 'NUMERO' | 'MONEDA' | 'FECHA' | 'BOOLEANO'
+
 export interface ResultadoReporte {
   columns: string[]
   columnLabels: string[]
+  /** Opcional: un resultado guardado sin conexión antes de este campo no lo trae. */
+  columnFormats?: FormatoColumna[]
   rows: Array<Array<string | number | boolean | null>>
   total: number
   /** Solo sin conexion: cuando se guardo este resultado. */

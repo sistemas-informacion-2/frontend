@@ -30,7 +30,8 @@ function leerEnVozAlta(texto: string) {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) return
   window.speechSynthesis.cancel()
   const mensaje = new SpeechSynthesisUtterance(texto)
-  mensaje.lang = 'es-ES'
+  // Español de Latinoamérica: el navegador elige una voz latina si el equipo tiene una instalada.
+  mensaje.lang = 'es-419'
   window.speechSynthesis.speak(mensaje)
 }
 

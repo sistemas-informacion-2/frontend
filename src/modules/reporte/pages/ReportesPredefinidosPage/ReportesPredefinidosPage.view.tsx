@@ -16,6 +16,7 @@ interface ReportesPredefinidosPageViewProps {
   exportando: FormatoExportacion | null
   onSeleccionar: (codigo: string) => void
   onGenerar: () => void
+  onCambiarPagina: (pagina: number) => void
   onExportar: (formato: FormatoExportacion) => void
   onLimpiarError: () => void
 }
@@ -25,6 +26,12 @@ const FORMATOS: { formato: FormatoExportacion; etiqueta: string }[] = [
   { formato: 'excel', etiqueta: 'Excel' },
   { formato: 'html', etiqueta: 'HTML' },
 ]
+
+/** Página que se está viendo, a partir del offset con que se ejecutó (de a `limit` filas). */
+function paginaDe(ejecutado: ReportePredefinidoEjecutado): number {
+  const porPagina = ejecutado.request.limit ?? 50
+  return Math.floor((ejecutado.request.offset ?? 0) / porPagina) + 1
+}
 
 /** Agrupa el catálogo por categoría, conservando el orden en que llega del backend. */
 function agruparPorCategoria(predefinidos: ReportePredefinido[]): Array<{ categoria: string; items: ReportePredefinido[] }> {
@@ -48,6 +55,7 @@ export function ReportesPredefinidosPageView({
   exportando,
   onSeleccionar,
   onGenerar,
+  onCambiarPagina,
   onExportar,
   onLimpiarError,
 }: ReportesPredefinidosPageViewProps) {
@@ -172,9 +180,9 @@ export function ReportesPredefinidosPageView({
                   {resultadoDelSeleccionado && resultadoDelSeleccionado.result.rows.length > 0 ? (
                     <ReportPreviewTable
                       resultado={resultadoDelSeleccionado.result}
-                      pagina={1}
+                      pagina={paginaDe(resultadoDelSeleccionado)}
                       porPagina={resultadoDelSeleccionado.request.limit ?? 50}
-                      onCambiarPagina={() => {}}
+                      onCambiarPagina={onCambiarPagina}
                     />
                   ) : resultadoDelSeleccionado ? (
                     <EmptyState

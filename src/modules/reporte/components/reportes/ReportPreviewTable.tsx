@@ -1,5 +1,6 @@
 import { Pagination } from '@/shared/components/ui/Pagination'
 import type { ResultadoReporte } from '../../reportes.types'
+import { esColumnaNumerica, formatearCeldaReporte } from '../../utils/format'
 
 interface ReportPreviewTableProps {
   resultado: ResultadoReporte
@@ -8,18 +9,11 @@ interface ReportPreviewTableProps {
   onCambiarPagina: (pagina: number) => void
 }
 
-function formatearCelda(valor: unknown): string {
-  if (valor === null || valor === undefined) return '—'
-  if (typeof valor === 'boolean') return valor ? 'Sí' : 'No'
-  if (typeof valor === 'number') {
-    return valor.toLocaleString('es-BO', { maximumFractionDigits: 2 })
-  }
-  return String(valor)
-}
-
-/** Vista previa paginada del resultado del Report Builder. */
+/** Vista previa paginada del resultado del Report Builder. El dinero va con "Bs" y los números a la derecha. */
 export function ReportPreviewTable({ resultado, pagina, porPagina, onCambiarPagina }: ReportPreviewTableProps) {
   const totalPaginas = Math.max(1, Math.ceil(resultado.total / porPagina))
+  const formatos = resultado.columnFormats ?? []
+  const alineacion = (columna: number) => (esColumnaNumerica(formatos[columna]) ? 'text-right tabular-nums' : '')
 
   return (
     <div className="space-y-4">
@@ -33,7 +27,7 @@ export function ReportPreviewTable({ resultado, pagina, porPagina, onCambiarPagi
               {resultado.columnLabels.map((columna, indice) => (
                 <th
                   key={`${columna}-${indice}`}
-                  className="whitespace-nowrap py-3 px-4 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
+                  className={`whitespace-nowrap py-3 px-4 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400 ${alineacion(indice)}`}
                 >
                   {columna}
                 </th>
@@ -47,8 +41,8 @@ export function ReportPreviewTable({ resultado, pagina, porPagina, onCambiarPagi
                   {(pagina - 1) * porPagina + indice + 1}
                 </td>
                 {fila.map((celda, columna) => (
-                  <td key={`${columna}-${indice}`} className="whitespace-nowrap py-2.5 px-4">
-                    {formatearCelda(celda)}
+                  <td key={`${columna}-${indice}`} className={`whitespace-nowrap py-2.5 px-4 ${alineacion(columna)}`}>
+                    {formatearCeldaReporte(celda, formatos[columna])}
                   </td>
                 ))}
               </tr>

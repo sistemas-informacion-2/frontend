@@ -60,9 +60,14 @@ export async function listarReportesPredefinidos(): Promise<ReportePredefinido[]
   return unwrap(response)
 }
 
-export async function ejecutarReportePredefinido(codigo: string): Promise<ReportePredefinidoEjecutado> {
-  return conResultadoGuardado(`predefinido:${codigo}`, async () => {
-    const response = await httpClient.post<Envelope<ReportePredefinidoEjecutado>>(`${BASE}/predefinidos/${codigo}/ejecutar`)
+/** Una página de un predefinido (`offset` = desde qué fila). Cada página se guarda aparte para verla sin conexión. */
+export async function ejecutarReportePredefinido(codigo: string, offset = 0): Promise<ReportePredefinidoEjecutado> {
+  // La primera página conserva la clave de siempre: fechaPredefinidoGuardado la consulta.
+  const clave = offset > 0 ? `predefinido:${codigo}:${offset}` : `predefinido:${codigo}`
+  return conResultadoGuardado(clave, async () => {
+    const response = await httpClient.post<Envelope<ReportePredefinidoEjecutado>>(`${BASE}/predefinidos/${codigo}/ejecutar`, undefined, {
+      params: offset > 0 ? { offset } : undefined,
+    })
     return unwrap(response)
   })
 }
