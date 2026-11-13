@@ -3,7 +3,7 @@ import useSWR from 'swr'
 import { useAuthStore } from '@/core/store/authStore'
 import { getApiErrorMessage } from '@/core/http/errors'
 import { useReconocimientoVoz } from '../../hooks/useReconocimientoVoz'
-import type { FormatoExportacion, ReportRunRequest, ResultadoReporte } from '../../reportes.types'
+import type { ContextoExportacion, FormatoExportacion, ReportRunRequest, ResultadoReporte } from '../../reportes.types'
 import { descargarReporte, ejecutarReporte, generarReporte, obtenerCatalogoReportes } from '../../services/reportes.service'
 import { ReportesGenerativoPageView } from './ReportesGenerativoPage.view'
 
@@ -25,7 +25,10 @@ function descargarBlob(blob: Blob, nombreArchivo: string) {
   URL.revokeObjectURL(url)
 }
 
-/** Lee un texto en voz alta con la síntesis de voz del navegador (es-ES). Sin soporte, no hace nada. */
+/** Se agrega a la interpretación exportada cuando el usuario cambió el reporte con «Refinar». */
+const AVISO_REFINADO = '(Después ajustaste el reporte a mano con «Refinar».)'
+
+/** Lee un texto en voz alta con la síntesis de voz del navegador (es-419). Sin soporte, no hace nada. */
 function leerEnVozAlta(texto: string) {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) return
   window.speechSynthesis.cancel()
@@ -54,6 +57,8 @@ export function ReportesGenerativoPage() {
   const idMensaje = useRef(0)
 
   const [promptOrigen, setPromptOrigen] = useState<string | null>(null)
+  // Lo que va en el encabezado del PDF y del Excel: el pedido que armó el reporte activo y lo que entendió la IA.
+  const [contexto, setContexto] = useState<ContextoExportacion | null>(null)
   const [request, setRequest] = useState<ReportRunRequest | null>(null)
   const [resultado, setResultado] = useState<ResultadoReporte | null>(null)
   const [exportando, setExportando] = useState<FormatoExportacion | null>(null)
@@ -62,6 +67,7 @@ export function ReportesGenerativoPage() {
   const [refinando, setRefinando] = useState(false)
   const [requestAntesDeRefinar, setRequestAntesDeRefinar] = useState<ReportRunRequest | null>(null)
   const [aplicandoRefinar, setAplicandoRefinar] = useState(false)
+  const [paginando, setPaginando] = useState(false)
 
   const voz = useReconocimientoVoz({
     onResultado: (texto) => setPrompt((actual) => (actual ? `${actual} ${texto}` : texto)),
@@ -79,6 +85,7 @@ export function ReportesGenerativoPage() {
       idMensaje.current += 1
       setHistorial((actual) => [...actual, { id: idMensaje.current, prompt: promptActual, interpretacion: respuesta.interpretacion, fuente: respuesta.fuente }])
       setPromptOrigen(promptActual)
+      setContexto({ prompt: promptActual, interpretacion: respuesta.interpretacion })
       setRequest(respuesta.request)
       setResultado(respuesta.result)
       setPrompt('')
@@ -94,6 +101,7 @@ export function ReportesGenerativoPage() {
     setHistorial([])
     setPrompt('')
     setPromptOrigen(null)
+    setContexto(null)
     setRequest(null)
     setResultado(null)
     setError(null)
@@ -115,9 +123,15 @@ export function ReportesGenerativoPage() {
     setAplicandoRefinar(true)
     setError(null)
     try {
-      const resul = await ejecutarReporte(request)
+      const ajustado = { ...request, offset: 0 }
+      const resul = await ejecutarReporte(ajustado)
+      setRequest(ajustado)
       setResultado(resul)
       setRefinando(false)
+      // La interpretación de la IA ya no describe del todo este reporte: el archivo exportado lo aclara.
+      setContexto((actual) =>
+        actual && !actual.interpretacion.endsWith(AVISO_REFINADO) ? { ...actual, interpretacion: `${actual.interpretacion} ${AVISO_REFINADO}` } : actual,
+      )
     } catch (err) {
       setError(getApiErrorMessage(err, 'No se pudo generar el reporte.'))
     } finally {
@@ -144,7 +158,7 @@ export function ReportesGenerativoPage() {
       setExportando(formato)
       setError(null)
       try {
-        const { blob, nombreArchivo } = await descargarReporte(formato, request)
+        const { blob, nombreArchivo } = await descargarReporte(formato, request, contexto ?? undefined)
         descargarBlob(blob, nombreArchivo)
       } catch (err) {
         setError(getApiErrorMessage(err, 'No se pudo generar la descarga.'))
@@ -152,7 +166,26 @@ export function ReportesGenerativoPage() {
         setExportando(null)
       }
     },
-    [exportando, request],
+    [contexto, exportando, request],
+  )
+
+  /** Otra página del reporte activo: misma configuración, desde otra fila. */
+  const cambiarPagina = useCallback(
+    async (pagina: number) => {
+      if (!request || paginando) return
+      const siguiente = { ...request, offset: (pagina - 1) * (request.limit ?? 50) }
+      setPaginando(true)
+      setError(null)
+      try {
+        setResultado(await ejecutarReporte(siguiente))
+        setRequest(siguiente)
+      } catch (err) {
+        setError(getApiErrorMessage(err, 'No se pudo cargar esa página.'))
+      } finally {
+        setPaginando(false)
+      }
+    },
+    [paginando, request],
   )
 
   useEffect(() => () => window.speechSynthesis?.cancel(), [])
@@ -206,6 +239,7 @@ export function ReportesGenerativoPage() {
       }
       onLimiteChange={(limite) => setRequest((actual) => (actual ? { ...actual, limit: limite, offset: 0 } : actual))}
       onExportar={(formato) => void exportar(formato)}
+      onCambiarPagina={(pagina) => void cambiarPagina(pagina)}
       onLimpiarError={() => setError(null)}
     />
   )

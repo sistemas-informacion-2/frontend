@@ -56,6 +56,12 @@ export interface ReportRunRequest {
   offset?: number
 }
 
+/** Del generativo: el pedido y lo que entendió la IA, para el encabezado del PDF y del Excel. */
+export interface ContextoExportacion {
+  prompt: string
+  interpretacion: string
+}
+
 /** Cómo se muestra una columna: ver FormatoColumna en reporte-builder.dto.ts del backend. */
 export type FormatoColumna = 'TEXTO' | 'NUMERO' | 'MONEDA' | 'FECHA' | 'BOOLEANO'
 

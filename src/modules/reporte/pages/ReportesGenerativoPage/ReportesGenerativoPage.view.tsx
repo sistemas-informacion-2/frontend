@@ -53,6 +53,7 @@ interface ReportesGenerativoPageViewProps {
   onFechasChange: (desde?: string, hasta?: string) => void
   onLimiteChange: (limite: number) => void
   onExportar: (formato: FormatoExportacion) => void
+  onCambiarPagina: (pagina: number) => void
   onLimpiarError: () => void
 }
 
@@ -140,6 +141,7 @@ export function ReportesGenerativoPageView({
   onFechasChange,
   onLimiteChange,
   onExportar,
+  onCambiarPagina,
   onLimpiarError,
 }: ReportesGenerativoPageViewProps) {
   const puedeExportar = !!resultado && !exportando
@@ -339,7 +341,8 @@ export function ReportesGenerativoPageView({
                 </div>
               )}
 
-              {resultado.rows.length === 1 ? (
+              {/* Tarjetas solo si todo el reporte es una fila (un total), no si es la última página de una tabla. */}
+              {resultado.total === 1 && resultado.rows.length === 1 ? (
                 <div className="grid gap-4 sm:grid-cols-3">
                   {resultado.columnLabels.map((etiqueta, indice) => (
                     <KpiCard
@@ -350,7 +353,12 @@ export function ReportesGenerativoPageView({
                   ))}
                 </div>
               ) : resultado.rows.length > 0 ? (
-                <ReportPreviewTable resultado={resultado} pagina={1} porPagina={resultado.rows.length} onCambiarPagina={() => {}} />
+                <ReportPreviewTable
+                  resultado={resultado}
+                  pagina={Math.floor((request?.offset ?? 0) / (request?.limit ?? 50)) + 1}
+                  porPagina={request?.limit ?? 50}
+                  onCambiarPagina={onCambiarPagina}
+                />
               ) : (
                 <EmptyState
                   icon={<Search className="h-7 w-7" strokeWidth={1.5} aria-hidden="true" />}
