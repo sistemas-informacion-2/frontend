@@ -54,6 +54,8 @@ export interface ReportRunRequest {
   dateTo?: string
   limit?: number
   offset?: number
+  /** "Los 20 clientes...": tope de filas del reporte (no el tamaño de página). Lo pone el generativo. */
+  top?: number
 }
 
 /** Del generativo: el pedido y lo que entendió la IA, para el encabezado del PDF y del Excel. */
