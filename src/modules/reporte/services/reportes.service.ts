@@ -4,6 +4,7 @@ import { getApiErrorMessage, isNetworkError } from '@/core/http/errors'
 import { ALMACEN_REPORTES, guardar, leerUno } from '@/core/offline/adminOfflineDb'
 import { useAuthStore } from '@/core/store/authStore'
 import type {
+  ContextoExportacion,
   FormatoExportacion,
   PlantillaReporte,
   ReporteDefinicion,
@@ -114,8 +115,9 @@ export async function eliminarPlantilla(id: number): Promise<void> {
 export async function descargarReporte(
   formato: FormatoExportacion,
   request: ReportRunRequest,
+  contexto?: ContextoExportacion,
 ): Promise<{ blob: Blob; nombreArchivo: string }> {
-  const response = await httpClient.post<Blob>(`${BASE}/export`, request, {
+  const response = await httpClient.post<Blob>(`${BASE}/export`, contexto ? { ...request, contexto } : request, {
     params: { format: formato },
     responseType: 'blob',
   })
@@ -136,5 +138,5 @@ export async function descargarPredefinido(formato: FormatoExportacion, codigo: 
 
 function archivoDescargado(blob: Blob, disposicion: string | undefined, formato: FormatoExportacion): { blob: Blob; nombreArchivo: string } {
   const coincidencia = disposicion?.match(/filename="([^"]+)"/)
-  return { blob, nombreArchivo: coincidencia?.[1] ?? `reporte.${formato === 'excel' ? 'xls' : formato}` }
+  return { blob, nombreArchivo: coincidencia?.[1] ?? `reporte.${formato === 'excel' ? 'xlsx' : formato}` }
 }
